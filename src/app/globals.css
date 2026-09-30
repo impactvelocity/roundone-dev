@@ -531,7 +531,34 @@
   }
 }
 
+/* components/pixel-loader.tsx: each edge square lights up in turn, 100ms apart. */
+.pixel-loader {
+  animation: pixel-loader-in 200ms 150ms both;
+}
+.pixel-loader__dot {
+  animation: pixel-loader-step 800ms infinite;
+}
+@keyframes pixel-loader-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes pixel-loader-step {
+  0%,
+  25% {
+    opacity: 1;
+  }
+  25.01%,
+  100% {
+    opacity: 0.2;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .pixel-loader__dot {
+    animation: none;
+    opacity: 0.6;
+  }
   .dropdown__popover,
   .select__popover,
   .combo-box__popover,

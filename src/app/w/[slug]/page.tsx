@@ -1,12 +1,12 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { PixelIcon } from "@/components/pixel-icon";
 import { RewardImage } from "@/components/reward-image";
 import { Eyebrow, LogoMark, PixelCover, cn } from "@/components/ui";
 import { brand } from "@/lib/branding";
-import { getPublicBannerUrl } from "@/lib/hackathons";
+import { getPublicBannerUrl, getViewableHackathon } from "@/lib/hackathons";
 import { getPublicResults, type PublicProject } from "@/lib/public-results";
+import { NotAnnounced, WaitingNotice } from "./not-announced";
 import { ShareButton } from "./share-button";
 
 export async function generateMetadata({ params }: PageProps<"/w/[slug]">) {
@@ -21,7 +21,7 @@ const prizes = (p: PublicProject) => p.tiers.map((t) => t.name).join(" · ");
 export default async function WinnersPage({ params }: PageProps<"/w/[slug]">) {
   const { slug } = await params;
   const [results, bannerUrl] = await Promise.all([getPublicResults(slug), getPublicBannerUrl(slug)]);
-  if (!results) notFound();
+  if (!results) return <NotAnnounced hackathon={await getViewableHackathon(slug)} />;
   const { hackathon, counts, finalists, awards } = results;
 
   const [first, second, third] = finalists;
@@ -71,11 +71,9 @@ export default async function WinnersPage({ params }: PageProps<"/w/[slug]">) {
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-14 px-4 py-12 sm:gap-20 sm:px-8 sm:py-16">
         {!announced && (
-          <section className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-border px-6 py-16 text-center">
-            <PixelIcon name="trophy" size={20} className="text-muted" />
-            <h2 className="text-xl">Winners are on their way</h2>
-            <p className="max-w-md text-sm text-muted">The judges are still deciding. Check back once results are announced.</p>
-          </section>
+          <WaitingNotice title="Winners are on their way">
+            The judges are still deciding. Check back once results are announced.
+          </WaitingNotice>
         )}
 
         {podium.length > 0 && (

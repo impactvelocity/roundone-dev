@@ -1,8 +1,8 @@
 "use client";
 
 import { Fragment, useState, type ReactNode } from "react";
-import Link from "next/link";
 import { Segmented } from "@/components/controls";
+import { IntentLink } from "@/components/intent-link";
 import { PixelIcon } from "@/components/pixel-icon";
 import { Badge, cn } from "@/components/ui";
 import type { ProjectStatus } from "@/lib/data";
@@ -116,12 +116,12 @@ export function ProgressProjects({
                       )}
                       <td className="px-4 py-3 font-pixel text-muted">{formatNumber(r.number)}</td>
                       <td className="max-w-xs px-4 py-3">
-                        <Link href={`/h/${slug}/judging/projects/${r.number}`} className="flex min-w-0 flex-col">
+                        <IntentLink href={`/h/${slug}/judging/projects/${r.number}`} className="flex min-w-0 flex-col">
                           <span className={cn("truncate font-medium hover:underline", r.status !== "active" && "text-muted")}>
                             {r.name}
                           </span>
                           {r.pitch && <span className="truncate text-xs text-muted">{r.pitch}</span>}
-                        </Link>
+                        </IntentLink>
                       </td>
                       {view === "all" && (
                         <td className="px-4 py-3 whitespace-nowrap">{r.phaseName ?? <span className="text-muted">—</span>}</td>

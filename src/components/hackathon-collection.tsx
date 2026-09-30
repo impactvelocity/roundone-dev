@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { Button } from "@heroui/react";
-import type { Hackathon } from "@/lib/data";
+import { STAGE_HOME, type Hackathon } from "@/lib/data";
 import { DEMO_READ_ONLY } from "@/lib/demo";
+import { IntentLink } from "./intent-link";
 import { PixelIcon } from "./pixel-icon";
 import { Badge, ButtonLink, LogoMark, PixelCover, Segments, cn, type Tone } from "./ui";
 
@@ -84,11 +85,12 @@ function SelfHost() {
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
-        <ButtonLink href="/docs/reference/deployment">
-          Self-hosting guide <PixelIcon name="arrow-right" size={12} />
+        {/* New tabs, so the demo stays open behind them. */}
+        <ButtonLink href="/docs/reference/deployment" target="_blank" rel="noreferrer">
+          Self-hosting guide <PixelIcon name="external" size={12} />
         </ButtonLink>
-        <ButtonLink href="/docs" variant="secondary">
-          Read the docs
+        <ButtonLink href="/docs" target="_blank" rel="noreferrer" variant="secondary">
+          Read the docs <PixelIcon name="external" size={12} />
         </ButtonLink>
       </div>
     </div>
@@ -99,9 +101,9 @@ function Shelf({ hackathons, demo }: { hackathons: Hackathon[]; demo: boolean })
   return (
     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
       {hackathons.map((h) => (
-        <Link
+        <IntentLink
           key={h.slug}
-          href={`/h/${h.slug}`}
+          href={`/h/${h.slug}/${STAGE_HOME[h.stage]}`}
           className="brand group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface transition hover:-translate-y-1 hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
           style={{ "--brand": h.color } as CSSProperties}
         >
@@ -137,7 +139,7 @@ function Shelf({ hackathons, demo }: { hackathons: Hackathon[]; demo: boolean })
               {h.setupProgress && <span className="text-sm text-muted">{h.setupProgress}</span>}
             </div>
           </div>
-        </Link>
+        </IntentLink>
       ))}
 
       {demo && hackathons.length === 0 && (
@@ -195,10 +197,10 @@ function Rows({ hackathons, demo }: { hackathons: Hackathon[]; demo: boolean }) 
               style={{ "--brand": h.color } as CSSProperties}
             >
               <td>
-                <Link href={`/h/${h.slug}`} className="flex items-center gap-3">
+                <IntentLink href={`/h/${h.slug}/${STAGE_HOME[h.stage]}`} className="flex items-center gap-3">
                   <LogoMark text={h.logo} src={h.logoUrl} color={h.color} size={28} />
                   <span className="font-pixel text-[15px]">{h.name}</span>
-                </Link>
+                </IntentLink>
               </td>
               <td className="text-muted">{h.dates}</td>
               <td>

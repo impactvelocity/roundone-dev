@@ -4,6 +4,7 @@ import { useState, useTransition, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
+import { IntentLink } from "@/components/intent-link";
 import { SaveError } from "@/components/list-editor";
 import { PixelIcon } from "@/components/pixel-icon";
 import { useReadOnly } from "@/components/read-only";
@@ -235,12 +236,12 @@ export function ProjectsList({
                       </td>
                       <td className="px-4 py-3 font-pixel text-muted">{formatNumber(p.number)}</td>
                       <td className="max-w-md px-4 py-3">
-                        <Link href={href} className="flex min-w-0 flex-col" onClick={(e) => e.stopPropagation()}>
+                        <IntentLink href={href} className="flex min-w-0 flex-col" onClick={(e) => e.stopPropagation()}>
                           <span className={cn("truncate font-medium", p.status !== "active" && "text-muted")}>
                             {name}
                           </span>
                           {pitch && <span className="truncate text-xs text-muted">{pitch}</span>}
-                        </Link>
+                        </IntentLink>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         {phaseName(p.phaseId) ? (

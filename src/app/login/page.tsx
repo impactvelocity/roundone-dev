@@ -26,7 +26,10 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         <p className="text-center text-[15px] text-muted">
           {DEMO_MODE ? (
             <>
-              Want your own? <TextLink href="/docs/reference/deployment">Self-host {brand.name}</TextLink>
+              Want your own?{" "}
+              <TextLink href="/docs/reference/deployment" target="_blank" rel="noreferrer">
+                Self-host {brand.name}
+              </TextLink>
             </>
           ) : (
             <>

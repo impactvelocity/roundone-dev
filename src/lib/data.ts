@@ -3,6 +3,9 @@
 
 export type Stage = "setup" | "judging" | "results";
 
+/** The page each stage opens on, under /h/[slug]/. */
+export const STAGE_HOME: Record<Stage, string> = { setup: "setup/schema", judging: "judging/projects", results: "results" };
+
 export type Hackathon = {
   id: string;
   slug: string;
