@@ -1,0 +1,76 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f23-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f23-stage"] { position: absolute; inset: 0; }
+  </style>
+
+  <div id="root" data-composition-id="23-project" data-width="1920" data-height="1080" data-duration="6.5">
+    <div id="f23-ground" class="clip" data-start="0" data-duration="6.5" data-track-index="0"></div>
+    <div id="f23-stage" class="clip" data-start="0" data-duration="6.5" data-track-index="1"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour/shots.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      var root = document.querySelector('[data-composition-id="23-project"]');
+      var stage = root.querySelector('[id="f23-stage"]');
+      var shot = TK.shot("project");
+
+      // Window + header (built now so TK.ready can wait on the screenshot).
+      var w = TK.window(stage, { url: shot.url, src: shot.src });
+      var h = TK.header(stage, { eyebrow: "Judging <b>›</b> Project", title: "Every round, every judge.", chapter: 2 });
+
+      TK.ready(root).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+        var co = TK.callouts(w, shot.callouts); // 1 Where it landed (banner) · 2 Every judge, averaged (scores)
+
+        // Scene 1 (0.0–1.0): header, then the window rises.
+        TK.showHeader(tl, h, 0.05);
+        TK.showWindow(tl, w, 0.2);
+
+        // Scene 2 (1.0–2.75): push onto the result banner (callout 1's rect, max 1.35).
+        // Anchored high: card + banner sit centered between the header band and y = 900, and the
+        // app's own dark "Judging" nav pill stays under the band's solid paper (no ghost under the stepper).
+        TK.focus(tl, w, 0.9, co[0].rect, { max: 1.35, anchor: [0.5, 0.436] });
+        TK.showCallout(tl, co[0], 1.5);
+
+        // Scene 3 (2.75–4.5): over to the scores panel; callout 2 lands as the camera settles.
+        TK.focus(tl, w, 2.75, co[1].rect);
+        TK.showCallout(tl, co[1], 3.35);
+
+        // Scene 4 (4.5–6.0): pull back and hold. The scores panel sits at the page's bottom edge,
+        // so a plain rest would drop it (and callout 2's card) below y = 900; instead the camera
+        // settles just past rest, on both callouts, fitted between the header band and y = 894
+        // (view top 244 tucks the app's own top bar fully under the band's solid paper).
+        var a = co[0].rect;
+        var b = co[1].rect;
+        var G = 6; // the ring's 6px glow
+        var x0 = Math.min(a.x, b.x) - G;
+        var y0 = Math.min(a.y, b.y);
+        var x1 = Math.max(a.x + a.w, b.x + b.w) + G;
+        var y1 = Math.max(a.y + a.h, b.y + b.h) + G;
+        TK.focus(tl, w, 4.4, [x0, y0, x1 - x0, y1 - y0], {
+          pad: 0, min: 0.5, max: 1, clamp: false,
+          view: { x: 90, y: 244, w: 1740, h: 650 },
+        });
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["23-project"] = tl;
+      });
+    })();
+  </script>
+</template>

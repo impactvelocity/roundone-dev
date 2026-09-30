@@ -1,0 +1,88 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f18-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f18-stage"] { position: absolute; inset: 0; }
+
+    /* night-purple dither tiles: the wipe this frame is entered through, on top of everything */
+    [id="f18-wipe"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 20; pointer-events: none; }
+  </style>
+
+  <div id="root" data-composition-id="18-review" data-width="1920" data-height="1080" data-duration="8.5">
+    <div id="f18-ground" class="clip" data-start="0" data-duration="8.5" data-track-index="0"></div>
+    <div id="f18-stage" class="clip" data-start="0" data-duration="8.5" data-track-index="1">
+      <canvas id="f18-wipe" width="1920" height="1080"></canvas>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour/shots.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 8;
+      var root = document.querySelector('[data-composition-id="18-review"]');
+      var stage = root.querySelector('[id="f18-stage"]');
+      var wipe = root.querySelector('[id="f18-wipe"]');
+      var shot = TK.shot("agent-review");
+
+      // Window at 1240 wide (scale 0.861): at rest the whole window, every ring and every
+      // card sits above y = 900. Header built after it so the headband paints over the camera.
+      var w = TK.window(stage, { url: shot.url, src: shot.src, x: 280, y: 196, width: 1240 });
+      var h = TK.header(stage, { eyebrow: "The agent <b>›</b> Review", title: "Checked, verified, summarized.", chapter: 1 });
+
+      // Copy the shot's callouts (never mutate TOUR_SHOTS); copy stays verbatim. Cards 1 and 2
+      // are re-placed (page px) so they clear the keep-out: card 1 level with the score row, right
+      // of the Scores subtitle, its connector running through the gap under the Scores divider
+      // (y 224 → row text 245); card 2 level with strengths / to improve, below the Scores panel.
+      var list = shot.callouts.map(function (c) { return Object.assign({}, c); });
+      list[1].cardAt = [1222, 177];
+      list[1].to = [1, 0.4];
+      list[2].cardAt = [1046, 609];
+
+      // Camera view: below the headline band, above the keep-out line.
+      var VIEW = { x: 90, y: 250, w: 1740, h: 640 };
+
+      TK.ready(root).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+        // co[0] = 1 Round one, done · co[1] = 2 Feedback for the team · co[2] = 3 A person decides
+        var co = TK.callouts(w, list, { only: [1, 2, 0], numbers: [1, 2, 3] });
+
+        // Scene 1 (0.0–1.0): night tiles clear diagonally, then the header and the window rise.
+        RK.dither(clock, wipe, { start: 0, dur: 0.4, mode: "reveal", color: "#150C2E", angle: "diagonal" });
+        TK.showHeader(tl, h, 0.4);
+        TK.showWindow(tl, w, 0.45);
+
+        // Scene 2 (1.0–2.5): push onto the score row; callout 1 on 1.5.
+        TK.focus(tl, w, 1.0, co[0].rect, { max: 1.5, view: VIEW });
+        TK.showCallout(tl, co[0], 1.5);
+
+        // Scene 3 (2.5–4.0): down to strengths / to improve; callout 2 on 3.25. Held a little
+        // low so the window fills the bottom; card 1 then sits under the opaque headband.
+        TK.focus(tl, w, 2.6, co[1].rect, { view: VIEW, anchor: [0.5, 0.54] });
+        TK.showCallout(tl, co[1], 3.25);
+
+        // Scene 4 (4.0–5.5): up to the "1 needs a person" tag; callout 3 on 4.9. Held high so
+        // the window's top edge meets the headline band instead of leaving a paper gap.
+        TK.focus(tl, w, 4.3, co[2].rect, { view: VIEW, anchor: [0.5, 0.39] });
+        TK.showCallout(tl, co[2], 4.9);
+
+        // Scene 5 (5.5–8.0): pull back to the whole window, every callout in view. Hold.
+        TK.rest(tl, w, 5.9);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["18-review"] = tl;
+      });
+    })();
+  </script>
+</template>

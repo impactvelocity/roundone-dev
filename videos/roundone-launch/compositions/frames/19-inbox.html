@@ -1,0 +1,155 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f19-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f19-stage"] { position: absolute; inset: 0; }
+
+    /* Rings on the email: the kit's .tk-ring look (violet accent set inline), a softer corner for the email's cards */
+    .tk-ring.f19-ring { border-radius: 20px; }
+
+    /* Audit trail card, film style (frame px): rk-mock at x 1300–1800, y 250–860 */
+    [id="f19-audit"] { position: absolute; left: 1300px; top: 250px; width: 500px; height: 610px; box-sizing: border-box; }
+    .f19-ahead { position: absolute; left: 36px; right: 36px; top: 32px; display: flex; align-items: baseline; gap: 12px; white-space: nowrap; }
+    .f19-atitle { font: 600 20px/26px "GeistSans", sans-serif; color: #1D1433; }
+    .f19-asub { font: 400 18px/26px "GeistMono", monospace; color: #8A80A3; }
+    .f19-hair { position: absolute; left: 36px; right: 36px; height: 1px; background: rgba(46,22,88,0.1); }
+    .f19-entry { position: absolute; left: 36px; right: 36px; height: 64px; }
+    .f19-dot { position: absolute; left: 0; top: 9px; width: 12px; height: 12px; border-radius: 3px; box-sizing: border-box; }
+    .f19-dot--agent { background: #7C3AED; }
+    .f19-dot--human { background: #E8318F; }
+    .f19-dot--sub { border: 2px solid #7C3AED; background: #FFFFFF; }
+    .f19-etext { position: absolute; left: 32px; right: 0; top: 0; height: 64px; }
+    .f19-etitle { font: 600 22px/30px "GeistSans", sans-serif; color: #1D1433; white-space: nowrap; }
+    .f19-edetail { margin-top: 6px; font: 400 19px/28px "GeistSans", sans-serif; color: #564B70; white-space: nowrap; }
+    .f19-etime { position: absolute; right: 0; top: 0; font: 400 18px/30px "GeistMono", monospace; color: #8A80A3; white-space: nowrap; }
+  </style>
+
+  <div id="root" data-composition-id="19-inbox" data-width="1920" data-height="1080">
+    <div id="f19-ground" class="clip" data-start="0" data-duration="8" data-track-index="0"></div>
+    <div id="f19-stage" class="clip" data-start="0" data-duration="8" data-track-index="1"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 8;
+      var root = document.querySelector('[data-composition-id="19-inbox"]');
+      var stage = root.querySelector('[id="f19-stage"]');
+
+      // Mail window with the app's real agent-inbox email. height 1100 (not 900): identical at rest
+      // (both run off the frame bottom) but keeps the window's bottom edge out of shot during the 1.2x push.
+      var m = TK.mail(stage, {
+        x: 150, y: 196, width: 1100, height: 1100, zoom: 1.2,
+        src: "assets/tour/email-agent-inbox.png", emailHeight: 1634,
+        subject: "7 projects need your call", from: "RoundOne", fromEmail: "judging@roundone.dev", to: "Dylan (organizer)",
+      });
+      var h = TK.header(stage, { eyebrow: "The agent <b>›</b> Inbox", title: "A person makes the call.", chapter: 1 });
+
+      // Email geometry, measured from the PNG in email css px (680 wide).
+      //   choice boxes (Agree — keep it out | Disagree — back in the pool): 100–580 × 368–507
+      //   "Waiting on you": top 708 · Grant Scout failure card: 100–580 × 741–953
+      var SCROLL = 680; // email css px × zoom — "Waiting on you" arrives just under the headline band
+      function onEmail(cx, cy, cw, ch, scroll, pad) {
+        return {
+          x: m.emailLeft + cx * m.zoom - pad,
+          y: m.emailTop + cy * m.zoom - scroll - pad,
+          w: cw * m.zoom + pad * 2,
+          h: ch * m.zoom + pad * 2,
+        };
+      }
+      var CHOICES = onEmail(100, 368, 480, 139, 0, 8);
+      var FAILURE = onEmail(100, 741, 480, 212, SCROLL, 8);
+
+      function makeRing(r) {
+        var d = document.createElement("div");
+        d.className = "tk-ring f19-ring";
+        d.style.setProperty("--tk-accent", TK.COLORS.violet);
+        d.style.left = r.x + "px";
+        d.style.top = r.y + "px";
+        d.style.width = r.w + "px";
+        d.style.height = r.h + "px";
+        m.layer.appendChild(d);
+        gsap.set(d, { opacity: 0 });
+        return d;
+      }
+      var ringChoices = makeRing(CHOICES);
+      var ringFailure = makeRing(FAILURE);
+
+      // Audit trail card (film style), newest first. Violet = agent, magenta = the organizer;
+      // "Submitted" keeps the app's own violet outline dot.
+      var ENTRIES = [
+        { dot: "human", title: "Back in the pool", detail: "by the organizer", time: "2:14 PM" },
+        { dot: "agent", title: "Agent failed a gate", detail: "Uses Acme SDK · confidence low", time: "1:58 PM" },
+        { dot: "agent", title: "Agent review done", detail: "5 steps · nemotron-3-super", time: "1:57 PM" },
+        { dot: "sub", title: "Submitted", detail: "via the submission form", time: "9:03 AM" },
+      ];
+      var HEAD_RULE = 86;          // header hairline (card px)
+      var SLOT = (610 - HEAD_RULE) / ENTRIES.length; // 131px per entry, 64px rows centred
+      var card = document.createElement("section");
+      card.id = "f19-audit";
+      card.className = "rk-mock";
+      var html = '<div class="f19-ahead"><span class="f19-atitle">Audit trail</span><span class="f19-asub">newest first</span></div>' +
+        '<div class="f19-hair" style="top:' + HEAD_RULE + 'px"></div>';
+      ENTRIES.forEach(function (e, i) {
+        if (i > 0) html += '<div class="f19-hair" style="top:' + (HEAD_RULE + i * SLOT) + 'px"></div>';
+        html += '<div class="f19-entry" style="top:' + (HEAD_RULE + i * SLOT + (SLOT - 64) / 2) + 'px">' +
+          '<span class="f19-dot f19-dot--' + e.dot + '"></span>' +
+          '<div class="f19-etext"><div class="f19-etitle">' + e.title + '</div><div class="f19-edetail">' + e.detail + "</div>" +
+          '<span class="f19-etime">' + e.time + "</span></div></div>";
+      });
+      card.innerHTML = html;
+      // Layered under the mail window: while the camera eases back (4.0–4.9) the card slides out from
+      // behind the window's retreating right edge instead of ghosting over it. At rest they don't touch.
+      stage.insertBefore(card, m.cam);
+      var dots = card.querySelectorAll(".f19-dot");
+      var texts = card.querySelectorAll(".f19-etext");
+
+      function showRing(tl, ring, t) {
+        tl.fromTo(ring, { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 0.24, ease: "steps(3)", transformOrigin: "50% 50%" }, t);
+      }
+
+      TK.ready(root).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+
+        // Scene 1 (0.0–1.0): header rises, then the mail window.
+        TK.showHeader(tl, h, 0.05);
+        TK.showWindow(tl, m, 0.2);
+
+        // Scene 2 (1.0–2.5): slow push toward the two choices (long-tail settle), ring on 1.25.
+        // Anchored a little below centre so the email's title stays in shot above them.
+        TK.focus(tl, m, 1.0, CHOICES, { max: 1.2, anchor: [0.5, 0.58], dur: 1.5, ease: "power3.out" });
+        showRing(tl, ringChoices, 1.25);
+
+        // Scene 3 (2.5–4.0): the email scrolls to "Waiting on you"; the choices ring rides up with
+        // its boxes as it fades; ring on Grant Scout's failure on 3.75.
+        TK.scroll(tl, m, 2.5, SCROLL, { dur: 1.2 });
+        tl.fromTo(ringChoices, { y: 0 }, { y: -SCROLL, duration: 1.2, ease: "power3.inOut", immediateRender: false }, 2.5);
+        tl.fromTo(ringChoices, { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.out", immediateRender: false }, 2.5);
+        showRing(tl, ringFailure, 3.75);
+
+        // Scene 4 (4.0–6.5): camera rests; the audit card slides in from the right; entries stamp newest-first.
+        TK.rest(tl, m, 4.0);
+        tl.fromTo(card, { x: 100, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 4.25);
+        [5.0, 5.25, 5.5, 5.75].forEach(function (t, i) {
+          RK.pop(tl, dots[i], t);
+          tl.fromTo(texts[i], { y: 8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, t);
+        });
+
+        // Scene 5 (6.5–8.0): hold.
+        window.__timelines = window.__timelines || {};
+        window.__timelines["19-inbox"] = tl;
+      });
+    })();
+  </script>
+</template>

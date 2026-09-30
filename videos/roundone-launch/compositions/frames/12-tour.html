@@ -1,0 +1,336 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+    }
+
+    /* ── Ground (track 0): footer art + night scrim + sky sparkles, dither tiles on top ── */
+    #f12t-ground {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    #f12t-push {
+      position: absolute;
+      inset: 0;
+      transform-origin: 50% 50%;
+    }
+    #f12t-art {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    #f12t-scrim {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 55% 45% at 50% 40%, rgba(21,12,46,0.72), rgba(21,12,46,0.35) 60%, transparent 85%);
+    }
+    #f12t-sparks {
+      position: absolute;
+      inset: 0;
+    }
+    .f12t-spark {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+    }
+    .f12t-spark svg {
+      display: block;
+    }
+    #f12t-dither {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ── Stage (track 1) ── */
+    #f12t-stage {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* Headline: Geist Pixel 92px on-dark, centered, line tops at 150 / 256 */
+    #f12t-line1 {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 150px;
+      text-align: center;
+      font-size: 92px;
+      font-weight: 500;
+      line-height: 98px;
+      color: #F7F2FF;
+      white-space: nowrap;
+    }
+    /* Line 2: a plain copy and the sunset copy share one grid cell; the line flicks from one to the other.
+       The 14px padding keeps the descenders inside the gradient's paint box, so the box starts 14px above the line top. */
+    #f12t-line2 {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 242px;
+      display: flex;
+      justify-content: center;
+    }
+    #f12t-l2-cell {
+      display: grid;
+    }
+    #f12t-l2-plain,
+    #f12t-l2-grad {
+      grid-area: 1 / 1;
+      padding: 14px 6px;
+      font-size: 92px;
+      font-weight: 500;
+      line-height: 98px;
+      white-space: nowrap;
+    }
+    #f12t-l2-plain {
+      color: #F7F2FF;
+    }
+    /* keep a real mid-gradient colour for audits; the transparent fill lets the kit's clipped gradient show */
+    #f12t-l2-grad {
+      color: #FB923C;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 10px rgba(24,8,48,.85)) drop-shadow(0 0 2px rgba(24,8,48,.6));
+    }
+
+    /* Lockup: 96px R1 tile + RoundOne, 22px gap, centered, top 420 */
+    #f12t-lockup {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 420px;
+      height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+    }
+    #f12t-logo {
+      position: relative;
+      flex: none;
+      width: 96px;
+      height: 96px;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px -12px rgba(8,3,22,0.7);
+    }
+    /* crop the PNG's glow margin so the icon's squircle fills the tile */
+    #f12t-logo img {
+      position: absolute;
+      left: -3.87px;
+      top: -3.63px;
+      width: 104.13px;
+      height: 106.04px;
+      display: block;
+    }
+    #f12t-word {
+      font-family: "GeistSans", sans-serif;
+      font-weight: 700;
+      font-size: 56px;
+      line-height: 68px;
+      color: #F7F2FF;
+      white-space: nowrap;
+    }
+
+    /* CTA: the arcade button alone, centered; wrapper 560–661 (center y≈610), face 565–647 */
+    #f12t-cta {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 560px;
+      display: flex;
+      justify-content: center;
+    }
+    #f12t-btn-wrap {
+      display: flex;
+    }
+
+    /* Click ripple + cursor ride above everything */
+    #f12t-ripples,
+    #f12t-cursor-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    #f12t-ripples {
+      z-index: 5;
+    }
+    #f12t-cursor-layer {
+      z-index: 6;
+    }
+  </style>
+
+  <div id="root" data-composition-id="12-tour" data-width="1920" data-height="1080" data-duration="6.4">
+    <div id="f12t-ground" class="clip" data-start="0" data-duration="6.4" data-track-index="0">
+      <div id="f12t-push" data-layout-allow-overflow>
+        <img id="f12t-art" src="assets/retro-footer.png" alt="" data-layout-allow-overflow />
+        <div id="f12t-scrim"></div>
+        <div id="f12t-sparks" aria-hidden="true" data-layout-ignore></div>
+      </div>
+      <canvas id="f12t-dither" width="1920" height="1080" aria-hidden="true" data-layout-allow-overflow></canvas>
+    </div>
+
+    <div id="f12t-stage" class="clip" data-start="0" data-duration="6.4" data-track-index="1">
+      <div id="f12t-line1" class="rk-display">Let judges do the part</div>
+      <div id="f12t-line2">
+        <div id="f12t-l2-cell">
+          <span id="f12t-l2-plain" class="rk-display" aria-hidden="true" data-layout-allow-overlap>only people can do.</span>
+          <span id="f12t-l2-grad" class="rk-display rk-sunset-text" data-layout-allow-overlap>only people can do.</span>
+        </div>
+      </div>
+
+      <div id="f12t-lockup">
+        <div id="f12t-logo"><img src="assets/roundone-r1-logo.png" alt="" /></div>
+        <div id="f12t-word">RoundOne</div>
+      </div>
+
+      <div id="f12t-cta">
+        <div id="f12t-btn-wrap">
+          <div id="f12t-btn" class="rk-arcade">Take the tour<span data-rk-icon="arrow-right" data-size="24"></span></div>
+        </div>
+      </div>
+
+      <div id="f12t-ripples" data-layout-ignore></div>
+      <div id="f12t-cursor-layer"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      var tl = gsap.timeline({ paused: true });
+      var clock = RK.clock(tl, DURATION);
+      function $(id) {
+        return document.getElementById(id);
+      }
+
+      var stage = $("f12t-stage");
+      RK.hydrate(stage);
+
+      // ── Ground: very slow push on the art, center-out dither reveal 0.0–0.4s ──
+      tl.fromTo($("f12t-push"), { scale: 1 }, { scale: 1.03, duration: DURATION, ease: "none" }, 0);
+      RK.dither(clock, $("f12t-dither"), { start: 0, dur: 0.4, mode: "reveal", color: "#150C2E", angle: "center" });
+
+      // ── Pixel sparkles on the art's own stars; a diagonal pair twinkles on each beat (none on the 4.5 press) ──
+      var P1 = [0.5, 2.0, 3.5, 5.5];
+      var P2 = [1.0, 2.5, 4.0];
+      var P3 = [1.5, 3.0, 5.0];
+      var SPARKS = [
+        { x: 326, y: 101, c: "#FFFFFF", beats: P1 },
+        { x: 1362, y: 669, c: "#FCD34D", beats: P1 },
+        { x: 1512, y: 119, c: "#FCD34D", beats: P2 },
+        { x: 545, y: 597, c: "#FFFFFF", beats: P2 },
+        { x: 464, y: 334, c: "#FCD34D", beats: P3 },
+        { x: 1577, y: 335, c: "#FFFFFF", beats: P3 },
+      ];
+      var sparkHost = $("f12t-sparks");
+      SPARKS.forEach(function (s) {
+        var el = document.createElement("div");
+        el.className = "f12t-spark";
+        el.style.left = s.x - 15 + "px";
+        el.style.top = s.y - 15 + "px";
+        el.innerHTML =
+          '<svg width="30" height="30" viewBox="0 0 5 5" shape-rendering="crispEdges" fill="' + s.c + '" aria-hidden="true">' +
+          '<g class="f12t-spark-core"><rect x="2" y="1" width="1" height="3"/><rect x="1" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/></g>' +
+          '<g class="f12t-spark-arms"><rect x="2" y="0" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/></g>' +
+          "</svg>";
+        sparkHost.appendChild(el);
+        var core = el.querySelector(".f12t-spark-core");
+        var arms = el.querySelector(".f12t-spark-arms");
+        var last = -1;
+        clock.add(function (t) {
+          // 0 = off, 1 = small plus, 2 = full 5×5 plus — small → full → small across an eighth note
+          var st = 0;
+          for (var i = 0; i < s.beats.length; i++) {
+            var d = t - s.beats[i];
+            if (d >= 0 && d < 0.25) {
+              st = d < 0.0625 || d >= 0.1875 ? 1 : 2;
+              break;
+            }
+          }
+          if (st === last) return;
+          last = st;
+          core.style.opacity = st ? "1" : "0";
+          arms.style.opacity = st === 2 ? "1" : "0";
+        });
+      });
+
+      // ── Scene 1 (0.0–1.5): the line rises in, one line per beat; line 2 flicks to its sunset gradient on 1.1 ──
+      tl.fromTo($("f12t-line1"), { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.5);
+      tl.fromTo($("f12t-line2"), { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 1.0);
+      var l2plain = $("f12t-l2-plain");
+      var l2grad = $("f12t-l2-grad");
+      var lastLit = null;
+      clock.add(function (t) {
+        var lit = t >= 1.1 - 1e-4;
+        if (lit === lastLit) return;
+        lastLit = lit;
+        l2plain.style.opacity = lit ? "0" : "1";
+        l2grad.style.opacity = lit ? "1" : "0";
+      });
+
+      // ── Scene 2 (1.5–3.0): R1 tile pops (first visible step lands on 1.5), RoundOne wipes out beside it in sprite steps ──
+      RK.pop(tl, $("f12t-logo"), 1.44);
+      tl.fromTo(
+        $("f12t-word"),
+        { clipPath: "inset(-15% 100% -15% 0%)" },
+        { clipPath: "inset(-15% -2% -15% 0%)", duration: 0.4, ease: "steps(8)" },
+        1.45,
+      );
+
+      // ── Scene 3 (3.0–4.5): button rises on 3.0 (wrapper — the kit owns the button's own transform);
+      //    the cursor glides in from the bottom right and lands on the button's right half by 4.25 ──
+      tl.fromTo($("f12t-btn-wrap"), { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 3.0);
+
+      var AIM_X = 1060; // right half of the button face, a few px under its center line
+      var AIM_Y = 614;
+      var cursorLayer = $("f12t-cursor-layer");
+      var cur = RK.cursor({ x: 1500, y: 1000 });
+      cur.setAttribute("data-layout-ignore", "");
+      cur.setAttribute("data-layout-allow-occlusion", "");
+      cursorLayer.appendChild(cur);
+      tl.fromTo(cur, { opacity: 0 }, { opacity: 1, duration: 0.01, ease: "none" }, 3.5);
+      tl.fromTo(
+        cur,
+        { x: 1500, y: 1000 },
+        { x: AIM_X, y: AIM_Y, duration: 0.75, ease: "power3.inOut", immediateRender: false },
+        3.5,
+      );
+
+      // ── Scene 4 (4.5–6.0): 8-bit press on 4.5 with a sun-gold pixel ripple; hold, pressed and released ──
+      RK.press(clock, $("f12t-btn"), 4.5);
+      RK.click(clock, cur, $("f12t-ripples"), { t: 4.5, x: AIM_X, y: AIM_Y, color: "#FCD34D", size: 150 });
+      stage.querySelectorAll(".rk-ripple").forEach(function (r) {
+        r.setAttribute("data-layout-ignore", "");
+      });
+      // lockstep: the cursor tip rides the button face down its 12px drop, in the same two steps as RK.press
+      clock.add(function (t) {
+        var d = t - 4.5;
+        var k = 0;
+        if (d >= 0 && d < 0.05) k = 0.5;
+        else if (d >= 0.05 && d < 0.21) k = 1;
+        else if (d >= 0.21 && d < 0.26) k = 0.5;
+        cursorLayer.style.transform = k ? "translateY(" + 12 * k + "px)" : "";
+      });
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["12-tour"] = tl;
+    })();
+  </script>
+</template>

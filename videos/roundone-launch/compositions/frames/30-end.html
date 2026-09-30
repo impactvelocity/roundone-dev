@@ -1,0 +1,396 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+    }
+
+    /* ── Ground (track 0): footer art + night scrim + sky sparkles, dither tiles on top ── */
+    #f30-ground {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    #f30-push {
+      position: absolute;
+      inset: 0;
+      transform-origin: 50% 50%;
+    }
+    #f30-art {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    #f30-scrim {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 55% 45% at 50% 40%, rgba(21,12,46,0.72), rgba(21,12,46,0.35) 60%, transparent 85%);
+    }
+    #f30-sparks {
+      position: absolute;
+      inset: 0;
+    }
+    .f30-spark {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+    }
+    .f30-spark svg {
+      display: block;
+    }
+    #f30-dither {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ── Stage (track 1) ── */
+    #f30-stage {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* Headline: Geist Pixel 100px, centered, line tops at 150 / 262 */
+    #f30-line1,
+    #f30-line2 {
+      position: absolute;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 100px;
+      font-weight: 500;
+      line-height: 106px;
+      white-space: nowrap;
+    }
+    #f30-line1 {
+      top: 150px;
+      color: #F7F2FF;
+    }
+    #f30-line2 {
+      top: 262px;
+      filter: drop-shadow(0 2px 10px rgba(24,8,48,.85)) drop-shadow(0 0 2px rgba(24,8,48,.6));
+    }
+
+    /* Lockup: 104px R1 tile + RoundOne, 24px gap, centered, top 430 */
+    #f30-lockup {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 430px;
+      height: 104px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    #f30-logo {
+      position: relative;
+      flex: none;
+      width: 104px;
+      height: 104px;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px -12px rgba(8,3,22,0.7);
+    }
+    /* crop the PNG's glow margin so the icon's squircle fills the tile */
+    #f30-logo img {
+      position: absolute;
+      left: -4.19px;
+      top: -3.93px;
+      width: 112.81px;
+      height: 114.88px;
+      display: block;
+    }
+    #f30-word {
+      font-family: "GeistSans", sans-serif;
+      font-weight: 700;
+      font-size: 60px;
+      line-height: 72px;
+      color: #F7F2FF;
+      white-space: nowrap;
+    }
+
+    /* CTA row: arcade button + roundone.dev, centered; outline top 580, face 585–667 (center y≈626) */
+    #f30-cta {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 580px;
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 36px;
+    }
+    #f30-btn-wrap {
+      display: flex;
+    }
+    #f30-domain {
+      display: inline-grid;
+      margin-right: -0.59em; /* the reserved caret slot doesn't pull the row off-center */
+      font-family: "GeistMono", monospace;
+      font-size: 30px;
+      font-weight: 400;
+      line-height: 36px;
+      color: #F7F2FF;
+      white-space: nowrap;
+    }
+    #f30-domain .f30-ghost,
+    #f30-domain-typed {
+      grid-area: 1 / 1;
+    }
+    #f30-domain .f30-ghost {
+      visibility: hidden;
+    }
+    #f30-domain-typed {
+      justify-self: start;
+    }
+
+    /* Credit line: ui-sm 22px on-dark-muted, centered at y 800, marks 26px tall */
+    #f30-credit-wrap {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 770px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .f30-credit-scrim {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 1240px;
+      height: 150px;
+      margin-left: -620px;
+      margin-top: -75px;
+      background: radial-gradient(closest-side, rgba(21,12,46,0.55), rgba(21,12,46,0.38) 55%, rgba(21,12,46,0) 100%);
+    }
+    #f30-credit {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 26px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(21, 12, 46, 0.62);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      font-family: "GeistSans", sans-serif;
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1.35;
+      color: #CFC3EA;
+      white-space: nowrap;
+    }
+    #f30-credit img {
+      display: block;
+      flex: none;
+      height: 26px;
+    }
+    #f30-credit .f30-nv {
+      width: 130px;
+    }
+    #f30-credit .f30-nb {
+      width: 94.6px;
+    }
+
+    /* Click ripple + cursor ride above everything */
+    #f30-ripples,
+    #f30-cursor-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    #f30-ripples {
+      z-index: 5;
+    }
+    #f30-cursor-layer {
+      z-index: 6;
+    }
+
+    /* ── Fade (track 2): the film's last half-second dips to black, over everything ── */
+    #f30-fade {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      background: #000000;
+      pointer-events: none;
+    }
+  </style>
+
+  <div id="root" data-composition-id="30-end" data-width="1920" data-height="1080">
+    <div id="f30-ground" class="clip" data-start="0" data-duration="6" data-track-index="0">
+      <div id="f30-push">
+        <img id="f30-art" src="assets/retro-footer.png" alt="" />
+        <div id="f30-scrim"></div>
+        <div id="f30-sparks"></div>
+      </div>
+      <canvas id="f30-dither" width="1920" height="1080"></canvas>
+    </div>
+
+    <div id="f30-stage" class="clip" data-start="0" data-duration="6" data-track-index="1">
+      <div id="f30-line1" class="rk-display">Ready for</div>
+      <div id="f30-line2" class="rk-display rk-sunset-text">round one?</div>
+
+      <div id="f30-lockup">
+        <div id="f30-logo"><img src="assets/roundone-r1-logo.png" alt="" /></div>
+        <div id="f30-word">RoundOne</div>
+      </div>
+
+      <div id="f30-cta">
+        <div id="f30-btn-wrap">
+          <div id="f30-btn" class="rk-arcade">Get started<span data-rk-icon="arrow-right" data-size="24"></span></div>
+        </div>
+        <div id="f30-domain"><span class="f30-ghost" aria-hidden="true">roundone.dev<span class="rk-caret"></span></span><span id="f30-domain-typed"></span></div>
+      </div>
+
+      <div id="f30-credit-wrap">
+        <div class="f30-credit-scrim"></div>
+        <div id="f30-credit">
+          <span>Open source · Self-hosted · Built on</span>
+          <img class="f30-nv" src="assets/nvidia-logo-white.svg" alt="NVIDIA" />
+          <span>Nemotron</span>
+          <span>+</span>
+          <img class="f30-nb" src="assets/nebius-logo.svg" alt="Nebius" />
+          <span>Token Factory</span>
+        </div>
+      </div>
+
+      <div id="f30-ripples"></div>
+      <div id="f30-cursor-layer"></div>
+    </div>
+
+    <div id="f30-fade" class="clip" data-start="0" data-duration="6" data-track-index="2"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      var tl = gsap.timeline({ paused: true });
+      var clock = RK.clock(tl, DURATION);
+      function $(id) {
+        return document.getElementById(id);
+      }
+
+      var stage = $("f30-stage");
+      RK.hydrate(stage);
+
+      // ── Ground: very slow push on the art, center-out dither reveal 0.0–0.4s ──
+      tl.fromTo($("f30-push"), { scale: 1 }, { scale: 1.03, duration: DURATION, ease: "none" }, 0);
+      RK.dither(clock, $("f30-dither"), { start: 0, dur: 0.4, mode: "reveal", color: "#150C2E", angle: "center" });
+
+      // ── Pixel sparkles on the art's own stars; a diagonal pair twinkles on each beat (none on the 3.5 press) ──
+      var P1 = [0.5, 2.0, 4.0, 5.5];
+      var P2 = [1.0, 2.5, 4.5];
+      var P3 = [1.5, 3.0, 5.0];
+      var SPARKS = [
+        { x: 326, y: 101, c: "#FFFFFF", beats: P1 },
+        { x: 1362, y: 669, c: "#FCD34D", beats: P1 },
+        { x: 1512, y: 119, c: "#FCD34D", beats: P2 },
+        { x: 545, y: 597, c: "#FFFFFF", beats: P2 },
+        { x: 464, y: 334, c: "#FCD34D", beats: P3 },
+        { x: 1577, y: 335, c: "#FFFFFF", beats: P3 },
+      ];
+      var sparkHost = $("f30-sparks");
+      SPARKS.forEach(function (s) {
+        var el = document.createElement("div");
+        el.className = "f30-spark";
+        el.style.left = s.x - 15 + "px";
+        el.style.top = s.y - 15 + "px";
+        el.innerHTML =
+          '<svg width="30" height="30" viewBox="0 0 5 5" shape-rendering="crispEdges" fill="' + s.c + '" aria-hidden="true">' +
+          '<g class="f30-spark-core"><rect x="2" y="1" width="1" height="3"/><rect x="1" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/></g>' +
+          '<g class="f30-spark-arms"><rect x="2" y="0" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/></g>' +
+          "</svg>";
+        sparkHost.appendChild(el);
+        var core = el.querySelector(".f30-spark-core");
+        var arms = el.querySelector(".f30-spark-arms");
+        var last = -1;
+        clock.add(function (t) {
+          // 0 = off, 1 = small plus, 2 = full 5×5 plus — small → full → small across an eighth note
+          var st = 0;
+          for (var i = 0; i < s.beats.length; i++) {
+            var d = t - s.beats[i];
+            if (d >= 0 && d < 0.25) {
+              st = d < 0.0625 || d >= 0.1875 ? 1 : 2;
+              break;
+            }
+          }
+          if (st === last) return;
+          last = st;
+          core.style.opacity = st ? "1" : "0";
+          arms.style.opacity = st === 2 ? "1" : "0";
+        });
+      });
+
+      // ── Scene 1 (0.0–1.5): the line rises in, one line per beat ──
+      tl.fromTo($("f30-line1"), { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.5);
+      tl.fromTo($("f30-line2"), { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 1.0);
+
+      // ── Scene 2 (1.5–3.0): R1 tile pops (first visible step lands on 1.5), RoundOne wipes out beside it in sprite steps ──
+      RK.pop(tl, $("f30-logo"), 1.44);
+      tl.fromTo(
+        $("f30-word"),
+        { clipPath: "inset(-15% 100% -15% 0%)" },
+        { clipPath: "inset(-15% -2% -15% 0%)", duration: 0.4, ease: "steps(8)" },
+        1.45,
+      );
+      // CTA row: button rises on 2.0 (wrapper — the kit owns the button's own transform), URL types from 2.25
+      tl.fromTo($("f30-btn-wrap"), { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 2.0);
+      RK.type(clock, $("f30-domain-typed"), "roundone.dev", { start: 2.25 });
+
+      // ── Scene 3 (3.0–4.0): cursor decelerates in from bottom right, human-aimed a few px off center, 8-bit press on 3.5 ──
+      var AIM_X = 840; // button face center ≈ (834, 626)
+      var AIM_Y = 630;
+      var cursorLayer = $("f30-cursor-layer");
+      var cur = RK.cursor({ x: 1500, y: 1000 });
+      cursorLayer.appendChild(cur);
+      tl.fromTo(cur, { opacity: 0 }, { opacity: 1, duration: 0.01, ease: "none" }, 3.0);
+      tl.fromTo(cur, { x: 1500 }, { x: AIM_X, duration: 0.4, ease: "power2.out", immediateRender: false }, 3.0);
+      tl.fromTo(cur, { y: 1000 }, { y: AIM_Y, duration: 0.4, ease: "power3.out", immediateRender: false }, 3.0);
+
+      RK.press(clock, $("f30-btn"), 3.5);
+      RK.click(clock, cur, $("f30-ripples"), { t: 3.5, x: AIM_X, y: AIM_Y, color: "#FCD34D", size: 150 });
+      // lockstep: the cursor tip rides the button face down its 12px drop, in the same two steps as RK.press
+      clock.add(function (t) {
+        var d = t - 3.5;
+        var k = 0;
+        if (d >= 0 && d < 0.05) k = 0.5;
+        else if (d >= 0.05 && d < 0.21) k = 1;
+        else if (d >= 0.21 && d < 0.26) k = 0.5;
+        cursorLayer.style.transform = k ? "translateY(" + 12 * k + "px)" : "";
+      });
+
+      // ── Scene 4 (4.0–6.0): credit line rises on 4.0, cursor eases aside on 4.5, hold the end card ──
+      tl.fromTo($("f30-credit-wrap"), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 4.0);
+      tl.fromTo(
+        cur,
+        { x: AIM_X, y: AIM_Y },
+        { x: 1000, y: 690, duration: 0.6, ease: "power3.inOut", immediateRender: false },
+        4.5,
+      );
+
+      // ── Final frame of the film (5.5–6.0): full-frame black layer fades up — the only exit ──
+      tl.fromTo($("f30-fade"), { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "none" }, 5.5);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["30-end"] = tl;
+    })();
+  </script>
+</template>

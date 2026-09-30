@@ -1,0 +1,344 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f13-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f13-stage"] { position: absolute; inset: 0; }
+
+    /* ── The rebuilt /new page (src/app/new/new-hackathon.tsx), page px 1440×900 ── */
+    .f13-page {
+      position: absolute; left: 0; top: 0; width: 1440px; height: 900px;
+      font-family: "GeistSans", sans-serif; color: #1A1530;
+      background-color: #F9F9FB;
+      background-image: radial-gradient(circle at 1px 1px, rgba(26,21,48,0.10) 1px, transparent 0);
+      background-size: 22px 22px;
+    }
+    .f13-nav {
+      position: absolute; left: 0; top: 0; width: 1440px; height: 64px; padding-left: 112px;
+      display: flex; align-items: center; gap: 14px;
+      background: #FFFFFF; border-bottom: 2px solid #E6E1F0;
+    }
+    .f13-logo { display: block; width: 32px; height: 32px; border-radius: 8px; }
+    .f13-slash { font: 300 20px/1 "GeistSans", sans-serif; color: #CBC6D8; }
+    .f13-crumb { font: 500 18px/1 "GeistPixelSquare", sans-serif; color: #1A1530; white-space: nowrap; }
+    .f13-crumb--muted { color: #625D78; }
+
+    .f13-form { position: absolute; left: 160px; top: 120px; width: 714px; }
+    .f13-h1 { margin: 0; font: 500 36px/1 "GeistPixelSquare", sans-serif; letter-spacing: -0.01em; color: #1A1530; }
+    .f13-fields { margin-top: 32px; display: flex; flex-direction: column; gap: 20px; }
+    .f13-field { display: flex; flex-direction: column; gap: 8px; }
+    .f13-field--date { gap: 6px; }
+    .f13-labelrow { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .f13-label { font: 500 15px/22px "GeistSans", sans-serif; color: #1A1530; }
+    .f13-hint { font: 400 14px/20px "GeistSans", sans-serif; color: #625D78; }
+    .f13-input {
+      position: relative; display: flex; align-items: center; height: 44px; padding: 0 14px;
+      background: #FFFFFF; border: 2px solid #E6E1F0; border-radius: 10px;
+      box-shadow: inset 0 2px 0 0 rgba(0,0,0,0.03);
+      font: 400 15px/1 "GeistSans", sans-serif; color: #1A1530;
+    }
+    .f13-input.f13-focus { border-color: #6E56E7; box-shadow: 0 0 0 4px rgba(110,86,231,0.16), inset 0 2px 0 0 rgba(0,0,0,0.03); }
+    .f13-val { white-space: pre; line-height: 20px; }
+    .f13-date { gap: 10px; }
+    .f13-seg { display: inline-block; white-space: nowrap; line-height: 20px; }
+    .f13-sep { color: #8A80A3; }
+    .f13-cal { margin-left: auto; display: flex; color: #8A80A3; }
+
+    .f13-actions { margin-top: 32px; display: flex; gap: 8px; }
+    .f13-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px;
+      border-radius: 10px; font: 600 15px/1 "GeistSans", sans-serif; white-space: nowrap;
+    }
+    .f13-btn--primary {
+      background: #6E56E7; color: #FFFFFF;
+      box-shadow: inset 0 -3px 0 0 rgba(0,0,0,0.2), inset 0 1px 0 0 rgba(255,255,255,0.18);
+    }
+    .f13-btn--primary.f13-pressed { transform: translateY(2px); box-shadow: inset 0 -1px 0 0 rgba(0,0,0,0.2); }
+    .f13-btn--ghost { background: transparent; color: #1A1530; }
+
+    .f13-preview { position: absolute; left: 930px; top: 120px; width: 320px; display: flex; flex-direction: column; gap: 12px; }
+    .f13-eyebrow { font: 500 12px/16px "GeistPixelSquare", sans-serif; letter-spacing: 0.025em; text-transform: uppercase; color: #625D78; }
+    .f13-card { overflow: hidden; border: 1px solid #E6E1F0; border-radius: 18px; background: #FFFFFF; }
+    .f13-cover { position: relative; height: 176px; overflow: hidden; background: #F3F1FD; background: color-mix(in oklab, #6E56E7 8%, white); }
+    .f13-cover svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+    .f13-markbox { position: absolute; left: 24px; top: 24px; width: 40px; height: 40px; }
+    .f13-mark {
+      position: absolute; left: 0; top: 0; width: 40px; height: 40px; display: grid; place-items: center;
+      border-radius: 6px; background: #6E56E7; color: #FFFFFF; font: 500 16px/1 "GeistPixelSquare", sans-serif;
+      box-shadow: inset 0 -3px 0 0 rgba(0,0,0,0.2), inset 0 1px 0 0 rgba(255,255,255,0.18);
+    }
+    .f13-card-body { display: flex; flex-direction: column; gap: 4px; padding: 24px; }
+    .f13-pname { font: 500 20px/28px "GeistPixelSquare", sans-serif; color: #1A1530; white-space: pre; }
+    .f13-pdates { font: 400 14px/20px "GeistSans", sans-serif; color: #625D78; white-space: nowrap; }
+  </style>
+
+  <div id="root" data-composition-id="13-create" data-width="1920" data-height="1080" data-duration="8.5">
+    <div id="f13-ground" class="clip" data-start="0" data-duration="8.5" data-track-index="0"></div>
+    <div id="f13-stage" class="clip" data-start="0" data-duration="8.5" data-track-index="1"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 8;
+      var root = document.querySelector('[data-composition-id="13-create"]');
+      var stage = root.querySelector('[id="f13-stage"]');
+
+      // Beat map (frame-local seconds, 120 BPM grid).
+      var NAME = "Agent Hacks 2026";
+      var TAGLINE = "Build agents that ship real work.";
+      var T_NAME = 1.0, CPS_NAME = 20;                   // types 1.0 → 1.8
+      var T_MARK = 2.0;                                   // AH pops, cover re-seeds
+      var T_TAG = 2.5, CPS_TAG = TAGLINE.length / 0.9;    // types 2.5 → 3.4
+      var T_START = 4.0, T_END = 4.25, T_LINE = 4.5;      // dates fill, preview line swaps
+      var T_CALLOUT = 5.0;
+      var T_GLIDE = 5.875, T_ARRIVE = 6.4, T_CLICK = 6.5, T_PENDING = 6.6;
+
+      // Pixel cover, seeded like the app (`name || "new"`): the empty-name cover until 2.0, then a
+      // 4-step re-seed flicker through the name's prefixes that lands on the cover for the full name.
+      var BRAND = "#6E56E7";
+      var COVER_SEEDS = ["new", "Agent", "Agent Hacks", "Agent Hacks 20", NAME];
+      var COVER_AT = [0, 2.0, 2.0625, 2.125, 2.1875];
+
+      // Port of the app's PixelCover (src/components/ui.tsx): FNV-1a hash of the seed, the same
+      // multiply-xorshift stream, a 24×12 grid mirrored left/right, denser toward the bottom,
+      // cells in the brand color at opacity o × 0.55, stretched over the box.
+      function coverHash(s) {
+        var h = 2166136261;
+        for (var i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+        return h >>> 0;
+      }
+      function coverSVG(seed) {
+        var W = 24, H = 12;
+        var h = coverHash(seed);
+        function rand() {
+          h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0;
+          h = Math.imul(h ^ (h >>> 13), 3266489909) >>> 0;
+          return ((h ^= h >>> 16) >>> 0) / 4294967296;
+        }
+        var rects = [];
+        for (var y = 0; y < H; y++) {
+          for (var x = 0; x < W / 2; x++) {
+            var p = 0.08 + (y / H) * 0.55;
+            if (rand() < p) {
+              var op = ((0.25 + rand() * 0.75) * 0.55).toFixed(3);
+              rects.push(
+                '<rect x="' + x + '" y="' + y + '" width="1" height="1" opacity="' + op + '"/>',
+                '<rect x="' + (W - 1 - x) + '" y="' + y + '" width="1" height="1" opacity="' + op + '"/>'
+              );
+            }
+          }
+        }
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+        svg.setAttribute("preserveAspectRatio", "none");
+        svg.setAttribute("shape-rendering", "crispEdges");
+        svg.setAttribute("fill", BRAND);
+        svg.setAttribute("aria-hidden", "true");
+        svg.innerHTML = rects.join("");
+        return svg;
+      }
+
+      var PAGE = [
+        '<div class="f13-page" id="f13-page">',
+          '<div class="f13-nav">',
+            '<img class="f13-logo" src="assets/roundone-r1-logo.png" alt="">',
+            '<span class="f13-slash">/</span>',
+            '<span class="f13-crumb f13-crumb--muted">Hackathons</span>',
+            '<span class="f13-slash">/</span>',
+            '<span class="f13-crumb">New</span>',
+          '</div>',
+          '<div class="f13-form" id="f13-form">',
+            '<h1 class="f13-h1">Start a hackathon</h1>',
+            '<div class="f13-fields">',
+              '<div class="f13-field">',
+                '<div class="f13-labelrow"><span class="f13-label">Name</span></div>',
+                '<div class="f13-input" id="f13-name"><span class="f13-val" id="f13-name-val"></span></div>',
+              '</div>',
+              '<div class="f13-field">',
+                '<div class="f13-labelrow"><span class="f13-label">Tagline</span><span class="f13-hint">optional</span></div>',
+                '<div class="f13-input" id="f13-tag"><span class="f13-val" id="f13-tag-val"></span></div>',
+              '</div>',
+              '<div class="f13-field f13-field--date">',
+                '<div class="f13-labelrow"><span class="f13-label">Dates</span></div>',
+                '<div class="f13-input f13-date" id="f13-dates">',
+                  '<span class="f13-seg" id="f13-start">10/1/2026</span>',
+                  '<span class="f13-seg f13-sep" id="f13-sep">–</span>',
+                  '<span class="f13-seg" id="f13-end">10/5/2026</span>',
+                  '<span class="f13-cal">' + RK.icon("calendar", 18) + '</span>',
+                '</div>',
+              '</div>',
+            '</div>',
+            '<div class="f13-actions">',
+              '<div class="f13-btn f13-btn--primary" id="f13-create"><span id="f13-create-label">Create &amp; set up</span>' + RK.icon("arrow-right", 16) + '</div>',
+              '<div class="f13-btn f13-btn--ghost">Cancel</div>',
+            '</div>',
+          '</div>',
+          '<div class="f13-preview" id="f13-preview">',
+            '<span class="f13-eyebrow">Preview</span>',
+            '<div class="f13-card" id="f13-card">',
+              '<div class="f13-cover" id="f13-cover">',
+                '<div class="f13-markbox" id="f13-markbox">',
+                  '<span class="f13-mark" id="f13-mark-q">?</span>',
+                  '<span class="f13-mark" id="f13-mark">AH</span>',
+                '</div>',
+              '</div>',
+              '<div class="f13-card-body">',
+                '<span class="f13-pname" id="f13-pname">Untitled hackathon</span>',
+                '<span class="f13-pdates" id="f13-pdates">Dates TBD · setup</span>',
+              '</div>',
+            '</div>',
+          '</div>',
+        '</div>',
+      ].join("");
+
+      // Window first, header second (the header band sits above the camera).
+      var w = TK.window(stage, { url: "roundone.dev/new", html: PAGE });
+      var h = TK.header(stage, { eyebrow: "Setup <b>›</b> New hackathon", title: "Start a hackathon.", chapter: 0 });
+
+      function $(id) { return w.slot.querySelector('[id="' + id + '"]'); }
+      var pageEl = $("f13-page");
+      var nameBox = $("f13-name"), nameVal = $("f13-name-val");
+      var tagBox = $("f13-tag"), tagVal = $("f13-tag-val");
+      var dateBox = $("f13-dates"), startVal = $("f13-start"), sepEl = $("f13-sep"), endVal = $("f13-end");
+      var createBtn = $("f13-create"), createLabel = $("f13-create-label");
+      var cover = $("f13-cover"), markBox = $("f13-markbox"), markQ = $("f13-mark-q"), markAH = $("f13-mark");
+      var pname = $("f13-pname"), pdates = $("f13-pdates");
+
+      // The pixel cover: one layer per seed, stacked under the mark; the clock shows one at a time.
+      var coverLayers = COVER_SEEDS.map(function (seed) {
+        var svg = coverSVG(seed);
+        cover.insertBefore(svg, markBox);
+        return svg;
+      });
+
+      // The callout: kit card markup in the window's layer, no ring (advice, not a pointer).
+      var card = document.createElement("div");
+      card.className = "tk-card";
+      card.style.setProperty("--tk-accent", "#EA6A2C");
+      card.style.width = "320px";
+      card.innerHTML = '<span class="tk-num">1</span><div><h3>Host it anywhere</h3>' +
+        "<p>Run it on Devpost — our pick — or anywhere else. Projects come in by form or API.</p></div>";
+      w.layer.appendChild(card);
+
+      // The page cursor rides the camera in the window's layer.
+      var cur = RK.cursor({ x: 700, y: 860, size: 2 });
+      w.layer.appendChild(cur);
+
+      // Layout position of an element in page px (offset chain, immune to transforms).
+      function pageRect(el) {
+        var x = 0, y = 0, e = el;
+        while (e && e !== pageEl) { x += e.offsetLeft; y += e.offsetTop; e = e.offsetParent; }
+        return { x: x, y: y, w: el.offsetWidth, h: el.offsetHeight };
+      }
+      function toggle(el, name, on) {
+        if (on) el.classList.add(name);
+        else el.classList.remove(name);
+      }
+      // Characters of the name typed at t — the same count RK.type draws.
+      function typedName(t) {
+        return t < T_NAME ? 0 : Math.min(NAME.length, Math.floor((t - T_NAME) * CPS_NAME + 1e-6));
+      }
+
+      TK.ready(root).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+
+        // Measure the laid-out page (fonts are in), dock the callout under the preview card.
+        var formR = pageRect($("f13-form"));
+        var previewR = pageRect($("f13-preview"));
+        var cardR = pageRect($("f13-card"));
+        createBtn.style.width = createBtn.offsetWidth + "px"; // "Creating…" must not reflow the row
+        var btnR = pageRect(createBtn);
+        var co = { x: previewR.x, y: cardR.y + cardR.h + 24 };
+        card.style.left = co.x + "px";
+        card.style.top = co.y + "px";
+        var coR = { x: co.x, y: co.y, w: card.offsetWidth, h: card.offsetHeight };
+        var x0 = Math.min(formR.x, previewR.x);
+        var y0 = Math.min(formR.y, previewR.y);
+        var x1 = Math.max(formR.x + formR.w, previewR.x + previewR.w, coR.x + coR.w);
+        var y1 = Math.max(formR.y + formR.h, previewR.y + previewR.h, coR.y + coR.h);
+        var content = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+
+        // ── Scene 1 (0.0–1.0): header rises, then the window ──
+        TK.showHeader(tl, h, 0.05);
+        TK.showWindow(tl, w, 0.2);
+
+        // ── Scene 2 (1.0–2.5): push in on form + preview (framed with room for the callout below,
+        //    clear of the header band and the y=900 keep-out); the name types, the preview follows ──
+        var cam = TK.focus(tl, w, 0.9, content, { max: 1.25, pad: 0, view: { x: 120, y: 262, w: 1680, h: 612 } });
+
+        RK.type(clock, nameVal, NAME, { start: T_NAME, cps: CPS_NAME });
+        var pnameLast = null;
+        clock.add(function (t) {
+          var n = typedName(t);
+          var s = n ? NAME.slice(0, n) : "Untitled hackathon";
+          if (s !== pnameLast) { pname.textContent = s; pnameLast = s; }
+        });
+
+        // 2.0: the AH mark pops over the "?" and the cover re-seeds in 4 steps.
+        RK.pop(tl, markAH, T_MARK);
+        var coverLast = -1;
+        clock.add(function (t) {
+          markQ.style.visibility = t < T_MARK + 0.12 ? "visible" : "hidden";
+          var k = 0;
+          for (var i = COVER_AT.length - 1; i >= 0; i--) {
+            if (t >= COVER_AT[i]) { k = i; break; }
+          }
+          if (k === coverLast) return;
+          coverLast = k;
+          for (var j = 0; j < coverLayers.length; j++) coverLayers[j].style.visibility = j === k ? "visible" : "hidden";
+        });
+
+        // ── Scene 3 (2.5–4.5): tagline types; the dates fill on 4.0 / 4.25; the preview line swaps on 4.5 ──
+        RK.type(clock, tagVal, TAGLINE, { start: T_TAG, cps: CPS_TAG });
+        tl.fromTo(startVal, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.12, ease: "steps(2)" }, T_START);
+        tl.fromTo([sepEl, endVal], { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.12, ease: "steps(2)" }, T_END);
+        RK.states(clock, pdates, [
+          { t: 0, text: "Dates TBD · setup" },
+          { t: T_LINE, text: "Oct 1–5 · setup" }, // formatDates("2026-10-01", "2026-10-05") + " · setup"
+        ]);
+        tl.fromTo(pdates, { y: 6, opacity: 0.35 }, { y: 0, opacity: 1, duration: 0.12, ease: "steps(2)", immediateRender: false }, T_LINE);
+
+        // Focus follows the typing (Name is autofocused), the button unlocks with the first character,
+        // presses on the click and goes pending.
+        clock.add(function (t) {
+          toggle(nameBox, "f13-focus", t < T_TAG);
+          toggle(tagBox, "f13-focus", t >= T_TAG && t < T_START);
+          toggle(dateBox, "f13-focus", t >= T_START && t < T_CLICK);
+          createBtn.style.opacity = typedName(t) < 1 ? "0.5" : t >= T_PENDING ? "0.75" : "1";
+          toggle(createBtn, "f13-pressed", t >= T_CLICK - 0.04 && t < T_PENDING);
+        });
+
+        // ── Scene 4 (4.5–6.0): the callout pops on 5.0 (the kit's stepped card pop) ──
+        tl.fromTo(card, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1.1, duration: 0.12, ease: "steps(2)", transformOrigin: "50% 50%" }, T_CALLOUT);
+        tl.fromTo(card, { scale: 1.1 }, { scale: 1, duration: 0.12, ease: "steps(2)", immediateRender: false }, T_CALLOUT + 0.12);
+
+        // ── Scene 5 (6.0–8.0): the cursor comes up from below the frame onto "Create & set up" by 6.4,
+        //    clicks on 6.5, the label steps to "Creating…" on 6.6. Hold. ──
+        // Tip on the arrow end of the button, so the cursor's body never hides the label.
+        var AIM = { x: Math.round(btnR.x + btnR.w * 0.84), y: Math.round(btnR.y + btnR.h * 0.6) };
+        var C0 = { x: 700, y: Math.ceil((1120 - cam.y) / cam.scale - (w.y + w.pageTop)) };
+        tl.fromTo(cur, { opacity: 0 }, { opacity: 1, duration: 0.01, ease: "none" }, T_GLIDE);
+        tl.fromTo(cur, { x: C0.x, y: C0.y }, { x: AIM.x, y: AIM.y, duration: T_ARRIVE - T_GLIDE, ease: "power3.out", immediateRender: false }, T_GLIDE);
+        RK.click(clock, cur, w.layer, { t: T_CLICK, x: AIM.x, y: AIM.y, size: 72 });
+        RK.states(clock, createLabel, [
+          { t: 0, text: "Create & set up" },
+          { t: T_PENDING, text: "Creating…" },
+        ]);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["13-create"] = tl;
+      });
+    })();
+  </script>
+</template>

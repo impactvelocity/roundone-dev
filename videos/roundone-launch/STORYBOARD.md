@@ -1,8 +1,8 @@
 ---
 format: 1920x1080
-duration: 66s
+duration: 204s
 message: "RoundOne's NVIDIA Nemotron agent on Nebius checks every hackathon project, so human judges can focus on the ideas."
-arc: Hook → Problem → Reveal → Mechanism (intake, agent, stack) → Humans decide → Audit → Rounds to winners → CTA
+arc: Hook → Problem → Reveal → Mechanism (intake, agent, stack) → Humans decide → Audit → Rounds to winners → Tour of the app (setup → the agent → judging → results) → CTA
 audience: Companies and DevRel teams that run hackathons, and the organizers and judges who run them
 mode: autonomous
 music: none
@@ -12,19 +12,30 @@ beat_grid: "4/4 at 120 BPM — beat 0.5s, bar 2s; every frame starts on a bar li
 
 # RoundOne launch film — storyboard
 
-Silent build (no narration, no music yet). The on-screen copy in each frame IS the film's voice. Every frame starts on a bar line of a 120 BPM grid so music can be laid in later; hits land on beats.
+Built silent, then scored: the user's track and an ElevenLabs voiceover ride on top (kit/add-overlays.mjs, kit/carve-music.mjs). Frames 1–12 are the story (0:00–1:06); frames 13–30 are the app tour (1:06–3:24), narrated from VOICEOVER.md. Every frame starts on a bar line of a 120 BPM grid so music can be laid in later; hits land on beats.
 
 ## Video direction
 
 - **Look:** `frame.md` — clean Notion-style product film (paper ground, floating white cards, big confident Geist Pixel headlines, generous margins) with a retro-arcade play layer (pixel icons, pixel cursor, segmented health-bar meters, 8-bit buttons, stepped sprite motion, pixel confetti, dither wipes). Violet = the agent, magenta = humans, everywhere.
-- **Grounds by frame:** art (retro-hero) 1, 4 · paper 2, 3, 5, 6, 8, 9, 10, 11 · night 7 · art (retro-footer) 12.
+- **Grounds by frame:** art (retro-footer — solid, no white fade) 1, 4, 12, 30 · paper 2, 3, 5, 6, 8, 9, 10, 11 and the tour frames 13–16, 18–29 · night 7, 17 (16 ends on night for the hand-off).
 - **Motion grammar:** UI moves smoothly (`power3.out`, small rises); retro elements move in steps. Reveals land on the beat grid (0.5s beats, eighths allowed for pickups) and keep arriving across the whole frame; the last beat of each frame is a readable hold. No bounce on UI, no lazy breathing, no drift on content (the art backdrops may creep in scale very slightly).
 - **Headline position (paper frames):** a consistent title band — eyebrow at x=120, y≈104; headline top at y≈140. Frame 8 centers its headline. Art/night frames center their type.
 - **Held beats:** frame 4's lockup (last 2.5s), frame 8's split (last 1.5s) and frame 12's end card (last 2s) are deliberate holds.
 - **Transitions (assembler-owned, not built in frames):** 1→2 push-slide UP (the sky scrolls away into the page) · 2→3, 8→9, 10→11 push-slide LEFT · 5→6, 9→10 zoom-through · 3→4, 4→5, 6→7, 7→8, 11→12 a **pixel-dither wipe**: an overlay covers the outgoing frame in night-purple Bayer tiles over its last 0.35s, then the incoming frame reveals itself from full night-purple tiles over its first 0.4s (frames 4, 5, 7, 8, 12 build that reveal themselves — see each block).
 - **Negative list:** no "AI" purple-blue glow blobs or bokeh, no emoji, no invented metrics/testimonials, no scrollbars or browser chrome except the winners page's minimal header, no everything-at-once slide dumps, no floating screensaver motion.
 
+## Tour direction (frames 13–30)
+
+- **The real app, in a browser window.** `assets/tour-kit.js` (TK) puts a 1440×900 app screenshot (captured at 2×, `assets/tour/raw/`) in a window at x 240, y 196, scale 1 — so the app shows at its native size — with the landing tour's callouts (`assets/tour/shots.js`: ring + numbered dark card + connector). A camera pushes in on each callout as it lands, then rests. Rebuilt screens (the /new page, the not-started Progress page) go in the same window as HTML. The app's real emails (`assets/tour/email-*.png`, rendered from src/emails) sit in a TK mail window.
+- **Reference implementation:** `compositions/frames/14-schema.html` — every tour frame follows its structure (paper ground clip, stage clip, `TK.window` + `TK.header`, build inside `TK.ready(root).then(…)`, register the timeline at the end of that callback).
+- **Header band:** eyebrow `Chapter › Screen` + a Geist Pixel 58px title top-left, and a chapter stepper top-right — Setup · The agent · Judging · Results — with the current chapter filled. It rides on a paper fade the camera slides under.
+- **Keep-out:** the app window may run off the bottom edge of the frame (a device-shot bleed); every piece of text the film adds (header, callout cards, film cards, tags) stays above y=900.
+- **Chapters and wipes:** a pixel-dither wipe marks each chapter change — into 16 (The agent), 18 (back to paper), 20 (Judging), 26 (Results) and 30 (end card); the rest of the tour moves by push-slides LEFT (a page turn through the app) and zoom-throughs where a click leads somewhere (12→13, 20→21, 28→29).
+- **Pacing:** camera moves 0.8–0.9s `power3.inOut`; callouts pop on beats; each frame ends on a readable hold. Frame lengths are whole bars (2s) so the music stays on the grid.
+
 ## Frame 1 — Hook
+
+> Revised: the ground is now `assets/retro-footer.png` (solid neon-floor city) instead of `assets/retro-hero.png`, whose bottom third fades to white.
 
 - scene: Night-sky pixel art; a question types in, then "Run a hackathon." slams in with three +pickup chips
 - voiceover: ""
@@ -148,6 +159,8 @@ Scene 3 (3.5–6.0s): at 3.5s headline A lifts out and headline B rises in (`Hum
 
 ## Frame 4 — ROUND 1
 
+> Revised: the ground is now `assets/retro-footer.png` (solid neon-floor city) instead of `assets/retro-hero.png`, whose bottom third fades to white.
+
 - scene: Arcade "ROUND 1" slams onto the pixel sky, condenses into the R1 logo, and the promise lands
 - voiceover: ""
 - duration: 6s
@@ -251,7 +264,7 @@ Adapt: keep the working-state theater → receipt cascade (rows arrive, check of
 
 **On-screen copy (render verbatim):**
 - Eyebrow: `ROUND ONE · THE AGENT`
-- Headline, one line, three states swapped in place (`every` never moves): `Builds every repo.` → `Watches every demo.` → `Visits every live site.`
+- Headline, one line, three states swapped in place (`every` never moves): `Builds every repo.` → `Tests every build.` → `Checks every claim.` (changed from Watches every demo / Visits every live site: the agent reads transcripts, it doesn't watch videos)
 - Card header: mark `RW`, `Repo Whisperer`, `Project #042 · Coding and Agentic Engineering`, status tag `Agent reviewing` (with a stepped pixel spinner) → `Agent review done` (spark icon)
 - List header: `The agent checks` (spark icon) and mono `nemotron-3-super`
 - Rows (icon · title · gate tag · via → result):
@@ -409,7 +422,7 @@ narrativeRole: The logistics disappear — rounds advance, batches go out, and e
 keyMessage: Rounds that run themselves. Every entrant hears back.
 
 **On-screen copy (render verbatim):**
-- Headline A: `Rounds that run themselves.` → Headline B (replaces A): `Every entrant hears back.`
+- Headline A: `Rounds that run themselves.` → Headline B (replaces A): `Emails go out at every stage.` (changed from Every entrant hears back: the thank-you email is optional)
 - Funnel card: header `Judging › Progress`; stages (name · count · note): `Submitted` `186` `all projects`; `Screening` `142` `passed the gates`; `Round 1` `40` `64% reviewed` + a `live` badge; `Finals` `12` `top 12 planned` + trophy icon (faded)
 - Email 1: mail icon · `Judge batch` · subject `Today's batch is open: 8 new projects` · button `Open today's batch →`
 - Email 2: trophy icon · `Winner` · subject `Repo Whisperer won 1st place` · line `Here's what you won`
@@ -463,44 +476,591 @@ Scene 1 (0.0–1.0s): headline rises on 0.25s; the page card is present; blocks 
 Scene 2 (1.0–2.0s): marks drop onto the blocks with `RK.pop` (1.0 / 1.25 / 1.25s), names and pitches rise in; on 1.5s the crown pops over 1st and the confetti bursts; prize tags pop on 1.75s.
 Scene 3 (2.0–4.0s): the cursor travels to `Share` and clicks on 3.0s; `Link copied` pops at 3.25s. Hold while the confetti settles.
 
-## Frame 12 — Give your judges their attention back
+## Frame 12 — Take the tour
 
-- scene: Neon-floor pixel city; the closing line, the R1 lockup and an 8-bit Get started button that gets pressed
-- voiceover: ""
+- scene: Neon-floor pixel city; "the part only people can do" lands, the R1 lockup, then an 8-bit "Take the tour" button gets pressed — the hand-off from the story into the app tour
+- voiceover: "Let your judges do the part only people can do. … Let's take a tour of the RoundOne app."
 - duration: 6s
 - transition_in: cut
 - status: animated
-- src: compositions/frames/12-outro.html
+- src: compositions/frames/12-tour.html
 - type: cta
-- persuasion: Future pacing into a single action
-- beat: motivation → urgency-to-act
+- persuasion: A pause on the promise, then an invitation
+- beat: resolve → curiosity
 - blueprint: cta-morph-press (Adapt)
-- asset_candidates: assets/retro-footer.png — landing footer neon-floor pixel city; assets/roundone-r1-logo.png — RoundOne R1 app-icon logo; assets/nvidia-logo-white.svg — NVIDIA mark for night; assets/nebius-logo.svg — Nebius mark
-- focal: assets/roundone-r1-logo.png
-- roles: retro-footer = background (full-bleed; night scrim behind the type) · roundone-r1-logo = cutout (lockup mark) · nvidia-logo-white = supporting (credit line) · nebius-logo = supporting (credit line)
+- asset_candidates: assets/retro-footer.png — landing footer neon-floor pixel city; assets/roundone-r1-logo.png — RoundOne R1 app-icon logo
+- focal: the arcade button
+- roles: retro-footer = background (full-bleed; night scrim behind the type) · roundone-r1-logo = cutout (lockup mark)
 - sfx: none
 
-narrativeRole: Close on the promise and one action, in the arcade's own language.
-keyMessage: Give your judges their attention back. Get started.
+narrativeRole: Close the story on the stance, then turn it into an invitation to see the real app.
+keyMessage: Let judges do the part only people can do. Now, the tour.
 
-Adapt: keep the identity → action walk with a human-aimed click on the CTA; the mark does not morph into the button — it sits above it, and the click is an 8-bit press.
+**Start from `.hyperframes/carve/12-outro.orig.html`** (the film's old end card, same art, lockup and button). Keep its ground, scrim, dither reveal, sparkles, lockup and press mechanics; change the copy and timing as below. Rename every `f12-` id to `f12t-` so it can't collide with the old file. No `roundone.dev` and no credit line here — both move to the final frame.
 
 **On-screen copy (render verbatim):**
-- Headline (two lines, centered): `Give your judges their` / `attention back.` — `attention back.` in `rk-sunset-text` with the hero glow
-- Lockup: `RoundOne`
-- CTA: `Get started` (8-bit button with the arrow-right icon) and `roundone.dev`
-- Credit line: `Open source · Self-hosted · Built on` [NVIDIA mark] `Nemotron` + [Nebius mark] `Token Factory`
+- Headline (two lines, centered): `Let judges do the part` / `only people can do.` — line 2 in `rk-sunset-text` with the hero glow
+- Lockup: [R1 logo] `RoundOne`
+- Button: `Take the tour` (8-bit `rk-arcade` + arrow-right icon)
+
+**Build notes:** headline Geist Pixel 92px `on-dark`, centered, line tops y≈150 and y≈256. Lockup centered, top y≈420 (logo 96px, radius 22px; `RoundOne` Geist Sans 700 56px). Button wrapper centered at y≈610. Cursor `RK.cursor` from (1500, 1000).
+
+Scene 1 (0.0–1.5s): tiles clear 0.0–0.4s. Line 1 rises on 0.5s, line 2 on 1.0s (flicks to its gradient at 1.1s).
+Scene 2 (1.5–3.0s): the logo pops on 1.5s and `RoundOne` wipes in beside it. Hold — the narrator is finishing the line.
+Scene 3 (3.0–4.5s): the `Take the tour` button rises in on 3.0s (40px, `power3.out`); the cursor glides from the bottom right to the button's right half by 4.25s (`power3.inOut`).
+Scene 4 (4.5–6.0s): press on 4.5s (`RK.press` + `RK.click` with color `#FCD34D`). Hold, pressed-and-released, to the end — the next frame zooms through from here.
+
+## Frame 13 — Start a hackathon
+
+- scene: The app's "Start a hackathon" page in a browser window: a name types in and the preview card updates live, a tagline, the dates; a callout says to host it anywhere (Devpost is our pick); then "Create & set up" gets clicked
+- voiceover: "First, create your hackathon: give it a name and the dates. Host it wherever you like — we like Devpost — and RoundOne runs the judging."
+- duration: 8s
+- transition_in: zoom-through 0.4s
+- status: animated
+- src: compositions/frames/13-create.html
+- type: feature_showcase
+- persuasion: Show how little it takes to begin
+- beat: curiosity → ease
+- blueprint: compose
+- asset_candidates: assets/tour/raw/schema.png — reference only, for the app's look (fonts, borders, the R1 logo in the nav); assets/roundone-r1-logo.png — the nav logo
+- focal: the form and its live preview card
+- roles: rebuilt app UI (the /new page) inside a tour-kit window · a tour-kit callout card
+- sfx: none
+
+narrativeRole: The tour starts where an organizer does — naming the event.
+keyMessage: Create it in a minute; run it anywhere.
+
+**On-screen copy (render verbatim):**
+- Header (TK.header, chapter 0): eyebrow `Setup <b>›</b> New hackathon` · title `Start a hackathon.`
+- Page (rebuilt at 1440×900 page px, url `roundone.dev/new`): nav — R1 logo 32px · `/` · `Hackathons` (muted) · `/` · `New` ; h1 `Start a hackathon` ; field `Name` → types `Agent Hacks 2026` ; field `Tagline` + hint `optional` → types `Build agents that ship real work.` ; field `Dates` → `Oct 1, 2026` → `Oct 5, 2026` ; buttons `Create & set up` (+ arrow) and `Cancel` ; right column: `PREVIEW` label and the preview card: pixel cover, mark `AH`, name, `Oct 1 – 5, 2026 · setup`
+- Callout card (orange accent, number 1): title `Host it anywhere` · body `Run it on Devpost — our pick — or anywhere else. Projects come in by form or API.`
 
 **Build notes:**
-- Layers: ground clip = `assets/retro-footer.png` full-bleed with a radial night scrim (`radial-gradient(ellipse 55% 45% at 50% 40%, rgba(21,12,46,0.72), rgba(21,12,46,0.35) 60%, transparent 85%)`) and a very slow push 1.00→1.03; a full-bleed canvas running `RK.dither(clock, canvas, {start: 0, dur: 0.4, mode: "reveal", color: "#150C2E", angle: "center"})`; then the stage.
-- Headline: Geist Pixel 100px `on-dark`, centered, lines at top y≈150 and y≈262.
-- Lockup: logo 104px (radius 24px) + `RoundOne` Geist Sans 700 60px `on-dark`, 24px gap, centered, top y≈430.
-- CTA row centered at y≈600: a wrapper holding `rk-arcade` `Get started` + arrow-right icon (24px), then `roundone.dev` in Geist Mono 30px `on-dark` 36px to its right.
-- Credit line: ui-sm 22px `on-dark-muted`, centered at y≈800, logos inline at 26px tall.
-- Cursor: `RK.cursor` from (1500, 1000) → the button center by 3.4s; `RK.press` on the button at 3.5s plus `RK.click` with color `#FCD34D`.
-- Pixel sparkles (as frame 1) blink on beats in the sky.
+- Rebuild the page faithfully to the app (src/app/new/new-hackathon.tsx): Geist Sans, page ground `#F9F9FB`, white inputs 44px tall with 1px `#E6E1F0` borders and 10px radius, 15px labels, the primary button dark ink (`#1A1530`, white text, 10px radius), ghost `Cancel`. Two columns: form 1fr (from page x 160) and a 320px preview column at page x≈930. The nav strip across the top 64px (white, hairline bottom).
+- The preview card: 320px wide, 1px border, 18px radius; a pixel cover 176px tall — build it with `RK.pixelField` in violet shades (`#7C3AED` family, seed 7) — holding a 40px rounded-square mark with the initials; below it the name in Geist Pixel 20px and the dates line in muted 14px.
+- The callout: build it with the kit's card markup (a `.tk-card` + `.tk-num`, `--tk-accent:#EA6A2C`) in the window's `layer` at page (960, 560), no ring — it's advice, not a pointer. Pop it with the same stepped pop `TK.showCallout` uses (or call `TK.showCallout` on a `{ring, card}` pair with a zero-size hidden ring).
+- Typing: `RK.type` into the name input (cps ≈ 20) and mirror the same text into the preview name with `RK.states` on each character step (or a second `RK.type` with the same timing and no caret). The initials mark pops when the name completes.
 
-Scene 1 (0.0–1.5s): tiles clear 0.0–0.4s. `Give your judges their` rises in on 0.5s, `attention back.` on 1.0s.
-Scene 2 (1.5–3.0s): the logo pops on 1.5s and `RoundOne` wipes in beside it; the CTA row rises in on 2.0s (button first, `roundone.dev` types in with `RK.type` from 2.25s, caret off after).
-Scene 3 (3.0–4.0s): the cursor travels in from the bottom right and presses `Get started` on 3.5s — the 8-bit button drops onto its edge and pops back, a sunset pixel ripple steps out.
-Scene 4 (4.0–6.0s): the credit line rises in on 4.0s. The cursor eases aside. Hold on the end card to the last frame.
+Scene 1 (0.0–1.0s): header rises (TK.showHeader at 0.05); the window rises at 0.2s.
+Scene 2 (1.0–2.5s): camera pushes gently into the form (TK.focus on the form + preview, max 1.25) at 0.9s. `Agent Hacks 2026` types 1.0–1.8s; the preview name follows; the `AH` mark pops on 2.0s and the pixel cover re-seeds with a 4-step flicker.
+Scene 3 (2.5–4.5s): the tagline types 2.5–3.4s. On 4.0s the start date fills (`Oct 1, 2026`), on 4.25s the end date (`Oct 5, 2026`); the preview's dates line swaps from `Dates TBD · setup` to `Oct 1 – 5, 2026 · setup` on 4.5s.
+Scene 4 (4.5–6.0s): the callout card pops on 5.0s beside the preview.
+Scene 5 (6.0–8.0s): the page cursor (RK.cursor in the window's layer) glides to `Create & set up` by 6.4s and clicks on 6.5s (`RK.click`); the button label steps to `Creating…` on 6.6s. Hold.
+
+## Frame 14 — Shape every submission
+
+- scene: The Project Schema screen; a block-type menu pops open (Text, Long text, Number, URL, Video, Repo, File, Select, Image, Team) and "Repo" flies onto the GitHub row; callouts on typed blocks, what entrants see, and what guides the agent
+- voiceover: "Then shape what teams submit. Every field has a type — a link, a repo, a video, files — so the agent knows how to check it."
+- duration: 8s
+- transition_in: push-slide LEFT 0.5s
+- status: animated
+- src: compositions/frames/14-schema.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/raw/schema.png — the Project Schema screen (GitHub block drawer open)
+- focal: the schema list and its typed blocks
+- roles: screenshot in a tour-kit window · kit callouts 1–3 from shots.js (schema)
+- sfx: none
+
+narrativeRole: The rubric starts with what teams hand in.
+keyMessage: Typed blocks, so every field goes to the right check.
+
+Built (the tour kit's pilot frame; its file is the reference implementation for every other tour frame). Scene beats: header 0.05 · window 0.2 · push to the list 0.9 · block menu 1.25–2.6 · Repo lights 2.75 and flies to the GitHub row 3.0–3.65 · callout 2 on 3.5 · over to the drawer 4.4 · callout 1 on 5.0, callout 3 on 5.75 · pull back 6.5 · hold.
+
+## Frame 15 — Set the rules once
+
+- scene: The rest of setup dealt like cards: Criteria, the agent's settings, Phases, Distribution and the Judge portal slide in one after another, each landing with its one key callout
+- voiceover: "Set your criteria and how each one is checked, pick how much model to use, plan the rounds, share out the work, and write what your judges see."
+- duration: 10s
+- transition_in: push-slide LEFT 0.5s
+- status: animated
+- src: compositions/frames/15-setup.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/raw/criteria-inputs.png · assets/tour/raw/criteria-agent.png · assets/tour/raw/phases.png · assets/tour/raw/distribution.png · assets/tour/raw/judge-portal.png
+- focal: the top card of the stack
+- roles: five screenshots in tour-kit windows, stacked · one kit callout each
+- sfx: none
+
+narrativeRole: Setup, at a glance — it's thorough, and it's done once.
+keyMessage: Criteria, the model, rounds, fair queues and the judge portal, set once.
+
+**On-screen copy (render verbatim):**
+- Header (chapter 0): title `Set the rules once.` (fixed). Eyebrow steps with each card (`RK.states`): `Setup <b>›</b> Criteria` → `Setup <b>›</b> The agent` → `Setup <b>›</b> Phases` → `Setup <b>›</b> Distribution` → `Setup <b>›</b> Judge portal`
+- Callouts (from shots.js; number each `1`): criteria-inputs callout 2 `Choose how it's checked` with the body overridden to `Build it in a Nebius sandbox, scrape the code or demo, read the video transcript, or leave it to judges.` · criteria-agent callout 1 `How much model` · phases callout 2 `Only the best move on` · distribution callout 2 `Fair queues` · judge-portal callout 1 `A private link each`
+
+**Build notes:**
+- Five `TK.window`s, each at width 1300 (scale 0.9028), x 310, y 200, built in order (later = on top). A card enters from the right: fromTo `x: +260, opacity: 0` → `x: 0, opacity: 1` on its `enter` wrapper (0.55s, `power3.out`). As the next card arrives, the one below steps back: its `enter` goes to `scale: 0.94, y: -26, opacity: 0.55` (0.5s, `power3.out`, transformOrigin top center) — and the one two below fades to 0. Remember `immediateRender:false` on every second-and-later tween on the same element.
+- Each card's callout pops ~0.6s after its card lands. Use each window's own callouts (`TK.callouts(w, shot.callouts, {only:[i], numbers:[1]})`), and override the criteria-inputs body before building (copy the shot object, don't mutate shots.js).
+- No camera push-ins in this frame — the stack is the motion. Keep every card's callout inside the frame.
+
+Scene 1 (0.0–2.0s): header rises (0.05). Card 1 (criteria-inputs) lands at 0.2s; its callout on 0.75s.
+Scene 2 (2.0–4.0s): eyebrow steps on 2.0s; card 2 (criteria-agent) lands on 2.0s; callout on 2.6s.
+Scene 3 (4.0–6.0s): eyebrow steps; card 3 (phases) lands on 4.0s; callout on 4.6s.
+Scene 4 (6.0–8.0s): eyebrow steps; card 4 (distribution) lands on 6.0s; callout on 6.6s.
+Scene 5 (8.0–10.0s): eyebrow steps; card 5 (judge-portal) lands on 8.0s; callout on 8.6s. Hold.
+
+## Frame 16 — Start judging
+
+- scene: The Progress page before judging: five readiness checks tick green, the "When you start" summary, a click on Start judging — then night sweeps in and the R1 agent logo appears as every project streams into it
+- voiceover: "When it's all in place, start judging. Every project comes in, and the RoundOne agent takes over."
+- duration: 6s
+- transition_in: cut
+- status: animated
+- src: compositions/frames/16-start.html
+- type: transition
+- blueprint: compose
+- asset_candidates: assets/tour/raw/progress.png — use its top 124 page px (the app nav with Judging + the Progress tab) as the page's chrome via TK.crop; assets/roundone-r1-logo.png — the agent logo
+- focal: the Start judging button, then the R1 logo
+- roles: rebuilt app UI (the not-started Progress page) in a tour-kit window · R1 logo = cutout (hands off to frame 17)
+- handoff_out: roundone-r1-logo — center (960, 300), 170×170px, border-radius 38px, scale 1, opacity 1, static from 5.0s to the cut (no motion at the cut).
+- sfx: none
+
+narrativeRole: The switch from setup to the machine's turn.
+keyMessage: Start judging, and the agent takes round one.
+
+**On-screen copy (render verbatim):**
+- Header (chapter 1): eyebrow `The agent <b>›</b> Start` · title `Start judging.`
+- Checklist rows (green check tile · label · hint · `Edit`): `12 projects ready` / `Every active project goes into the first phase.` · `Group review → Semifinal → Final panel` / `3 phases; each narrows the pool for the next.` · `6 judges in Group review` / `2 per project` · `5 criteria · weights add to 100%` / `The rubric judges and the agent score against.` · `Agent first · mixed · daily over 3 days` / `How the work is handed out.`
+- Panel: eyebrow `WHEN YOU START` · `1` `12 projects move into Group review.` · `2` `The agent's review is queued for each of them.` · `3` `24 reviews go out to 6 judges, about 4 each.` · button `Start judging` (+ arrow)
+- Aside: `How judging runs` · `Agent first` · `Assignments` · `Closing a phase` · `Last phase` (titles only, with pixel icons spark / users / arrow-right / trophy)
+- After the click: label `ROUND ONE · THE AGENT` (GeistMono 600 20px, 0.18em, `on-dark-muted`) under the logo
+
+**Build notes:**
+- Ground: paper clip; a full-bleed canvas above everything running `RK.dither(clock, canvas, {start: 0, dur: 0.4, mode: "reveal", color: "#150C2E", angle: "diagonal"})` (the frame opens covered — a pixel wipe leads into it), and a SECOND canvas running `RK.dither(clock, canvas2, {start: 3.9, dur: 0.6, mode: "cover", color: "#150C2E", angle: "center"})` that turns the frame to night after the click. Above the second canvas: the night-glow gradient layer fading in 4.4–4.6 (so the ground is night-glow, not flat), the R1 logo and label.
+- The page: `TK.window` with `html`, url `roundone.dev/h/agent-hacks-2026/judging/progress`. Put a `TK.crop(w, [0, 0, 1440, 124], "assets/tour/raw/progress.png")` at the top for the real nav; below it, rebuild the not-started page (src/app/h/[slug]/judging/progress/page.tsx `NotStarted`): page title `Progress` (Geist 30px 500) at page (160, 164); a white panel (1px border, 12px radius) with the five check rows (28px green tiles `#DCF7EC`/`#0F9D6B` with a pixel check, 15px medium label, 13px muted hint, `Edit` link at the right), a tinted "When you start" panel below it with the numbered lines and a dark ink `Start judging →` button at its bottom right; the aside column at page x≈1080.
+- Check tiles start grey (`#F1EEF8`, no icon) and pop to green on their beat.
+- The ingest: 12 small project marks (`rk-mark`, 44px, initials `NS RW LE JC SB PQ CA MM TW GS CC LL`) fly from a fan at the bottom of the frame into the logo, staggered 4.8–5.6s, each vanishing into it.
+- Logo: `assets/roundone-r1-logo.png`, 170px, radius 38px, center (960, 300); pops on 4.75s (`RK.pop`) and then does NOT move.
+
+Scene 1 (0.0–1.0s): tiles clear 0.0–0.4s; header rises at 0.4s; the window rises at 0.45s.
+Scene 2 (1.0–2.5s): the five check tiles pop green on 1.0 / 1.25 / 1.5 / 1.75 / 2.0s.
+Scene 3 (2.5–3.9s): camera pushes to the "When you start" panel (TK.focus, max 1.35) at 2.4s; the page cursor arrives on `Start judging` by 3.4s and clicks on 3.5s; the label steps to `Starting…` on 3.6s.
+Scene 4 (3.9–6.0s): night tiles sweep in 3.9–4.5s; the night glow settles; the R1 logo pops on 4.75s at (960, 300); `ROUND ONE · THE AGENT` fades up under it on 5.0s; the 12 project marks stream into the logo 4.8–5.6s. Hold with the logo static.
+
+## Frame 17 — The agent at work
+
+- scene: Night. The R1 logo becomes the agent's hub; your criteria feed in; a project card on the left and three stations on the right — Nebius Sandboxes, Tavily, NVIDIA Nemotron — light up in turn as the agent sends them work; the card flips to a verdict; a badge notes it runs on Vercel Workflow
+- voiceover: "For each project, it works through your criteria: building and testing the code in a Nebius sandbox, searching for the SDK calls you asked about, checking every claim — with NVIDIA Nemotron doing the reasoning."
+- duration: 12s
+- transition_in: cut
+- status: animated
+- src: compositions/frames/17-agent.html
+- type: feature_showcase
+- blueprint: agent-progress-theater (Adapt)
+- asset_candidates: assets/roundone-r1-logo.png — R1 logo (the hub); assets/nebius-logo.svg — Nebius wordmark; assets/tavily-logo.png — Tavily wordmark for dark grounds; assets/nvidia-logo-white.svg — NVIDIA mark for night
+- focal: the hub and its three stations
+- roles: roundone-r1-logo = cutout (the hub) · nebius / tavily / nvidia = supporting (station marks)
+- handoff_in: roundone-r1-logo — center (960, 300), 170×170px, border-radius 38px, scale 1, opacity 1, static at t=0 (it only starts moving at 0.15s).
+- sfx: none
+
+narrativeRole: The machine at work, visibly — each sponsor doing one job.
+keyMessage: Nebius Sandboxes run, test and search the code. Tavily reads the live web. NVIDIA Nemotron checks every claim. Durable, on Vercel Workflow.
+
+**Start from `../roundone-devpost/compositions/frames/04-agent.html`** (a finished 9.5s version of exactly this scene, same kit and look). Copy it to `compositions/frames/17-agent.html`, rename every `f04-agent` id/class to `f17-agent` and the composition id / timeline key to `17-agent`, then make these changes:
+1. Duration 12s. Keep 0.0–1.0s as is. Insert a new beat 1.0–2.0s (below), and shift every original beat after 1.0s later by +1.0s. Then add the badge beat at 10.5s.
+2. New beat — your criteria: three small criterion chips appear stacked under the hub label (centered on x=960, tops at y≈660 / 712 / 764, `rk-night-card`-style pills, 20px/600 `on-dark`, a violet pixel `check-list` icon each): `Builds from the README` · `Uses the NVIDIA SDK` · `Demo matches the claims`. They pop on 1.0 / 1.25 / 1.5s and at 1.75s slide up into the hub (y → 520, scale → 0.3, opacity → 0, `power3.in`, 0.3s) — the rubric going in.
+3. Verdict rows: replace the last row (play icon · `Video 2:41`) with (search icon · `Claims match the demo`). Keep the other five.
+4. The badge (new, 10.5s): centered at x=960, top y≈820, a `rk-glass` pill with a white Vercel triangle (an inline SVG `<svg viewBox="0 0 76 65"><path d="M37.6 0 75.2 65H0z" fill="#fff"/></svg>` at 18px) + `Runs on Vercel Workflow` (Geist Sans 600 22px) + a thin divider + `durable · retries · resumes` (Geist Mono 18px `on-dark-muted`). It rises 20px + fades in (0.5s, `power3.out`). Keep it above y=900.
+5. Keep the eyebrow `ROUND ONE · THE AGENT`, the stations' copy, the connectors, packets and the flip exactly as they are.
+
+Scene 1 (0.0–1.0s): as the original: logo glides to the hub (0.15–0.75s), eyebrow, project card, dim stations, connectors, hub label.
+Scene 2 (1.0–2.0s): the three criteria chips pop and rise into the hub.
+Scene 3 (2.0–4.5s): Nebius Sandboxes — the original 1.0–3.5s beat, +1.0s.
+Scene 4 (4.5–6.8s): Tavily — the original 3.5–5.8s beat, +1.0s.
+Scene 5 (6.8–10.5s): NVIDIA Nemotron and the verdict — the original 5.8–9.5s beat, +1.0s (flip ≈ 8.3s, passes 8.7–9.45s, `Agent review done` 9.6s).
+Scene 6 (10.5–12.0s): the Vercel Workflow badge rises in on 10.5s. Hold, everything lit.
+
+## Frame 18 — Checked, verified, summarized
+
+- scene: A project's agent review in the app: the score with its gates passed, strengths and what to improve, and the flag that sends low-confidence calls to a person
+- voiceover: "It doesn't pick winners. It checks, verifies and summarizes — with the evidence to back it up — so your judges can focus on the human side."
+- duration: 8s
+- transition_in: cut
+- status: animated
+- src: compositions/frames/18-review.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/raw/agent-review.png — the agent review screen (7.3/10, gates passed, strengths / to improve)
+- focal: the score row
+- roles: screenshot in a tour-kit window · kit callouts from shots.js (agent-review)
+- sfx: none
+
+narrativeRole: Say plainly what the agent is — a checker, not a judge.
+keyMessage: The agent checks, verifies and summarizes. People judge.
+
+**On-screen copy (render verbatim):**
+- Header (chapter 1): eyebrow `The agent <b>›</b> Review` · title `Checked, verified, summarized.`
+- Callouts (shots.js agent-review, numbered in the order shown): callout 2 `Round one, done` → `1`; callout 3 `Feedback for the team` → `2`; callout 1 `A person decides` → `3`.
+
+**Build notes:** follow `14-schema.html`'s structure (paper ground clip, stage clip, TK.window + TK.header, build in `TK.ready`). Add the pixel-wipe reveal canvas (`RK.dither` reveal, 0–0.4s, `#150C2E`, diagonal) on top — this frame is entered through a wipe. Use `TK.callouts(w, shot.callouts, {only: [1, 2, 0], numbers: [1, 2, 3]})`.
+
+Scene 1 (0.0–1.0s): tiles clear 0.0–0.4s; header rises at 0.4s; window rises at 0.45s.
+Scene 2 (1.0–2.5s): camera pushes onto the score row (TK.focus on callout 1's rect, max 1.5) at 1.0s; callout `Round one, done` on 1.5s.
+Scene 3 (2.5–4.0s): camera moves down to strengths / to improve at 2.6s; callout `Feedback for the team` on 3.25s.
+Scene 4 (4.0–5.5s): camera moves up to the `1 needs a person` tag at 4.3s; callout `A person decides` on 4.9s.
+Scene 5 (5.5–8.0s): pull back to the whole window at 5.9s. Hold.
+
+## Frame 19 — A person makes the call
+
+- scene: The agent-inbox email ("7 projects need your call"): agree or disagree with each failed gate, the list of failures with the agent's reasoning — and an audit trail card stamping every decision
+- voiceover: "Anything that fails a must-pass check lands in your inbox. A person makes the call, and every decision goes on the audit trail."
+- duration: 8s
+- transition_in: push-slide LEFT 0.5s
+- status: animated
+- src: compositions/frames/19-inbox.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/email-agent-inbox.png — the app's real agent-inbox email (680 css wide, 2×; 1634 css tall)
+- focal: the email, then the audit trail card
+- roles: email in a tour-kit mail window · rebuilt audit-trail card (film style)
+- sfx: none
+
+narrativeRole: Nothing the machine flags is final until a person says so — and it's all on the record.
+keyMessage: Failures wait for a person. Every call is audited.
+
+**On-screen copy (render verbatim):**
+- Header (chapter 1): eyebrow `The agent <b>›</b> Inbox` · title `A person makes the call.`
+- Mail window: subject `7 projects need your call` · from `RoundOne` `judging@roundone.dev` · to `Dylan (organizer)`
+- Audit card: header `Audit trail` + mono `newest first`; entries (square dot · text · mono time): `Back in the pool` / `by the organizer` / `2:14 PM` · `Agent failed a gate` / `Uses Acme SDK · confidence low` / `1:58 PM` · `Agent review done` / `5 steps · nemotron-3-super` / `1:57 PM` · `Submitted` / `via the submission form` / `9:03 AM`
+
+**Build notes:**
+- `TK.mail(stage, {x: 150, y: 196, width: 1100, height: 900, zoom: 1.2, src: "assets/tour/email-agent-inbox.png", subject, from, fromEmail, to})`.
+- Rings on the email (build them yourself in the mail window's `layer`, same look as `.tk-ring`, violet): the two choice boxes (`Agree — keep it out` / `Disagree — back in the pool`), then the first failure card (Grant Scout · FAILED · Uses Acme SDK and its reason). Measure their positions from the PNG (email css px × zoom, offset by `m.emailLeft`/`m.emailTop` and the scroll).
+- Audit card: an `rk-mock` at frame x 1300–1800, y 250–860 (keep ≤ 900), 20px/600 header, rows 64px with hairlines; square 12px dots (violet for agent entries, magenta for the organizer's); times in Geist Mono 18px `faint`. Entries stamp in newest-first: dot `RK.pop`, text rises 8px.
+
+Scene 1 (0.0–1.0s): header rises (0.05); the mail window rises at 0.2s.
+Scene 2 (1.0–2.5s): ring on the Agree / Disagree boxes on 1.25s (a slow camera push toward them, TK.focus max 1.2, at 1.0s).
+Scene 3 (2.5–4.0s): the email scrolls to `Waiting on you` (TK.scroll 2.5–3.7s); ring on Grant Scout's failure on 3.75s.
+Scene 4 (4.0–6.5s): camera rests (4.0s); the audit card slides in from the right on 4.25s; its entries stamp on 5.0 / 5.25 / 5.5 / 5.75s.
+Scene 5 (6.5–8.0s): hold.
+
+## Frame 20 — Today's batch is open
+
+- scene: A judge's email: "Day 2 is open" — 6 projects waiting, about 24 minutes, 4 of 22 scored — beside a day strip that shows the work arriving in batches; the judge clicks "Open today's batch"
+- voiceover: "Then your judges get an email with their projects — all at once, or in daily batches so nobody burns out."
+- duration: 6s
+- transition_in: cut
+- status: animated
+- src: compositions/frames/20-judge-email.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/email-judge-batch.png — the app's real judge batch email (680 × 560 css, 2×)
+- focal: the email's stats and its button
+- roles: email in a tour-kit mail window · film-style side card (day strip)
+- sfx: none
+
+narrativeRole: The human half begins — in manageable pieces.
+keyMessage: Judges get their projects in batches, so fatigue doesn't win.
+
+**On-screen copy (render verbatim):**
+- Header (chapter 2): eyebrow `Judging <b>›</b> Email` · title `Today's batch is open.`
+- Mail window: subject `Day 2 is open` · from `RoundOne` `judging@roundone.dev` · to `Marcus`
+- Side card: title `Daily batches` · days `Day 1` (check, `done`) · `Day 2` (dot, `open`) · `Day 3` (empty, `tomorrow`)
+
+**Build notes:**
+- Pixel-wipe reveal canvas on top (entered through a wipe): `RK.dither` reveal 0–0.4s, `#150C2E`, diagonal.
+- `TK.mail(stage, {x: 200, y: 196, width: 1060, height: 760, zoom: 1.3, src: "assets/tour/email-judge-batch.png", emailHeight: 560, …})`.
+- Side card: `rk-mock` at frame x 1330–1800, y 330–700: 26px/600 title, three rows with a 36px tile each (Day 1 = pass green check, Day 2 = violet dot pulsing ONCE with a stepped pop, Day 3 = dashed empty), labels 24px, status tags (`rk-tag--pass` done, `rk-tag--agent` open, `rk-tag--neutral` tomorrow).
+- The email's `Open today's batch →` button: put the page cursor (RK.cursor inside the mail window's `layer`) on it and click; add a violet ring on the three stat boxes first.
+
+Scene 1 (0.0–1.0s): tiles clear 0.0–0.4s; header rises at 0.4s; the mail window rises at 0.45s.
+Scene 2 (1.0–2.0s): ring on the three stat boxes on 1.25s.
+Scene 3 (2.0–3.5s): the side card rises on 2.0s; its days pop on 2.25 / 2.5 / 2.75s.
+Scene 4 (3.5–6.0s): the cursor glides to `Open today's batch` by 4.35s and clicks on 4.5s (the button darkens for 0.15s). Hold — the next frame zooms through from here.
+
+## Frame 21 — Judges score the idea
+
+- scene: The distraction-free judging page: the submission (video, pitch, live demo, repo, team) on the left, the rubric on the right; the camera visits each part in turn, the score meters fill, then on to the next project
+- voiceover: "The judging page keeps it simple: watch the video, read the pitch, try the demo, score each criterion, leave a note — and move on to the next."
+- duration: 10s
+- transition_in: zoom-through 0.4s
+- status: animated
+- src: compositions/frames/21-judge-view.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/raw/judge-view.png — the judge view of project #004 Nightshift (submission left, "Ada's scores" rubric right)
+- focal: the rubric panel
+- roles: screenshot in a tour-kit window · kit callouts from shots.js (judge-view) · ring-only highlights · crops of the score meters
+- sfx: none
+
+narrativeRole: Show judges exactly what their job becomes — the good part.
+keyMessage: Everything on one page. Score what people should.
+
+**On-screen copy (render verbatim):**
+- Header (chapter 2): eyebrow `Judging <b>›</b> Judge view` · title `Judges score the idea.`
+- Callouts (shots.js judge-view): callout 1 `Everything on one page` → `1`; callout 3 `Score what people should` → `2`; callout 2 `A running total` → `3`
+- A film-style pill button over the page, bottom right of the rubric panel: `Next project` + arrow (`rk-pill rk-pill--dark`), with a mono hint `4 of 6` beside it
+
+**Build notes:**
+- Ring-only highlights (TK.showCallout with `{ringOnly: true}` on extra callouts you define in page px — find the rows in the screenshot: the Video row, the Overview/pitch row, the Live demo row inside the submission panel (callout 1's box is [106, 489, 800, 395])).
+- Score meters: the rubric panel (callout 3's box [962, 528, 354, 364]) has a segmented bar per criterion. Hide each bar with `TK.cover` (sample the panel's white) and reveal a `TK.crop` of it left→right with a stepped clip-path (`steps(10)`, 0.35s each) — they fill like the film's health bars.
+
+Scene 1 (0.0–1.0s): header rises (0.05); the window rises at 0.2s.
+Scene 2 (1.0–3.75s): camera pushes onto the submission panel at 0.9s; callout `Everything on one page` on 1.5s; ring-only highlights step over Video (2.25s), the pitch (2.75s) and Live demo (3.25s).
+Scene 3 (3.75–6.5s): camera crosses to the rubric at 3.75s; callout `Score what people should` on 4.25s; the meters fill on 4.75 / 5.1 / 5.45 / 5.8s.
+Scene 4 (6.5–8.0s): callout `A running total` on 6.5s (a small push toward the total, max 1.6).
+Scene 5 (8.0–10.0s): camera rests at 7.75s; the `Next project` pill pops on 8.25s; the page cursor clicks it on 9.0s. Hold.
+
+## Frame 22 — Every score counts
+
+- scene: Animated roll-up: three judges' scores fly into six projects, combined scores count up, the rows re-sort, a cut line drops under the top four, and they advance to the Semifinal
+- voiceover: "RoundOne adds up every judge's scores and sends the strongest projects on to the next round."
+- duration: 6s
+- transition_in: push-slide LEFT 0.5s
+- status: animated
+- src: compositions/frames/22-scoring.html
+- type: data_story
+- blueprint: compose
+- asset_candidates:
+- focal: the ranked list and its cut line
+- roles: typography + rebuilt UI only (film-style cards)
+- sfx: none
+
+narrativeRole: The scoring is automatic and fair; the field narrows on its own.
+keyMessage: Scores combine; the best move on.
+
+**On-screen copy (render verbatim):**
+- Header (TK.header, chapter 2): eyebrow `Judging <b>›</b> Group review` · title `Every score counts.`
+- Judges (left column, `rk-face` 64px): `AR` (face 0), `MK` (face 1), `JL` (face 2)
+- Rows (`rk-mark` + name · combined score): `NS` Nightshift 8.9 · `RW` Repo Whisperer 8.4 · `LE` Ledgerly 8.1 · `JC` Judge Copilot 7.7 · `TW` Tripwire 6.9 · `MM` Menu Mind 6.2 — they START in this order instead: Repo Whisperer, Menu Mind, Nightshift, Tripwire, Ledgerly, Judge Copilot
+- Cut line label: `Top 4 → Semifinal` · tags on the top four: `Advances` (`rk-tag--pass`)
+
+**Build notes:**
+- Paper ground clip + stage clip; header via `TK.header` (the kit works without a window). A `rk-mock` list card at x 520–1800, y 230–880 with six 100px rows (mark 56px, name 28px/600, a 3-cell mini score strip in the middle showing each judge's score as small chips, the combined score in Geist Pixel 44px at the right). The three judge faces stand in a column at x≈300, y 330 / 500 / 670.
+- Score chips: each judge fires one small chip (their score, e.g. `9`, 18px/600 on `violet-soft`) at each row on the beat — travel 0.35s `power3.out` from the face to the row's strip cell.
+- Re-sort: FLIP the rows to their ranked order (y tweens, 0.6s `power3.inOut`); ranks never overlap mid-move more than the row height.
+- Cut line: a 2px dashed `magenta` line under row 4 with the label on its right, drawn left→right in `steps(8)`.
+
+Scene 1 (0.0–1.0s): header rises (0.05); the list card rises at 0.2s with its six rows (combined scores show `–`); faces pop on 0.5s.
+Scene 2 (1.0–2.5s): chips fly — judge AR on 1.0s, MK on 1.5s, JL on 2.0s (one volley of six chips each); combined scores count up on 2.25–2.75s (`RK.count`, 1 decimal, steps 6).
+Scene 3 (2.75–3.75s): rows re-sort into rank order (2.75–3.35s).
+Scene 4 (3.75–6.0s): the cut line draws on 3.75s; `Advances` tags pop down the top four on eighths 4.25–4.625s; rows five and six dim to 40% on 4.75s. Hold.
+
+## Frame 23 — Every round, every judge
+
+- scene: A project's page after judging: where it landed (1st, every prize and award) and each judge's weighted scores, averaged
+- voiceover: "Open any project to see how it did — round by round, and judge by judge."
+- duration: 6s
+- transition_in: push-slide LEFT 0.5s
+- status: animated
+- src: compositions/frames/23-project.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/raw/project.png — project #004 Nightshift after judging (won Grand prize; final panel scores 8.9)
+- focal: the result banner, then the scores panel
+- roles: screenshot in a tour-kit window · kit callouts from shots.js (project)
+- sfx: none
+
+narrativeRole: Full transparency per project.
+keyMessage: Every project on one page — result, feedback, scores by round and judge.
+
+**On-screen copy:** Header (chapter 2): eyebrow `Judging <b>›</b> Project` · title `Every round, every judge.` · callouts: shots.js project callout 1 `Where it landed` → `1`, callout 2 `Every judge, averaged` → `2`.
+
+**Build notes:** the `14-schema.html` pattern.
+
+Scene 1 (0.0–1.0s): header rises (0.05); the window rises at 0.2s.
+Scene 2 (1.0–2.75s): camera pushes onto the result banner (callout 1's rect, max 1.35) at 0.9s; callout on 1.5s.
+Scene 3 (2.75–4.5s): camera moves to the scores panel at 2.75s; callout 2 on 3.35s.
+Scene 4 (4.5–6.0s): camera rests at 4.4s. Hold.
+
+## Frame 24 — Every round at a glance
+
+- scene: The Progress page mid-judging: the round counters tick in, the pixel funnel draws itself from Submitted to Final panel, and the key parts get called out
+- voiceover: "And the progress page shows every round at a glance."
+- duration: 6s
+- transition_in: push-slide LEFT 0.5s
+- status: animated
+- src: compositions/frames/24-progress.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/raw/progress.png — Judging › Progress (Submitted 12 · Group review 11 · Semifinal 8 · Final panel 5, the pixel funnel bar, the projects table; a "Run agent" button top right)
+- focal: the pixel funnel
+- roles: screenshot in a tour-kit window · covers + crops to animate the counters and funnel · kit callouts 1 and 3 from shots.js (progress)
+- sfx: none
+
+narrativeRole: The whole event's state, in one glance.
+keyMessage: Every round, how far it got, and who moved on.
+
+**On-screen copy:** Header (chapter 2): eyebrow `Judging <b>›</b> Progress` · title `Every round at a glance.` · callouts: shots.js progress callout 1 `Reviewed and advanced` → `1`, callout 3 `The whole funnel` → `2`. Do NOT use callout 2.
+
+**Build notes:**
+- Hide the `Run agent` button for the whole frame: `TK.cover(w, [1185, 150, 160, 70], <the page ground color sampled from the screenshot around it>)` — it must be invisible from t=0 (a plain static cover, no tween).
+- The four counters row (above the funnel, roughly page y 240–350 across x 110–1330): cover each column and reveal a crop of it on its beat (stepped clip, 0.2s) — or cover the whole row and reveal the four column crops left to right.
+- The funnel bar (shots.js callout 3's box [110, 356, 1220, 238]): cover it and reveal a crop left→right with `clip-path: inset(0 X% 0 0)` in `steps(16)` over 1.2s.
+
+Scene 1 (0.0–1.0s): header rises (0.05); the window rises at 0.2s.
+Scene 2 (1.0–2.0s): the four counters step in on 1.0 / 1.25 / 1.5 / 1.75s.
+Scene 3 (2.0–3.25s): the funnel draws 2.0–3.2s (camera pushes a little toward it at 1.9s, max 1.2).
+Scene 4 (3.25–6.0s): callout `Reviewed and advanced` on 3.5s; callout `The whole funnel` on 4.25s. Hold.
+
+## Frame 25 — Ask across every project
+
+- scene: The Chat screen: a question types in and sends, the agent checks scores and answers; the scope filters (phase, status, judge) and the Nemotron-on-Nebius model chip get called out
+- voiceover: "At any point, judges and organizers can chat across every project — by round, group or judge — to compare, dig in, or break a tie, with Nemotron doing the reading."
+- duration: 10s
+- transition_in: push-slide LEFT 0.5s
+- status: animated
+- src: compositions/frames/25-chat.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/raw/chat.png — Judging › Chat (scope filters left; the question "Which project ranked first in the final panel, and what was its average final-panel score?", a "Checked scores" tool line and the answer; the input at the bottom; the model chip top right)
+- focal: the conversation
+- roles: screenshot in a tour-kit window · covers + crops to replay the exchange · kit callouts from shots.js (chat)
+- sfx: none
+
+narrativeRole: A research assistant over the whole event — for comparisons and tie-breaks.
+keyMessage: Ask anything across every project; Nemotron on Nebius does the reading.
+
+**On-screen copy (render verbatim):**
+- Header (chapter 2): eyebrow `Judging <b>›</b> Chat` · title `Ask across every project.`
+- Typed into the input: `Which project ranked first in the final panel?`
+- Callouts (shots.js chat): callout 1 `Scope the question` → `1`; callout 2 `Answers from your data` → `2`; callout 3 `Nemotron on Nebius` → `3`
+
+**Build notes:**
+- Replay the exchange from the screenshot: cover the conversation area (the question bubble, the `Checked scores` line and the answer — find them in the screenshot, roughly page x 150–1300, y 150–470) with the chat's ground color at t=0, then reveal crops of each piece in order. Type the question into the input with `RK.type` in an overlay matched to the input's placeholder position and font (Geist Sans 15px); the typed text clears on send.
+- Answer lines reveal top to bottom with a stepped clip (like streaming).
+
+Scene 1 (0.0–1.0s): header rises (0.05); the window rises at 0.2s.
+Scene 2 (1.0–4.0s): camera pushes onto the conversation + input at 0.9s (max 1.35); the question types 1.1–2.3s; send on 2.5s (the question bubble pops in, the input clears); `Checked scores` on 2.9s; the answer streams 3.25–3.9s.
+Scene 3 (4.0–8.0s): camera pulls to the left filters at 4.0s — callout `Scope the question` on 4.5s; over to the answer — callout `Answers from your data` on 5.75s; up to the model chip — callout `Nemotron on Nebius` on 7.0s.
+Scene 4 (8.0–10.0s): camera rests at 8.0s. Hold.
+
+## Frame 26 — Set the prizes once
+
+- scene: The Rewards screen: prize types — cash, credits, swag, passes, links — snap into the prize tiers; callouts on prizes by rank, the awards you pick and each winner's haul
+- voiceover: "Prizes get messy — cash, credits, swag, event passes. Set them up once, and RoundOne keeps track of who gets what."
+- duration: 8s
+- transition_in: cut
+- status: animated
+- src: compositions/frames/26-rewards.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/raw/rewards.png — Judging › Rewards (Prizes tab: Grand prize $5,000 cash + 100,000 API credits; Runners-up; Top 5 finalists 5,000 API credits · Swag pack · Conference pass; Most creative; Best demo; Best technical build)
+- focal: the prize list
+- roles: screenshot in a tour-kit window · film-style reward chips · kit callouts from shots.js (rewards)
+- sfx: none
+
+narrativeRole: The admin headache, handled.
+keyMessage: Mixed rewards, set once, tracked for you.
+
+**On-screen copy (render verbatim):**
+- Header (chapter 3): eyebrow `Results <b>›</b> Rewards` · title `Set the prizes once.`
+- Chips (film `rk-tag` pills with pixel icons, 20px/600): `Cash` (coin) · `Credits` (ticket) · `Swag` (gift) · `Pass` (tag) · `Link` (link)
+- Callouts (shots.js rewards): callout 2 `Prizes by final rank` → `1`; callout 3 `Awards you pick` → `2`; callout 1 `Each winner's haul` → `3`
+
+**Build notes:**
+- Pixel-wipe reveal canvas on top (entered through a wipe): `RK.dither` reveal 0–0.4s, `#150C2E`, diagonal.
+- The chips live in the window's `layer`: they fly in from beyond the window's right edge (page x ≈ 1500) along a gentle arc and land ON the prize rows (Grand prize row: Cash, Credits; Top 5 finalists row: Swag, Pass; Best technical build row: Link), then shrink to 70% and hold there as labels. 0.4s `power3.out` each.
+
+Scene 1 (0.0–1.0s): tiles clear 0.0–0.4s; header rises at 0.4s; the window rises at 0.45s.
+Scene 2 (1.0–2.75s): camera pushes onto the prize list at 0.9s (max 1.3); chips land on eighths 1.25–2.25s.
+Scene 3 (2.75–5.75s): callout `Prizes by final rank` on 3.0s; `Awards you pick` on 4.0s (camera follows down); over to the right column — `Each winner's haul` on 5.25s.
+Scene 4 (5.75–8.0s): camera rests at 6.0s. Hold.
+
+## Frame 27 — Preview it. Perfect it.
+
+- scene: The winner email being written and previewed: an editor panel types the intro while the real winner email preview sits beside it, scrolls to the rewards, and a test send goes out
+- voiceover: "Write the winners' email, and preview it until it's right."
+- duration: 6s
+- transition_in: push-slide LEFT 0.5s
+- status: animated
+- src: compositions/frames/27-winner-email.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/email-winner.png — the app's real winner email ("Congrats, Repo Whisperer!", 680 × 1356 css, 2×)
+- focal: the preview
+- roles: rebuilt editor panel (film-style) · email in a preview window
+- sfx: none
+
+narrativeRole: Winners hear the news the way you want it told.
+keyMessage: Edit the winner email and see exactly what they'll get.
+
+**On-screen copy (render verbatim):**
+- Header (chapter 3): eyebrow `Results <b>›</b> Winner email` · title `Preview it. Perfect it.`
+- Editor (`rk-mock`, frame x 120–740, y 230–860): label `Subject` → `Congrats — you placed at AI Agents Hack 2026` ; label `Intro` → types `Here's everything you've earned, and how to claim it.` ; label `Reply to` → `prizes@aiagentshack.dev` ; buttons `Send test` (pill, dark) and `Save` (ghost)
+- Preview window: a `TK.mail`-style window at frame x 800–1800 with the tab row `Preview` · `Desktop` / `Mobile` (Desktop active) instead of an inbox header; after the send, a tag `Test sent to you` (`rk-tag--pass`) pops by the button
+
+**Build notes:** build the preview with `TK.mail` (subject `Congrats, Repo Whisperer!`, from `AI Agents Hack 2026`, zoom 1.1, width 1000, x 800) — or a plain window with the email image — and scroll it with `TK.scroll`. Inputs styled like the app (white, 1px `#E6E1F0`, 10px radius, Geist Sans 20px in the film scale).
+
+Scene 1 (0.0–1.0s): header rises (0.05); the editor rises at 0.2s, the preview at 0.35s.
+Scene 2 (1.0–2.75s): the intro types 1.0–2.4s; a violet ring pulses once around the matching paragraph in the preview on 2.5s.
+Scene 3 (2.75–4.25s): the preview scrolls to `Your rewards` (Grand prize · $5,000 for the team · $10,000 in Acme API credits…) 2.75–3.9s.
+Scene 4 (4.25–6.0s): the cursor clicks `Send test` on 4.5s; `Test sent to you` pops on 4.75s. Hold.
+
+## Frame 28 — Thank everyone who built
+
+- scene: The thank-you email everyone else gets: their project, reviewed by 3 judges, how far it got, the winners — and a thank-you gift of credits for every team, which pops with a little pixel confetti
+- voiceover: "And thank everyone who didn't place. Recognize their work, and send them something extra — so the goodwill keeps going."
+- duration: 8s
+- transition_in: push-slide LEFT 0.5s
+- status: animated
+- src: compositions/frames/28-thank-you.html
+- type: feature_showcase
+- blueprint: compose
+- asset_candidates: assets/tour/email-thank-you.png — the app's real thank-you email ("Thank you for building Menu Mind", 680 × 2040 css, 2×)
+- focal: the thank-you gift block
+- roles: email in a tour-kit mail window · rings · pixel confetti
+- sfx: none
+
+narrativeRole: Every builder leaves feeling seen — and still building on your product.
+keyMessage: An optional thank-you, with a bonus, for everyone who didn't win.
+
+**On-screen copy:** Header (chapter 3): eyebrow `Results <b>›</b> Thank-you email` · title `Thank everyone who built.` · mail: subject `Thank you for building Menu Mind` · from `AI Agents Hack 2026` `hello@aiagentshack.dev` · to `Menu Mind team` · a small film tag beside the window, top right of it: `Optional` (`rk-tag--neutral`)
+
+**Build notes:** `TK.mail(stage, {x: 330, y: 196, width: 1260, height: 900, zoom: 1.25, src: "assets/tour/email-thank-you.png", …})`. Rings (violet) drawn in the mail window's `layer` over email regions measured from the PNG. Confetti: `RK.confetti(clock, <a full-frame stage layer>, {x, y, start, count: 24, size: 10})` from the gift icon's frame position, after the scroll lands.
+
+Scene 1 (0.0–1.0s): header rises (0.05); the mail window rises at 0.2s; the `Optional` tag pops on 0.75s.
+Scene 2 (1.0–2.5s): ring on the `Your project · Menu Mind · Reviewed by 3 judges · Reached round 2 of 2` block on 1.25s (small push, max 1.2).
+Scene 3 (2.5–4.0s): the email scrolls to `A thank-you gift` (2.5–3.7s).
+Scene 4 (4.0–6.0s): ring on the gift block on 4.0s; pixel confetti bursts from the gift icon on 4.25s.
+Scene 5 (6.0–8.0s): hold (the confetti settles out of frame by ~6.5s).
+
+## Frame 29 — Winners, announced
+
+- scene: The public winners page; the podium cards rise from the floor in steps, a crown pops over first place with a pixel confetti burst, and Share copies the link
+- voiceover: "Then publish your winners."
+- duration: 6s
+- transition_in: zoom-through 0.4s
+- status: animated
+- src: compositions/frames/29-winners.html
+- type: celebration
+- blueprint: compose
+- asset_candidates: assets/tour/raw/winners-page.png — the public winners page for Agent Hacks 2026 (pixel header; podium cards 2 Ledgerly · 1 Nightshift · 3 Judge Copilot; Share button top right)
+- focal: the first-place card
+- roles: screenshot in a tour-kit window · crops of the podium cards (animated) · crown + confetti from the film's winners frame
+- sfx: none
+
+narrativeRole: The payoff — the fun part the arcade layer was made for.
+keyMessage: Winners, announced — one link to share.
+
+**On-screen copy (render verbatim):** Header (chapter 3): eyebrow `Results <b>›</b> Winners page` · title `Winners, announced.` · after the click: a film tag `Link copied` (`rk-tag--pass`, link icon) by the Share button.
+
+**Build notes:**
+- Reuse the motion language of `compositions/frames/11-winners.html` (read it): bricks rising in `steps(5)`, the crown `RK.pop`, `RK.confetti` (count 38, size 14) and the Share click. Here they act on the real page: cover the three podium cards (find them in the screenshot; roughly page y 470–900) with the page ground, then raise crops of each card from 120px lower in `steps(5)` — 2nd on 0.75s, 1st on 1.0s, 3rd on 1.25s. Crown (the kit's `crown` icon, 44px, `#FBBF24`) pops above the 1st card on 1.5s with confetti from there.
+- `url`: `roundone.dev/w/agent-hacks-2026`.
+
+Scene 1 (0.0–0.75s): header rises (0.05); the window rises at 0.15s; camera eases toward the podium (max 1.2) at 0.5s.
+Scene 2 (0.75–2.25s): the cards rise (0.75 / 1.0 / 1.25s); crown + confetti on 1.5s.
+Scene 3 (2.25–4.0s): camera eases up toward Share at 2.25s; the page cursor clicks `Share` on 3.0s; `Link copied` pops on 3.25s.
+Scene 4 (4.0–6.0s): camera rests at 4.0s; hold while the confetti clears.
+
+## Frame 30 — Ready for round one?
+
+- scene: The end card on the neon-floor pixel city: "Ready for round one?", the R1 lockup, an 8-bit Get started button pressed, roundone.dev, and the open-source / built-on credit line
+- voiceover: "RoundOne. Open source, and ready for your next hackathon."
+- duration: 6s
+- transition_in: cut
+- status: animated
+- src: compositions/frames/30-end.html
+- type: cta
+- blueprint: cta-morph-press (Adapt)
+- asset_candidates: assets/retro-footer.png; assets/roundone-r1-logo.png; assets/nvidia-logo-white.svg; assets/nebius-logo.svg
+- focal: assets/roundone-r1-logo.png
+- roles: retro-footer = background · roundone-r1-logo = cutout · nvidia / nebius = supporting (credit line)
+- sfx: none
+
+narrativeRole: Close on the arcade's own question and one action.
+keyMessage: Ready for round one? Get started at roundone.dev.
+
+**Start from `.hyperframes/carve/12-outro.orig.html`** (the film's old end card) — copy it, rename every `f12-` id to `f30-`, composition id / timeline key `30-end`, and change only the headline: `Ready for` / `round one?` (line 2 in `rk-sunset-text` with the hero glow). Keep everything else — lockup, `Get started` + `roundone.dev`, the credit line (`Open source · Self-hosted · Built on` [NVIDIA] `Nemotron` + [Nebius] `Token Factory`), the press on 3.5s, the dither reveal (entered through a wipe) and the timing. This is the final frame: a fade to black over the last 0.5s is allowed (fromTo on a full-frame black layer, opacity 0 → 1, 5.5–6.0s).

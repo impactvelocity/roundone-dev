@@ -1,0 +1,194 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f26-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f26-stage"] { position: absolute; inset: 0; }
+    [id="f26-dither"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 20; pointer-events: none; }
+
+    /* Reward chips (film rk-tag pills), in page px inside the window's callout layer.
+       .f26-fly carries the x of the arc, .f26-drop the y, the chip itself opacity + scale. */
+    .f26-fly { position: absolute; left: 0; top: 0; }
+    .f26-drop { display: flex; }
+    .f26-chip.rk-tag {
+      font-size: 20px; gap: 8px; background: #F2ECFC; color: #564B70;
+      box-shadow: 0 0 0 1px rgba(109,40,217,.10), 0 12px 24px -12px rgba(46,22,110,.5);
+    }
+    .f26-chip.rk-tag svg { width: 16px; height: 16px; }
+  </style>
+
+  <div id="root" data-composition-id="26-rewards" data-width="1920" data-height="1080" data-duration="8.5">
+    <div id="f26-ground" class="clip" data-start="0" data-duration="8.5" data-track-index="0"></div>
+    <div id="f26-stage" class="clip" data-start="0" data-duration="8.5" data-track-index="1">
+      <canvas id="f26-dither" width="1920" height="1080"></canvas>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour/shots.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 8;
+      var root = document.querySelector('[data-composition-id="26-rewards"]');
+      var stage = root.querySelector('[id="f26-stage"]');
+      var dither = root.querySelector('[id="f26-dither"]');
+      var shot = TK.shot("rewards");
+
+      // Window + header (built now so TK.ready can wait on the screenshot).
+      var w = TK.window(stage, { url: shot.url, src: shot.src });
+      var h = TK.header(stage, { eyebrow: "Results <b>›</b> Rewards", title: "Set the prizes once.", chapter: 3 });
+
+      // Page geometry (page px, measured on assets/tour/raw/rewards.png ÷ 2).
+      var ROW_Y = { 1: 403, 3: 588, 6: 863 }; // Grand prize · Top 5 finalists · Best technical build
+      var CHIP_RIGHT = 858; // chips end just left of each row's icon cluster (x ≈ 877–890)
+      var CHIP_GAP = 8;
+      var CHIP_SCALE = 0.7;
+      var START_X = 1500; // chips enter from beyond the window's right edge (1440)
+      var ARC_DROP = 48; // they start this far above their row and arc down onto it
+
+      var CHIPS = [
+        { label: "Cash", icon: "coin", row: 1, t: 1.25 },
+        { label: "Credits", icon: "ticket", row: 1, t: 1.5 },
+        { label: "Swag", icon: "gift", row: 3, t: 1.75 },
+        { label: "Pass", icon: "tag", row: 3, t: 2.0 },
+        { label: "Link", icon: "link", row: 6, t: 2.25 },
+      ];
+      CHIPS.forEach(function (c) {
+        var fly = document.createElement("div");
+        fly.className = "f26-fly";
+        var drop = document.createElement("div");
+        drop.className = "f26-drop";
+        var chip = document.createElement("span");
+        chip.className = "rk-tag rk-tag--neutral f26-chip";
+        chip.innerHTML = RK.icon(c.icon, 16) + "<span>" + c.label + "</span>";
+        drop.appendChild(chip);
+        fly.appendChild(drop);
+        w.layer.appendChild(fly);
+        c.fly = fly;
+        c.drop = drop;
+        c.chip = chip;
+      });
+
+      // Camera target: put page point (px, py) at frame point (fx, fy) at zoom S.
+      function camTo(tl, t, S, px, py, fx, fy, dur) {
+        return TK.focus(tl, w, t, [px, py, 0, 0], {
+          pad: 0, scale: S, min: 0.5, max: 2, dur: dur, view: { x: fx, y: fy, w: 0, h: 0 },
+        });
+      }
+
+      // A callout card's height at a given width (cards are measured once fonts are in).
+      function cardHeight(c, width) {
+        var k = document.createElement("div");
+        k.className = "tk-card";
+        k.style.width = width + "px";
+        k.style.visibility = "hidden";
+        k.innerHTML = '<span class="tk-num">1</span><div><h3>' + c.title + "</h3><p>" + c.body + "</p></div>";
+        w.layer.appendChild(k);
+        var hh = k.offsetHeight;
+        w.layer.removeChild(k);
+        return hh;
+      }
+
+      function withOverrides(c, o) {
+        var d = {};
+        Object.keys(c).forEach(function (k) { d[k] = c[k]; });
+        Object.keys(o).forEach(function (k) { d[k] = o[k]; });
+        return d;
+      }
+
+      TK.ready(root).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+
+        // ── Chips: land right-aligned on their rows at 70% (layout in scaled px). ──
+        var byRow = {};
+        CHIPS.forEach(function (c) {
+          c.w = c.chip.offsetWidth;
+          c.h = c.chip.offsetHeight;
+          (byRow[c.row] = byRow[c.row] || []).push(c);
+        });
+        Object.keys(byRow).forEach(function (row) {
+          var right = CHIP_RIGHT;
+          byRow[row].slice().reverse().forEach(function (c) {
+            var sw = c.w * CHIP_SCALE;
+            c.cx = right - sw / 2;
+            c.cy = ROW_Y[row];
+            right -= sw + CHIP_GAP;
+          });
+        });
+        CHIPS.forEach(function (c) {
+          c.fly.style.left = c.cx - c.w / 2 + "px";
+          c.fly.style.top = c.cy - c.h / 2 + "px";
+        });
+        var link = CHIPS[4];
+        var linkTop = link.cy - (link.h * CHIP_SCALE) / 2;
+        var linkBottom = link.cy + (link.h * CHIP_SCALE) / 2;
+
+        // ── Callouts: shots.js copy; cards placed so every held view keeps them above y=900. ──
+        // shots.js order: 0 Each winner's haul · 1 Prizes by final rank · 2 Awards you pick.
+        var src = shot.callouts;
+        var K = 1238 / 1440; // shots.js card widths are on the landing canvas
+        var W1 = 440;
+        var h1 = cardHeight(src[1], W1);
+        var h2 = cardHeight(src[2], 340);
+        var h3 = cardHeight(src[0], 340);
+        var TOP = 346 - Math.max(h1, h3); // cards 1 and 3 sit on the top edges of their rings
+        var CARD2_Y = 552; // under the winner table, beside the award rows (clear of the app's paragraph line below)
+        var co = TK.callouts(w, [
+          withOverrides(src[1], { width: W1 * K, cardAt: [540, TOP] }), // 1 Prizes by final rank
+          withOverrides(src[2], { cardAt: [1040, CARD2_Y] }), // 2 Awards you pick
+          withOverrides(src[0], { cardAt: [1040, TOP] }), // 3 Each winner's haul
+        ]);
+        var card1Bottom = TOP + h1;
+        var card2Bottom = CARD2_Y + h2;
+
+        // Scene 1 (0.0–1.0): night tiles clear, the header rises, then the window.
+        RK.dither(clock, dither, { start: 0, dur: 0.4, mode: "reveal", color: "#150C2E", angle: "diagonal" });
+        TK.showHeader(tl, h, 0.4);
+        TK.showWindow(tl, w, 0.45);
+
+        // Scene 2 (1.0–2.75): push onto the prize list (all six rows, Link row above y=900);
+        // chips fly in from past the window's right edge on eighths and snap to 70%.
+        camTo(tl, 0.9, 1.28, 720, linkBottom + 10, 960, 892, 0.9);
+        CHIPS.forEach(function (c) {
+          var dx = START_X + c.w / 2 - c.cx;
+          tl.fromTo(c.chip, { opacity: 0 }, { opacity: 1, duration: 0.08, ease: "steps(2)" }, c.t);
+          tl.fromTo(c.fly, { x: dx }, { x: 0, duration: 0.4, ease: "power3.out" }, c.t);
+          tl.fromTo(c.drop, { y: -ARC_DROP }, { y: 0, duration: 0.4, ease: "sine.inOut" }, c.t);
+          tl.fromTo(c.chip, { scale: 1 }, { scale: CHIP_SCALE, duration: 0.15, ease: "steps(3)" }, c.t + 0.25);
+        });
+
+        // Scene 3 (2.75–5.75): the ranked tiers, then down to the awards, then over to the table.
+        // 2.5 (added): ease up onto the ranked tiers — card 1 sits above its ring, which the
+        // Scene 2 framing (low, to keep the Link row above y=900) leaves under the header band.
+        camTo(tl, 2.5, 1.4, 560, TOP - 6 + 630 / 1.4, 960, 892, 0.7);
+        TK.showCallout(tl, co[0], 3.0);
+        // Follow down onto the award rows: ring 2 fully framed, card 1 and ring 1's top edge
+        // slide under the header band's solid part (frame y ≤ 145).
+        var S2 = 1.36;
+        camTo(tl, 3.6, S2, 743, Math.max(902, Math.max(card1Bottom, 353) + 747 / S2), 960, 892, 0.75);
+        TK.showCallout(tl, co[1], 4.0);
+        // Over to the right column: card 2 stays above y=900, the Link row drops out below the frame.
+        var S3 = 1.35;
+        var p892 = Math.max(card2Bottom + 6, Math.min(TOP - 10 + 630 / S3, linkTop - 6 - 188 / S3));
+        camTo(tl, 4.75, S3, 1440, p892, 1830, 892, 0.8);
+        TK.showCallout(tl, co[2], 5.25);
+
+        // Scene 4 (5.75–8.0): settle on all three callouts inside the safe area. Hold.
+        TK.overview(tl, w, 6.0, { dur: 0.9 });
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["26-rewards"] = tl;
+      });
+    })();
+  </script>
+</template>

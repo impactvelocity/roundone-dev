@@ -1,0 +1,157 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f25-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f25-stage"] { position: absolute; inset: 0; }
+
+    /* Rebuilt prompt-input pieces, in page px inside the window's fx layer.
+       Measured off chat.png: the textarea's text box starts at (523, 773), Geist Sans 14px/20px, #18181B;
+       the send button is 32×32 at (1185, 831) — the app's primary (#6E56E7, as on the active tab) while there is a draft. */
+    .f25-typed { position: absolute; left: 523px; top: 773px; font: 400 14px/20px "GeistSans", sans-serif; color: #18181B; white-space: nowrap; }
+    .f25-send { position: absolute; left: 1185px; top: 831px; width: 32px; height: 32px; border-radius: 8px; background: #6E56E7; color: #FFFFFF; display: grid; place-items: center; }
+    .f25-send svg { display: block; }
+  </style>
+
+  <div id="root" data-composition-id="25-chat" data-width="1920" data-height="1080">
+    <div id="f25-ground" class="clip" data-start="0" data-duration="10" data-track-index="0"></div>
+    <div id="f25-stage" class="clip" data-start="0" data-duration="10" data-track-index="1"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour/shots.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 10;
+      var root = document.querySelector('[data-composition-id="25-chat"]');
+      var stage = root.querySelector('[id="f25-stage"]');
+      var shot = TK.shot("chat");
+
+      // Window + header (built now so TK.ready can wait on the screenshot).
+      var w = TK.window(stage, { url: shot.url, src: shot.src });
+      var h = TK.header(stage, { eyebrow: "Judging <b>›</b> Chat", title: "Ask across every project.", chapter: 2 });
+
+      // ── Replay the exchange from the screenshot (page px) ──────────────────
+      // The conversation pane is pure #FFFFFF, so one white cover blanks the question
+      // bubble, the "Checked scores" tool line and the answer; crops of each piece return in order.
+      TK.cover(w, [500, 190, 745, 200], "#FFFFFF");
+      var bubble = TK.crop(w, [544, 209, 688, 68]);  // bubble 546–1230 × 211–275
+      var tool = TK.crop(w, [504, 298, 154, 22]);    // "Checked scores" 510–651 × 303–315
+      var line1 = TK.crop(w, [506, 336, 708, 20]);   // answer line 1, ink 510–1209 × 339–353
+      var line2 = TK.crop(w, [506, 356, 360, 20]);   // answer line 2, ink 510–861 × 359–373
+
+      // The input: the placeholder hides while the question types over it, the send
+      // button lights up while there is a draft, and everything clears on send.
+      var placeholderCover = TK.cover(w, [520, 772, 196, 24], "#FFFFFF");
+      var typed = document.createElement("div");
+      typed.className = "f25-typed";
+      w.fx.appendChild(typed);
+      var send = document.createElement("div");
+      send.className = "f25-send";
+      send.innerHTML =
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg>';
+      w.fx.appendChild(send);
+
+      // Word spans of the two answer lines (page px, measured off chat.png), for a word-stepped stream.
+      var LINES = [
+        { el: line1, left: 506, width: 708, words: [[511, 548], [553, 618], [623.5, 665.5], [670.5, 695], [699.5, 709.5], [714, 734], [738.5, 765.5], [770, 807], [811.5, 870.5], [875.5, 890], [894.5, 944], [948.5, 1016.5], [1020.5, 1054.5], [1059, 1071], [1075.5, 1111.5], [1115.5, 1144], [1148.5, 1190], [1194.5, 1209]] },
+        { el: line2, left: 506, width: 360, words: [[510.5, 530.5], [535, 567], [572, 639.5], [643, 688], [692.5, 733.5], [737.5, 750], [754, 797], [801.5, 824], [827, 861]] },
+      ];
+
+      TK.ready(root).then(function () {
+        window.__timelines = window.__timelines || {};
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+        var co = TK.callouts(w, shot.callouts); // 1 Scope the question · 2 Answers from your data · 3 Nemotron on Nebius
+
+        // A connector drawn from full dash-offset still paints its round cap as a dot on the ring;
+        // keep each line hidden until its callout starts drawing it.
+        function showCallout(c, t) {
+          if (c.line) tl.fromTo(c.line, { opacity: 0 }, { opacity: 1, duration: 0.02, ease: "none" }, t + 0.16);
+          TK.showCallout(tl, c, t);
+        }
+
+        // Camera shots: page point (px, py) lands on frame point (fx, fy) at zoom S (TK.focus with a
+        // zero-size rect and view). Each is framed so the app's nav and tab bar (violet active-tab
+        // underline at page y 120–124) sit wholly under the header band's solid top (y ≤ 145) instead
+        // of ghosting through its fade under the title, while rings and cards stay within y 240–890.
+        function shotAt(t, S, px, py, fx, fy, dur) {
+          TK.focus(tl, w, t, [px, py, 0, 0], { scale: S, max: S, pad: 0, dur: dur, view: { x: fx, y: fy, w: 0, h: 0 } });
+        }
+
+        // Scene 1 (0.0–1.0): header rises, then the window.
+        TK.showHeader(tl, h, 0.05);
+        TK.showWindow(tl, w, 0.2);
+
+        // Scene 2 (1.0–4.0): push onto the conversation + input (1.15×: bubble top at y 246, input bottom
+        // at y 1011, the input column centred); type, send, check scores, stream.
+        shotAt(0.9, 1.15, 870, 211, 960, 246, 0.9);
+
+        var QUESTION = "Which project ranked first in the final panel?";
+        var T_TYPE = 1.1;
+        var T_SEND = 2.5;
+        var cps = QUESTION.length / 1.2; // 1.1 → 2.3
+        var firstChar = T_TYPE + 1 / cps;
+        RK.type(clock, typed, QUESTION, { start: T_TYPE, cps: cps, caretHold: 0.2 });
+        clock.add(function (t) {
+          var drafting = t >= T_TYPE && t < T_SEND;
+          typed.style.visibility = drafting ? "visible" : "hidden";
+          placeholderCover.style.visibility = drafting ? "visible" : "hidden";
+          // Send lights up with the first character, presses on the send beat, then goes idle.
+          var lit = t >= firstChar && t < T_SEND + 0.12;
+          send.style.visibility = lit ? "visible" : "hidden";
+          send.style.transform = t >= T_SEND && t < T_SEND + 0.12 ? "scale(0.86)" : "none";
+        });
+
+        // 2.5: the question bubble pops in (sent messages sit right, so it grows from its lower right).
+        tl.fromTo(bubble, { opacity: 0, y: 22, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "expo.out", transformOrigin: "100% 100%" }, T_SEND);
+        // 2.9: the agent's tool line.
+        tl.fromTo(tool, { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, 2.9);
+        // 3.25–3.9: the answer streams in, top to bottom, a word at a time (stepped clip).
+        var S0 = 3.25;
+        var S1 = 3.9;
+        var offsets = [];
+        var run = 0;
+        LINES.forEach(function (L, li) {
+          L.words.forEach(function (wd) {
+            offsets.push({ line: li, end: wd[1], at: run + (wd[0] - 510.5) });
+          });
+          run += L.words[L.words.length - 1][1] - 510.5;
+        });
+        var last = offsets[offsets.length - 1].at;
+        clock.add(function (t) {
+          var pointer = t < S0 ? -1 : ((Math.min(t, S1) - S0) / (S1 - S0)) * last + 1e-6;
+          var shown = [null, null];
+          for (var i = 0; i < offsets.length; i++) if (offsets[i].at <= pointer) shown[offsets[i].line] = offsets[i].end;
+          LINES.forEach(function (L, li) {
+            var vis = shown[li] == null ? 0 : Math.min(L.width, shown[li] + 2 - L.left);
+            L.el.style.clipPath = "inset(0 " + (L.width - vis) + "px 0 0)";
+          });
+        });
+
+        // Scene 3 (4.0–8.0): the scope filters, over to the answer, up to the model chip.
+        shotAt(4.0, 1.35, 12, 208, 250, 256, 0.75);     // filters ring's top-left; the window's left edge stays near x 233
+        showCallout(co[0], 4.5);
+        shotAt(5.25, 1.35, 862, 290, 960, 362, 0.6);    // answer ring's top centre, centred
+        showCallout(co[1], 5.75);
+        shotAt(6.5, 1.35, 1424, 135, 1692, 244, 0.6);   // model-chip ring's top-right; all three cards in view
+        showCallout(co[2], 7.0);
+
+        // Scene 4 (8.0–10.0): back to the whole page, every callout in view. Hold.
+        TK.rest(tl, w, 8.0, { dur: 0.9 });
+
+        window.__timelines["25-chat"] = tl;
+      });
+    })();
+  </script>
+</template>

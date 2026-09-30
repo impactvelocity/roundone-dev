@@ -1,0 +1,629 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #F7F2FF; }
+
+    /* Ground (track 0): night glow + pixel stars */
+    [id="f17-agent-ground"] {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 118%, rgba(251,122,60,0.42), transparent 70%),
+        radial-gradient(ellipse 90% 70% at 50% 110%, rgba(217,70,239,0.3), transparent 72%),
+        #150C2E;
+    }
+
+    /* Stage (track 1) */
+    [id="f17-agent-stage"] { position: absolute; inset: 0; }
+    [id="f17-agent-stage"] * { box-sizing: border-box; }
+
+    [id="f17-agent-eyebrow"] { position: absolute; left: 120px; top: 96px; line-height: 24px; white-space: nowrap; }
+
+    /* Connectors: dashed pixel circuit, each revealed through a mask path that runs the draw */
+    [id="f17-agent-wires"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; pointer-events: none; }
+    [class~="f17-agent-wire"] { fill: none; stroke-width: 4; stroke-dasharray: 4 6; }
+    [class~="f17-agent-branch"] { stroke-dashoffset: 5; } /* continues the trunk's dash rhythm past x=1110 */
+    [class~="f17-agent-draw"] { fill: none; stroke: #FFFFFF; stroke-width: 10; stroke-linecap: butt; stroke-linejoin: miter; }
+
+    /* Work packets (built in JS) */
+    [id="f17-agent-packets"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; pointer-events: none; }
+    [class~="f17-agent-bit"] { position: absolute; left: 0; top: 0; opacity: 0; }
+
+    /* Project card: the flip lives on the two faces, perspective on this parent */
+    [id="f17-agent-card"] { position: absolute; left: 120px; top: 230px; width: 470px; height: 580px; perspective: 1600px; }
+    [class~="f17-agent-face"] { position: absolute; left: 0; top: 0; width: 470px; height: 580px; overflow: hidden; color: #1D1433; }
+    [id="f17-agent-back"] { visibility: hidden; }
+
+    [class~="f17-agent-head"] { position: absolute; left: 0; top: 0; width: 470px; height: 140px; padding: 0 28px; display: flex; align-items: center; gap: 18px; border-bottom: 1px solid rgba(46,22,88,0.1); }
+    [id="f17-agent-stage"] [class~="f17-agent-head"] .rk-mark { width: 56px; height: 56px; font-size: 20px; }
+    [class~="f17-agent-titles"] { min-width: 0; display: flex; flex-direction: column; }
+    [class~="f17-agent-title"] { font-size: 32px; font-weight: 600; line-height: 1.15; color: #1D1433; white-space: nowrap; }
+    [class~="f17-agent-sub"] { margin-top: 2px; font-size: 22px; font-weight: 400; line-height: 1.3; color: #564B70; white-space: nowrap; }
+    [class~="f17-agent-model"] { margin-top: 4px; font-family: "GeistMono", monospace; font-size: 20px; font-weight: 400; line-height: 1.2; color: #6F6689; white-space: nowrap; }
+
+    [id="f17-agent-sublabel"] { position: absolute; left: 28px; top: 218px; font-family: "GeistMono", monospace; font-size: 18px; font-weight: 600; letter-spacing: 0.18em; line-height: 22px; color: #6F6689; white-space: nowrap; }
+    [class~="f17-agent-chip"] { position: absolute; left: 28px; width: 414px; height: 72px; padding: 0 20px; display: flex; align-items: center; gap: 16px; border-radius: 14px; background: rgba(109,40,217,0.045); }
+    [id="f17-agent-chip-1"] { top: 254px; }
+    [id="f17-agent-chip-2"] { top: 342px; }
+    [id="f17-agent-chip-3"] { top: 430px; }
+    [class~="f17-agent-chip-ico"] { flex: none; color: #7C3AED; }
+    [class~="f17-agent-chip-txt"] { min-width: 0; display: flex; flex-direction: column; }
+    [class~="f17-agent-chip-label"] { font-size: 24px; font-weight: 600; line-height: 28px; color: #1D1433; white-space: nowrap; }
+    [class~="f17-agent-chip-val"] { font-family: "GeistMono", monospace; font-size: 18px; font-weight: 400; line-height: 22px; color: #564B70; white-space: nowrap; }
+
+    [id="f17-agent-rows"] { position: absolute; left: 0; top: 140px; width: 470px; }
+    [class~="f17-agent-row"] { height: 58px; padding: 0 28px; display: flex; align-items: center; gap: 14px; border-top: 1px solid rgba(46,22,88,0.1); }
+    [class~="f17-agent-row"]:first-child { border-top: 0; }
+    [class~="f17-agent-row-ico"] { flex: none; color: #7C3AED; }
+    [class~="f17-agent-row-txt"] { flex: 1 1 auto; min-width: 0; font-size: 21px; font-weight: 500; line-height: 1.2; color: #1D1433; white-space: nowrap; }
+    [class~="f17-agent-res"] { flex: none; position: relative; width: 88px; height: 100%; }
+    [id="f17-agent-stage"] [class~="f17-agent-pass"] { padding: 7px 13px; }
+    [class~="f17-agent-res-l"] { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; }
+    [class~="f17-agent-spin"] { display: block; color: #7C3AED; }
+    [class~="f17-agent-spin"] svg { display: block; }
+    [id="f17-agent-foot"] { position: absolute; left: 0; top: 488px; width: 470px; height: 92px; padding: 0 28px; display: flex; align-items: center; border-top: 1px solid rgba(46,22,88,0.1); }
+
+    /* The hub: the R1 logo, handed off at center (960,300) 170px */
+    [id="f17-agent-hub"] { position: absolute; left: 875px; top: 215px; width: 170px; height: 170px; border-radius: 38px; display: block; }
+    [id="f17-agent-hub-label"] { position: absolute; left: 810px; top: 600px; width: 300px; padding-left: 0.18em; text-align: center; font-family: "GeistMono", monospace; font-size: 20px; font-weight: 600; letter-spacing: 0.18em; line-height: 24px; color: #B9ABD9; white-space: nowrap; }
+
+    /* Stations: entrance on the wrapper, dim/lit state on the inner night card */
+    [class~="f17-agent-st"] { position: absolute; left: 1200px; width: 600px; height: 230px; }
+    [id="f17-agent-st-a"] { top: 150px; }
+    [id="f17-agent-st-b"] { top: 410px; }
+    [id="f17-agent-st-c"] { top: 670px; }
+    [id="f17-agent-stage"] [class~="f17-agent-stc"] { position: absolute; left: 0; top: 0; width: 600px; height: 230px; padding: 26px; opacity: 0.4; }
+    [class~="f17-agent-sthead"] { height: 40px; display: flex; align-items: center; gap: 16px; }
+    [class~="f17-agent-mark"] { display: block; flex: none; }
+    [id="f17-agent-nb"] { width: 109.2px; height: 30px; }
+    [id="f17-agent-tv"] { width: 132.8px; height: 40px; }
+    [id="f17-agent-nv"] { width: 140px; height: 28px; }
+    [class~="f17-agent-stname"] { font-size: 30px; font-weight: 600; line-height: 1; color: #F7F2FF; white-space: nowrap; }
+    [class~="f17-agent-verb"] { margin-top: 10px; height: 34px; font-family: "GeistPixelSquare", "GeistSans", sans-serif; font-weight: 500; font-size: 32px; line-height: 34px; white-space: nowrap; }
+    [class~="f17-agent-verb"]:not(.rk-sunset-text) { color: #B9ABD9; }
+    [class~="f17-agent-panel"] { margin-top: 14px; font-family: "GeistMono", monospace; font-size: 18px; font-weight: 400; line-height: 26px; color: #B9ABD9; }
+    [class~="f17-agent-ln"] { height: 26px; white-space: pre; }
+    [class~="f17-agent-tool"] { color: #F0ABFC; }
+    [class~="f17-agent-cmd"] { color: #F7F2FF; }
+    [class~="f17-agent-ok"] { display: inline-flex; vertical-align: middle; color: #FCD34D; }
+    [class~="f17-agent-ok-wide"] { margin: 0 0.6em 0 1.2em; }
+    [class~="f17-agent-ok-mid"] { margin-left: 0.6em; }
+    [id="f17-agent-stage"] [class~="f17-agent-panel"] .rk-caret { background: #F7F2FF; }
+
+    [id="f17-agent-thumbs"] { height: 26px; display: flex; align-items: center; gap: 8px; }
+    [class~="f17-agent-thumb"] { position: relative; display: block; flex: none; width: 28px; height: 20px; background: rgba(255,255,255,0.1); }
+    [class~="f17-agent-thumb"] i { position: absolute; left: 5px; height: 2px; background: rgba(247,242,255,0.5); }
+    [class~="f17-agent-thumb"] i:first-child { top: 6px; width: 18px; }
+    [class~="f17-agent-thumb"] i + i { top: 11px; width: 12px; }
+
+    [id="f17-agent-tiers"] { margin-top: 8px; display: flex; align-items: center; gap: 10px; }
+    [class~="f17-agent-tier-w"] { position: relative; display: block; flex: none; }
+    [class~="f17-agent-tier"] { position: relative; z-index: 1; display: block; padding: 6px 14px; border-radius: 999px; font-family: "GeistSans", sans-serif; font-size: 18px; font-weight: 600; line-height: 18px; white-space: nowrap; background: rgba(255,255,255,0.06); color: #B9ABD9; }
+    [id="f17-agent-ultra-glow"] {
+      position: absolute; z-index: 0; left: -70px; top: -26px; right: -70px; bottom: -26px; pointer-events: none;
+      background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(251,122,60,0.35) 0%, rgba(251,122,60,0.2) 45%, rgba(251,122,60,0) 100%);
+    }
+
+    /* Criteria chips (Scene 2): the pop lives on the pill, the rise into the hub on its row.
+       The stack is centred on x=945, not the hub's 960: the dashed branch-C wire runs down x=1110 (to y=785),
+       and the widest chip (307px) must end ~10px short of it. The rise tween closes the 15px back onto the hub. */
+    [class~="f17-agent-critrow"] { position: absolute; left: 785px; width: 320px; height: 44px; display: flex; justify-content: center; }
+    [id="f17-agent-critrow-1"] { top: 660px; }
+    [id="f17-agent-critrow-2"] { top: 712px; }
+    [id="f17-agent-critrow-3"] { top: 764px; }
+    [id="f17-agent-stage"] [class~="f17-agent-crit"] { flex: none; height: 44px; padding: 0 16px 0 13px; display: inline-flex; align-items: center; gap: 9px; border-radius: 999px; font-size: 20px; font-weight: 600; line-height: 1; color: #F7F2FF; white-space: nowrap; }
+    [class~="f17-agent-crit-ico"] { flex: none; color: #F0ABFC; }
+
+    /* Vercel Workflow badge (Scene 6) */
+    /* Two rows, not one line: at 22px + 18px mono the single-line pill is ~664px wide and, centred on 960, would run
+       ~90px into the Nemotron station (x ≥ 1200) right where its tier pills sit. Stacked it is ~354px. */
+    [id="f17-agent-badge-row"] { position: absolute; left: 770px; top: 802px; width: 380px; display: flex; justify-content: center; }
+    [id="f17-agent-stage"] [id="f17-agent-badge"] { flex: none; flex-direction: column; align-items: center; gap: 0; padding: 10px 30px; font-size: 22px; font-weight: 600; line-height: 24px; color: #F7F2FF; }
+    [class~="f17-agent-vc-name"] { display: flex; align-items: center; gap: 10px; }
+    [class~="f17-agent-vc-mark"] { display: block; flex: none; }
+    [class~="f17-agent-vc-div"] { display: block; align-self: stretch; height: 1px; margin: 7px 0; background: rgba(255,255,255,0.2); }
+    [class~="f17-agent-vc-props"] { font-family: "GeistMono", monospace; font-size: 18px; font-weight: 400; line-height: 20px; color: #B9ABD9; }
+  </style>
+
+  <div id="root" data-composition-id="17-agent" data-width="1920" data-height="1080">
+    <div id="f17-agent-ground" class="clip" data-start="0" data-duration="12" data-track-index="0">
+      <div class="rk-stars"></div>
+    </div>
+
+    <div id="f17-agent-stage" class="clip" data-start="0" data-duration="12" data-track-index="1">
+      <svg id="f17-agent-wires" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true">
+        <defs>
+          <mask id="f17-agent-m-in" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080"><path id="f17-agent-d-in" class="f17-agent-draw" d="M590 520 H885" /></mask>
+          <mask id="f17-agent-m-trunk" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080"><path id="f17-agent-d-trunk" class="f17-agent-draw" d="M1035 520 H1110" /></mask>
+          <mask id="f17-agent-m-a" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080"><path id="f17-agent-d-a" class="f17-agent-draw" d="M1110 520 V265 H1200" /></mask>
+          <mask id="f17-agent-m-b" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080"><path id="f17-agent-d-b" class="f17-agent-draw" d="M1110 520 H1200" /></mask>
+          <mask id="f17-agent-m-c" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080"><path id="f17-agent-d-c" class="f17-agent-draw" d="M1110 520 V785 H1200" /></mask>
+        </defs>
+        <path id="f17-agent-w-in" class="f17-agent-wire" d="M590 520 H885" mask="url(#f17-agent-m-in)" shape-rendering="crispEdges" />
+        <path id="f17-agent-w-trunk" class="f17-agent-wire" d="M1035 520 H1110" mask="url(#f17-agent-m-trunk)" shape-rendering="crispEdges" />
+        <path id="f17-agent-w-a" class="f17-agent-wire f17-agent-branch" d="M1110 520 V265 H1200" mask="url(#f17-agent-m-a)" shape-rendering="crispEdges" />
+        <path id="f17-agent-w-b" class="f17-agent-wire f17-agent-branch" d="M1110 520 H1200" mask="url(#f17-agent-m-b)" shape-rendering="crispEdges" />
+        <path id="f17-agent-w-c" class="f17-agent-wire f17-agent-branch" d="M1110 520 V785 H1200" mask="url(#f17-agent-m-c)" shape-rendering="crispEdges" />
+      </svg>
+
+      <div id="f17-agent-packets" data-layout-ignore></div>
+
+      <div id="f17-agent-card">
+        <div id="f17-agent-front" class="rk-mock f17-agent-face">
+          <div class="f17-agent-head">
+            <span class="rk-mark">RW</span>
+            <div class="f17-agent-titles">
+              <div class="f17-agent-title">Repo Whisperer</div>
+              <div class="f17-agent-sub">Project #042</div>
+            </div>
+          </div>
+          <div id="f17-agent-sublabel">SUBMISSION</div>
+          <div id="f17-agent-chip-1" class="f17-agent-chip">
+            <span class="f17-agent-chip-ico" data-rk-icon="branch" data-size="24"></span>
+            <div class="f17-agent-chip-txt"><div class="f17-agent-chip-label">repo</div><div class="f17-agent-chip-val">github.com/…/repo-whisperer</div></div>
+          </div>
+          <div id="f17-agent-chip-2" class="f17-agent-chip">
+            <span class="f17-agent-chip-ico" data-rk-icon="globe" data-size="24"></span>
+            <div class="f17-agent-chip-txt"><div class="f17-agent-chip-label">live demo</div><div class="f17-agent-chip-val">repo-whisperer.app</div></div>
+          </div>
+          <div id="f17-agent-chip-3" class="f17-agent-chip">
+            <span class="f17-agent-chip-ico" data-rk-icon="play" data-size="24"></span>
+            <div class="f17-agent-chip-txt"><div class="f17-agent-chip-label">demo video</div><div class="f17-agent-chip-val">2:41</div></div>
+          </div>
+        </div>
+
+        <div id="f17-agent-back" class="rk-mock f17-agent-face">
+          <div class="f17-agent-head">
+            <span class="rk-tile"><span data-rk-icon="spark" data-size="28"></span></span>
+            <div class="f17-agent-titles">
+              <div class="f17-agent-title">Agent review</div>
+              <div class="f17-agent-model">nemotron-3-super</div>
+            </div>
+          </div>
+          <div id="f17-agent-rows">
+            <div class="f17-agent-row"><span class="f17-agent-row-ico" data-rk-icon="gear" data-size="20"></span><span class="f17-agent-row-txt">Builds</span><span class="f17-agent-res"><span class="f17-agent-res-l"><span class="f17-agent-spin"></span></span><span class="f17-agent-res-l"><span class="rk-tag rk-tag--pass f17-agent-pass"><span data-rk-icon="check" data-size="14"></span>Pass</span></span></span></div>
+            <div class="f17-agent-row"><span class="f17-agent-row-ico" data-rk-icon="check-list" data-size="20"></span><span class="f17-agent-row-txt">Tests pass</span><span class="f17-agent-res"><span class="f17-agent-res-l"><span class="f17-agent-spin"></span></span><span class="f17-agent-res-l"><span class="rk-tag rk-tag--pass f17-agent-pass"><span data-rk-icon="check" data-size="14"></span>Pass</span></span></span></div>
+            <div class="f17-agent-row"><span class="f17-agent-row-ico" data-rk-icon="search" data-size="20"></span><span class="f17-agent-row-txt">Calls Token Factory</span><span class="f17-agent-res"><span class="f17-agent-res-l"><span class="f17-agent-spin"></span></span><span class="f17-agent-res-l"><span class="rk-tag rk-tag--pass f17-agent-pass"><span data-rk-icon="check" data-size="14"></span>Pass</span></span></span></div>
+            <div class="f17-agent-row"><span class="f17-agent-row-ico" data-rk-icon="search" data-size="20"></span><span class="f17-agent-row-txt">Uses an NVIDIA open model</span><span class="f17-agent-res"><span class="f17-agent-res-l"><span class="f17-agent-spin"></span></span><span class="f17-agent-res-l"><span class="rk-tag rk-tag--pass f17-agent-pass"><span data-rk-icon="check" data-size="14"></span>Pass</span></span></span></div>
+            <div class="f17-agent-row"><span class="f17-agent-row-ico" data-rk-icon="globe" data-size="20"></span><span class="f17-agent-row-txt">Live demo up</span><span class="f17-agent-res"><span class="f17-agent-res-l"><span class="f17-agent-spin"></span></span><span class="f17-agent-res-l"><span class="rk-tag rk-tag--pass f17-agent-pass"><span data-rk-icon="check" data-size="14"></span>Pass</span></span></span></div>
+            <div class="f17-agent-row"><span class="f17-agent-row-ico" data-rk-icon="search" data-size="20"></span><span class="f17-agent-row-txt">Claims match the demo</span><span class="f17-agent-res"><span class="f17-agent-res-l"><span class="f17-agent-spin"></span></span><span class="f17-agent-res-l"><span class="rk-tag rk-tag--pass f17-agent-pass"><span data-rk-icon="check" data-size="14"></span>Pass</span></span></span></div>
+          </div>
+          <div id="f17-agent-foot"><span id="f17-agent-done" class="rk-tag rk-tag--agent"><span data-rk-icon="spark" data-size="14"></span>Agent review done</span></div>
+        </div>
+      </div>
+
+      <div id="f17-agent-st-a" class="f17-agent-st">
+        <div id="f17-agent-stc-a" class="rk-night-card f17-agent-stc">
+          <div class="f17-agent-sthead">
+            <img id="f17-agent-nb" class="f17-agent-mark" src="assets/nebius-logo.svg" alt="Nebius" />
+            <div class="f17-agent-stname">Sandboxes</div>
+          </div>
+          <div id="f17-agent-verb-a" class="f17-agent-verb">Runs, tests, searches code</div>
+          <div class="f17-agent-panel">
+            <div id="f17-agent-a1" class="f17-agent-ln"><span class="f17-agent-tool" data-text="$"></span><span class="f17-agent-tool" data-text="git"></span><span class="f17-agent-cmd" data-text="clone …/repo-whisperer"></span></div>
+            <div id="f17-agent-a2" class="f17-agent-ln"><span class="f17-agent-tool" data-text="$"></span><span class="f17-agent-tool" data-text="pnpm"></span><span class="f17-agent-cmd" data-text="test"></span><span id="f17-agent-ok-a2" class="f17-agent-ok f17-agent-ok-wide" data-rk-icon="check" data-size="18"></span><span data-text="42 passed"></span></div>
+            <div id="f17-agent-a3" class="f17-agent-ln"><span class="f17-agent-tool" data-text="$"></span><span class="f17-agent-tool" data-text="grep"></span><span class="f17-agent-cmd" data-text="tokenfactory.nebius.com"></span><span id="f17-agent-ok-a3" class="f17-agent-ok f17-agent-ok-mid" data-rk-icon="check" data-size="18"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="f17-agent-st-b" class="f17-agent-st">
+        <div id="f17-agent-stc-b" class="rk-night-card f17-agent-stc">
+          <div class="f17-agent-sthead">
+            <img id="f17-agent-tv" class="f17-agent-mark" src="assets/tavily-logo.png" alt="Tavily" />
+          </div>
+          <div id="f17-agent-verb-b" class="f17-agent-verb">Reads the live web</div>
+          <div class="f17-agent-panel">
+            <div id="f17-agent-b1" class="f17-agent-ln"><span class="f17-agent-tool" data-text="crawl"></span><span class="f17-agent-cmd" data-text="repo-whisperer.app"></span><span data-text="· 5 pages"></span><span id="f17-agent-ok-b1" class="f17-agent-ok" data-rk-icon="check" data-size="18"></span></div>
+            <div id="f17-agent-thumbs">
+              <span class="f17-agent-thumb"><i></i><i></i></span>
+              <span class="f17-agent-thumb"><i></i><i></i></span>
+              <span class="f17-agent-thumb"><i></i><i></i></span>
+              <span class="f17-agent-thumb"><i></i><i></i></span>
+              <span class="f17-agent-thumb"><i></i><i></i></span>
+            </div>
+            <div id="f17-agent-b2" class="f17-agent-ln"><span class="f17-agent-tool" data-text="search"></span><span class="f17-agent-cmd" data-text="&quot;ask any codebase anything&quot;"></span><span data-text="· prior art"></span><span id="f17-agent-ok-b2" class="f17-agent-ok" data-rk-icon="check" data-size="18"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="f17-agent-st-c" class="f17-agent-st">
+        <div id="f17-agent-stc-c" class="rk-night-card f17-agent-stc">
+          <div class="f17-agent-sthead">
+            <img id="f17-agent-nv" class="f17-agent-mark" src="assets/nvidia-logo-white.svg" alt="NVIDIA" />
+            <div class="f17-agent-stname">Nemotron</div>
+          </div>
+          <div id="f17-agent-verb-c" class="f17-agent-verb">Checks every claim</div>
+          <div class="f17-agent-panel">
+            <div id="f17-agent-c1" class="f17-agent-ln"><span data-text="on"></span><span class="f17-agent-cmd" data-text="Nebius Token Factory"></span></div>
+            <div id="f17-agent-tiers">
+              <span class="f17-agent-tier-w"><span id="f17-agent-tier-1" class="f17-agent-tier">Lightning</span></span>
+              <span class="f17-agent-tier-w"><span id="f17-agent-tier-2" class="f17-agent-tier">Super 120B</span></span>
+              <span class="f17-agent-tier-w"><span id="f17-agent-ultra-glow" data-layout-ignore></span><span id="f17-agent-tier-3" class="f17-agent-tier">Ultra 550B</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Your criteria: three rubric chips under the hub label; they rise into the hub (under it) at 1.75s -->
+      <div id="f17-agent-critrow-1" class="f17-agent-critrow">
+        <div class="rk-night-card f17-agent-crit"><span class="f17-agent-crit-ico" data-rk-icon="check-list" data-size="20"></span><span>Builds from the README</span></div>
+      </div>
+      <div id="f17-agent-critrow-2" class="f17-agent-critrow">
+        <div class="rk-night-card f17-agent-crit"><span class="f17-agent-crit-ico" data-rk-icon="check-list" data-size="20"></span><span>Uses the NVIDIA SDK</span></div>
+      </div>
+      <div id="f17-agent-critrow-3" class="f17-agent-critrow">
+        <div class="rk-night-card f17-agent-crit"><span class="f17-agent-crit-ico" data-rk-icon="check-list" data-size="20"></span><span>Demo matches the claims</span></div>
+      </div>
+
+      <img id="f17-agent-hub" src="assets/roundone-r1-logo.png" alt="RoundOne" />
+      <div id="f17-agent-hub-label">ROUNDONE AGENT</div>
+
+      <div id="f17-agent-badge-row">
+        <div id="f17-agent-badge" class="rk-glass">
+          <span class="f17-agent-vc-name"><svg class="f17-agent-vc-mark" width="18" height="16" viewBox="0 0 76 65" aria-hidden="true"><path d="M37.6 0 75.2 65H0z" fill="#fff"/></svg><span>Runs on Vercel Workflow</span></span>
+          <span class="f17-agent-vc-div"></span>
+          <span class="f17-agent-vc-props">durable &middot; retries &middot; resumes</span>
+        </div>
+      </div>
+
+      <div id="f17-agent-eyebrow" class="rk-eyebrow rk-eyebrow--dark">ROUND ONE &middot; THE AGENT</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 12;
+      var tl = gsap.timeline({ paused: true });
+      var clock = RK.clock(tl, DURATION);
+      var root = document.querySelector('[data-composition-id="17-agent"]');
+      // Ids start with a digit, so look them up by attribute (a bare #17-… selector is invalid).
+      var $ = function (id) { return root.querySelector('[id="f17-agent-' + id + '"]'); };
+      var $$ = function (cls, scope) { return Array.prototype.slice.call((scope || root).querySelectorAll('[class~="f17-agent-' + cls + '"]')); };
+
+      var EPS = 1e-4;
+      var at = function (t, T) { return t >= T - EPS; };
+      // RK.pop's steps(2) shows its first frame a third of the way into its 0.12s tween: start it 0.05s early so that frame lands on the cue.
+      var POP_LEAD = 0.05;
+      var STEP = 1 / 15; // one step of a 2-step switch (two frames at 30fps)
+      var CPS = 70;
+
+      // Cue sheet (frame-local seconds). 0.0–1.0s is the 9.5s original as is; the criteria beat is new (1.0–2.0s);
+      // every original beat from 1.0s on runs +1.0s later; the Vercel Workflow badge is new (10.5s).
+      var T = {
+        hubMove: 0.15, eyebrow: 0.3, card: 0.35, stations: [0.5, 0.6, 0.7], hubLabel: 0.7, wires: 0.75,
+        crit: [1.0, 1.25, 1.5], critIn: 1.75,
+        sendA: 2.0, litA: 2.5, linesA: [2.7, 3.2, 3.7],
+        sendB: 4.5, litB: 5.0, lineB1: 5.2, thumbs: 5.55, lineB2: 6.15,
+        sendC: 6.8, toC: 7.1, litC: 7.4, lineC1: 7.45, tiers: [7.55, 7.7, 7.85], ultraGlow: 7.9,
+        verdict: 7.9, flip: 8.3, flipMid: 8.48, pass: [8.7, 8.85, 9.0, 9.15, 9.3, 9.45], done: 9.6,
+        badge: 10.5
+      };
+
+      // ── 3×3 pixel spinners (verdict rows): the lit cell steps clockwise every 0.125s ──
+      var RING = [[0, 0], [1, 0], [2, 0], [2, 1], [2, 2], [1, 2], [0, 2], [0, 1]];
+      var spinners = [];
+      function spinner(host, cell, gap) {
+        var s = 3 * cell + 2 * gap;
+        var r = "";
+        for (var i = 0; i < RING.length; i++) {
+          r += '<rect x="' + RING[i][0] * (cell + gap) + '" y="' + RING[i][1] * (cell + gap) + '" width="' + cell + '" height="' + cell + '"/>';
+        }
+        host.insertAdjacentHTML("afterbegin",
+          '<svg width="' + s + '" height="' + s + '" viewBox="0 0 ' + s + " " + s + '" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true">' + r + "</svg>");
+        spinners.push(Array.prototype.slice.call(host.firstChild.querySelectorAll("rect")));
+      }
+      var spinHosts = $$("spin");
+      spinHosts.forEach(function (h) { spinner(h, 6, 1); });
+
+      RK.hydrate(root);
+
+      function visibleBetween(el, t0, t1) {
+        var last = null;
+        clock.add(function (t) {
+          var v = at(t, t0) && !at(t, t1);
+          if (v === last) return;
+          last = v;
+          el.style.opacity = v ? "1" : "0";
+        });
+      }
+      // 0 = off, 1 = half step, 2 = on (a 2-step switch at T)
+      function level(t, T0) { return !at(t, T0) ? 0 : !at(t, T0 + STEP) ? 1 : 2; }
+
+      var lastK = -1;
+      clock.add(function (t) {
+        var k = Math.floor(t / 0.125 + EPS) % 8;
+        if (k === lastK) return;
+        lastK = k;
+        for (var s = 0; s < spinners.length; s++) {
+          for (var i = 0; i < 8; i++) {
+            var d = (k - i + 8) % 8;
+            spinners[s][i].setAttribute("opacity", d === 0 ? "1" : d === 1 ? "0.45" : "0.16");
+          }
+        }
+      });
+
+      // ── Scene 1 (0.0–1.0s): logo glides to the hub; card, stations and wires arrive dim ──
+      var hub = $("hub");
+      tl.fromTo(hub, { x: 0, y: 0, scale: 1 }, { x: 0, y: 220, scale: 150 / 170, duration: 0.6, ease: "power3.inOut" }, T.hubMove);
+      tl.fromTo($("eyebrow"), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, T.eyebrow);
+      tl.fromTo($("card"), { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.6, ease: "power3.out" }, T.card);
+      ["st-a", "st-b", "st-c"].forEach(function (id, i) {
+        tl.fromTo($(id), { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, T.stations[i]);
+      });
+      tl.fromTo($("hub-label"), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, T.hubLabel);
+
+      // Connectors: svg-path-draw on each mask path (measured length, dashoffset len → 0, stepped);
+      // the visible dashed wire switches dim → lit in 2 steps and stays lit.
+      var WIRE_DIM = "rgba(185,171,217,0.25)";
+      var WIRE_MID = "rgba(240,171,252,0.6)";
+      var WIRE_LIT = "#F0ABFC";
+      function wire(key, fallbackLen, drawAt, drawDur, drawSteps, litAt) {
+        var vis = $("w-" + key);
+        var draw = $("d-" + key);
+        var len = draw.getTotalLength();
+        if (!(len > 0)) len = fallbackLen;
+        draw.style.strokeDasharray = len + "";
+        draw.style.strokeDashoffset = len + "";
+        tl.fromTo(draw, { strokeDashoffset: len }, { strokeDashoffset: 0, duration: drawDur, ease: "steps(" + drawSteps + ")" }, drawAt);
+        var last = -1;
+        clock.add(function (t) {
+          var k = level(t, litAt);
+          if (k === last) return;
+          last = k;
+          vis.style.stroke = k === 0 ? WIRE_DIM : k === 1 ? WIRE_MID : WIRE_LIT;
+        });
+      }
+      // card → hub and the hub trunk draw first; the three branches follow at ~75% of the trunk's draw.
+      wire("in", 295, T.wires, 0.15, 3, T.sendA);
+      wire("trunk", 75, T.wires, 0.08, 2, T.sendA);
+      wire("a", 345, T.wires + 0.06, 0.19, 4, T.sendA);
+      wire("b", 90, T.wires + 0.06, 0.19, 2, T.sendB);
+      wire("c", 355, T.wires + 0.06, 0.19, 4, T.toC);
+
+      // ── Scene 2 (1.0–2.0s): your criteria pop in under the hub label, then rise into the hub together ──
+      // RK.pop owns each pill's scale/opacity; the rise lives on its row: centre (945, top+22) → hub centre (960, 520),
+      // scale 0.3, fade out, power3.in. The rows sit before the hub in the DOM, so they slide under the label and the logo.
+      var CRIT_X = 945;
+      var CRIT_TOP = [660, 712, 764];
+      $$("critrow").forEach(function (row, i) {
+        RK.pop(tl, row.querySelector('[class~="f17-agent-crit"]'), T.crit[i] - POP_LEAD);
+        var dy = 520 - (CRIT_TOP[i] + 22);
+        tl.fromTo(row, { x: 0, y: 0, scale: 1, opacity: 1 }, { x: 960 - CRIT_X, y: dy, scale: 0.3, opacity: 0, duration: 0.3, ease: "power3.in" }, T.critIn);
+      });
+
+      // ── Work packets: 12px sunset squares with a two-sprite trail, keyframed x/y, linear per segment ──
+      var layer = $("packets");
+      var TRAIL = [{ off: 0, size: 12, op: 1 }, { off: 18, size: 8, op: 0.55 }, { off: 32, size: 6, op: 0.3 }];
+      function route(pts) {
+        var segs = [];
+        var L = 0;
+        for (var i = 1; i < pts.length; i++) {
+          var dx = pts[i][0] - pts[i - 1][0];
+          var dy = pts[i][1] - pts[i - 1][1];
+          var d = Math.abs(dx) + Math.abs(dy); // circuit paths are axis-aligned
+          segs.push({ x0: pts[i - 1][0], y0: pts[i - 1][1], dx: dx, dy: dy, s0: L, d: d });
+          L += d;
+        }
+        return { segs: segs, L: L };
+      }
+      function pointAt(r, s) {
+        for (var i = 0; i < r.segs.length; i++) {
+          var g = r.segs[i];
+          if (s <= g.s0 + g.d || i === r.segs.length - 1) {
+            var f = g.d ? Math.min(1, Math.max(0, (s - g.s0) / g.d)) : 0;
+            return [g.x0 + g.dx * f, g.y0 + g.dy * f];
+          }
+        }
+        return [0, 0];
+      }
+      // When a packet's leading edge first reaches the hub (x = 885 moving right, x = 1035 moving left, on y = 520).
+      var HUB_L = 885;
+      var HUB_R = 1035;
+      var hubHits = [];
+      function hubEntry(r, t0, t1) {
+        for (var i = 0; i < r.segs.length; i++) {
+          var g = r.segs[i];
+          if (g.dy !== 0 || g.y0 !== 520 || g.dx === 0) continue;
+          var edge = g.dx > 0 ? HUB_L - 6 : HUB_R + 6; // the 12px head's leading edge touches the hub
+          var x1 = g.x0 + g.dx;
+          if ((edge - g.x0) * (edge - x1) <= 0) {
+            var s = g.s0 + Math.abs(edge - g.x0);
+            return t0 + ((t1 - t0) * s) / r.L;
+          }
+        }
+        return null;
+      }
+      function packet(fill, glow, pts, t0, t1) {
+        var r = route(pts);
+        var hit = hubEntry(r, t0, t1);
+        if (hit != null) hubHits.push(hit);
+        var bits = TRAIL.map(function (tr, i) {
+          var el = document.createElement("div");
+          el.className = "f17-agent-bit";
+          el.style.width = tr.size + "px";
+          el.style.height = tr.size + "px";
+          el.style.background = fill;
+          if (i === 0) el.style.boxShadow = "0 0 12px 2px " + glow;
+          layer.appendChild(el);
+          return el;
+        });
+        var last = [];
+        clock.add(function (t) {
+          var live = at(t, t0) && !at(t, t1);
+          var s = ((t - t0) / (t1 - t0)) * r.L;
+          for (var i = 0; i < bits.length; i++) {
+            var si = s - TRAIL[i].off;
+            var key = "off";
+            var x = 0;
+            var y = 0;
+            if (live && si >= 0) {
+              var p = pointAt(r, si);
+              var h = TRAIL[i].size / 2;
+              x = Math.round(p[0] - h);
+              y = Math.round(p[1] - h);
+              key = x + "," + y;
+            }
+            if (key === last[i]) continue;
+            last[i] = key;
+            if (key === "off") {
+              bits[i].style.opacity = "0";
+              bits[i].style.transform = "translate(0px,0px)"; // one canonical parked state, whatever the seek order
+            } else {
+              bits[i].style.opacity = String(TRAIL[i].op);
+              bits[i].style.transform = "translate(" + x + "px," + y + "px)";
+            }
+          }
+        });
+      }
+      var GOLD = "#FCD34D";
+      var ORANGE = "#FB923C";
+      var ROSE = "#F43F5E";
+      var SUNSET = "linear-gradient(180deg, #FCD34D 0%, #FB923C 38%, #F43F5E 70%, #E11D8F 100%)";
+      // Opaque ends (card, hub) sit 6px inside the target so the packet tucks under its edge.
+      packet(GOLD, "rgba(252,211,77,0.55)", [[584, 520], [1110, 520], [1110, 265], [1200, 265]], T.sendA, T.litA);
+      packet(ORANGE, "rgba(251,146,60,0.55)", [[584, 520], [1200, 520]], T.sendB, T.litB);
+      packet(GOLD, "rgba(252,211,77,0.55)", [[1200, 265], [1110, 265], [1110, 520], [1029, 520]], T.sendC, T.toC);
+      packet(ORANGE, "rgba(251,146,60,0.55)", [[1200, 520], [1029, 520]], T.sendC, T.toC);
+      packet(ROSE, "rgba(244,63,94,0.55)", [[1029, 520], [1110, 520], [1110, 785], [1200, 785]], T.toC, T.litC);
+      packet(SUNSET, "rgba(251,146,60,0.6)", [[1200, 785], [1110, 785], [1110, 520], [584, 520]], T.verdict, T.flip);
+
+      // The hub takes each packet in with a sprite thump: two stepped scale steps up and back (≈2.17 / 4.74 / 7.08 / 8.09s).
+      var HUB_S = 150 / 170;
+      hubHits.sort(function (a, b) { return a - b; });
+      var lastPulse = -1;
+      hubHits.forEach(function (P) {
+        if (P - lastPulse < 0.25) return; // the two returning packets arrive together: one thump
+        lastPulse = P;
+        var p0 = P - 0.05; // the first visible step lands as the packet touches the hub
+        tl.fromTo(hub, { scale: HUB_S }, { scale: HUB_S * 1.06, duration: 0.1, ease: "steps(2)", immediateRender: false }, p0);
+        tl.fromTo(hub, { scale: HUB_S * 1.06 }, { scale: HUB_S, duration: 0.1, ease: "steps(2)", immediateRender: false }, p0 + 0.1);
+      });
+
+      // ── Card chips: violet outline as each piece of the submission is sent (cumulative) ──
+      function outline(chip, T0) {
+        var last = -1;
+        clock.add(function (t) {
+          var k = level(t, T0);
+          if (k === last) return;
+          last = k;
+          chip.style.boxShadow = k === 0 ? "none" : k === 1 ? "inset 0 0 0 1px rgba(124,58,237,0.55)" : "inset 0 0 0 2px #7C3AED";
+        });
+      }
+      outline($("chip-1"), T.sendA);
+      outline($("chip-2"), T.sendB);
+      outline($("chip-3"), T.sendC);
+
+      // ── Stations: dim (0.4) → lit (1 + violet ring) in 2 steps; verb flicks to the sunset gradient ──
+      var GLOW_HALF = "0 0 0 2px rgba(124,58,237,0.35), 0 20px 60px -20px rgba(124,58,237,0.3)";
+      var GLOW_FULL = "0 0 0 2px rgba(124,58,237,0.7), 0 20px 60px -20px rgba(124,58,237,0.6)";
+      function lightStation(key, T0) {
+        var card = $("stc-" + key);
+        var verb = $("verb-" + key);
+        var last = -1;
+        clock.add(function (t) {
+          var k = level(t, T0);
+          if (k === last) return;
+          last = k;
+          card.style.opacity = k === 0 ? "0.4" : k === 1 ? "0.7" : "1";
+          card.style.boxShadow = k === 0 ? "none" : k === 1 ? GLOW_HALF : GLOW_FULL;
+        });
+        var lastV = null;
+        clock.add(function (t) {
+          var on = at(t, T0) && !(at(t, T0 + 0.06) && !at(t, T0 + 0.1)); // one arcade blink
+          if (on === lastV) return;
+          lastV = on;
+          if (on) verb.classList.add("rk-sunset-text");
+          else verb.classList.remove("rk-sunset-text");
+        });
+      }
+      lightStation("a", T.litA);
+      lightStation("b", T.litB);
+      lightStation("c", T.litC);
+
+      // ── Terminal panels: each colored segment types with RK.type; one caret per line ──
+      // A caret that is off still holds its width (≈ one mono cell), so it doubles as the space between segments.
+      // The caret lingers 0.3s after a line, but hands over before the next line in the panel starts typing.
+      function typeLine(line, t0, nextAt) {
+        var segs = Array.prototype.slice.call(line.querySelectorAll("[data-text]"));
+        var total = 0;
+        segs.forEach(function (seg) { total += seg.getAttribute("data-text").length; });
+        var end = t0 + total / CPS;
+        var hold = nextAt != null ? Math.max(0, Math.min(0.3, nextAt - end - 0.02)) : 0.3;
+        var t = t0;
+        segs.forEach(function (seg, i) {
+          var text = seg.getAttribute("data-text");
+          RK.type(clock, seg, text, { start: t, cps: CPS, caret: true, caretHold: i === segs.length - 1 ? hold : 0 });
+          t += text.length / CPS;
+        });
+        return t;
+      }
+
+      // ── Scene 3 (2.0–4.5s): Nebius Sandboxes ──
+      typeLine($("a1"), T.linesA[0], T.linesA[1]);
+      RK.pop(tl, $("ok-a2"), typeLine($("a2"), T.linesA[1], T.linesA[2]) - POP_LEAD);
+      RK.pop(tl, $("ok-a3"), typeLine($("a3"), T.linesA[2]) - POP_LEAD);
+
+      // ── Scene 4 (4.5–6.8s): Tavily ──
+      RK.pop(tl, $("ok-b1"), typeLine($("b1"), T.lineB1, T.lineB2) - POP_LEAD);
+      $$("thumb").forEach(function (el, i) { RK.pop(tl, el, T.thumbs + 0.125 * i - POP_LEAD); });
+      RK.pop(tl, $("ok-b2"), typeLine($("b2"), T.lineB2) - POP_LEAD);
+
+      // ── Scene 5 (6.8–10.5s): NVIDIA Nemotron on Nebius Token Factory, then the verdict ──
+      typeLine($("c1"), T.lineC1);
+      var TIER_STEPS = [
+        ["rgba(255,255,255,0.06)", "#B9ABD9"],
+        ["rgba(124,58,237,0.14)", "#CFC3EA"],
+        ["rgba(124,58,237,0.25)", "#E4DAF6"],
+        ["rgba(124,58,237,0.35)", "#F7F2FF"]
+      ];
+      function powerUp(el, T0) {
+        var last = -1;
+        clock.add(function (t) {
+          var k = !at(t, T0) ? 0 : Math.min(3, 1 + Math.floor((t - T0) / 0.04 + EPS));
+          if (k === last) return;
+          last = k;
+          el.style.background = TIER_STEPS[k][0];
+          el.style.color = TIER_STEPS[k][1];
+        });
+      }
+      powerUp($("tier-1"), T.tiers[0]);
+      powerUp($("tier-2"), T.tiers[1]);
+      powerUp($("tier-3"), T.tiers[2]);
+      tl.fromTo($("ultra-glow"), { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, T.ultraGlow);
+
+      // The card flips to the verdict: two stepped halves of four 0.045s steps each (8.3 → 90° at 8.48, swap, −90° → 0° at 8.66).
+      // GSAP's steps(4) holds its end value for the last fifth, so a 0.225s tween lands its final step exactly 0.18s in.
+      var front = $("front");
+      var back = $("back");
+      var HALF = 0.18 * 1.25;
+      tl.fromTo(front, { rotationY: 0 }, { rotationY: 90, duration: HALF, ease: "steps(4)" }, T.flip);
+      tl.fromTo(back, { rotationY: -90 }, { rotationY: 0, duration: HALF, ease: "steps(4)", immediateRender: false }, T.flipMid);
+      var lastFace = null;
+      clock.add(function (t) {
+        var showBack = at(t, T.flipMid);
+        if (showBack === lastFace) return;
+        lastFace = showBack;
+        front.style.visibility = showBack ? "hidden" : "inherit"; // inherit, never "visible": the frame host hides this frame outside its window
+        back.style.visibility = showBack ? "inherit" : "hidden";
+      });
+
+      // Verdict rows: spinner until each row turns Pass, then the footer tag.
+      $$("row").forEach(function (row, i) {
+        visibleBetween(row.querySelector('[class~="f17-agent-spin"]'), 0, T.pass[i]);
+        RK.pop(tl, row.querySelector('[class~="f17-agent-pass"]'), T.pass[i] - POP_LEAD);
+      });
+      RK.pop(tl, $("done"), T.done - POP_LEAD);
+
+      // ── Scene 6 (10.5–12.0s): the Vercel Workflow badge rises 20px and fades in; then hold, everything lit ──
+      tl.fromTo($("badge"), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, T.badge);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["17-agent"] = tl;
+    })();
+  </script>
+</template>

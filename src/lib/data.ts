@@ -628,6 +628,7 @@ export type IconName =
   | "users"
   | "user"
   | "spark"
+  | "heart"
   | "gear"
   | "search"
   | "globe"

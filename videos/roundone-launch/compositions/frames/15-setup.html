@@ -1,0 +1,104 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f15-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f15-stage"] { position: absolute; inset: 0; }
+  </style>
+
+  <div id="root" data-composition-id="15-setup" data-width="1920" data-height="1080">
+    <div id="f15-ground" class="clip" data-start="0" data-duration="10" data-track-index="0"></div>
+    <div id="f15-stage" class="clip" data-start="0" data-duration="10" data-track-index="1"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour/shots.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 10;
+      window.__timelines = window.__timelines || {};
+      var root = document.querySelector('[data-composition-id="15-setup"]');
+      var stage = root.querySelector('[id="f15-stage"]');
+
+      // The deck, bottom card first. land = the card is dealt in; show = its one callout.
+      // edit = changes to a copy of that shot's callout (TOUR_SHOTS itself is never touched).
+      var DECK = [
+        {
+          id: "criteria-inputs", pick: 1, land: 0.2, show: 0.75, eyebrow: "Setup <b>›</b> Criteria",
+          // Storyboard copy; ring padded off the "Mechanisms" label; card lifted so it clears y = 900.
+          edit: {
+            body: "Build it in a Nebius sandbox, scrape the code or demo, read the video transcript, or leave it to judges.",
+            box: [884, 542, 548, 264],
+            cardAt: [500, 536],
+          },
+        },
+        { id: "criteria-agent", pick: 0, land: 2.0, show: 2.6, eyebrow: "Setup <b>›</b> The agent" },
+        {
+          id: "phases", pick: 1, land: 4.0, show: 4.6, eyebrow: "Setup <b>›</b> Phases",
+          // Ring widened to the whole status/advance tag cluster (the landing box cut through
+          // the "closed" pills); card lifted so it clears y = 900 and kept off the sidebar.
+          edit: { box: [830, 318, 166, 222], cardAt: [690, 572] },
+        },
+        { id: "distribution", pick: 1, land: 6.0, show: 6.6, eyebrow: "Setup <b>›</b> Distribution" },
+        { id: "judge-portal", pick: 0, land: 8.0, show: 8.6, eyebrow: "Setup <b>›</b> Judge portal" },
+      ];
+
+      // Header first: its paper band sits under the stack, so the stepped-back card's top edge stays crisp.
+      var h = TK.header(stage, { eyebrow: DECK[0].eyebrow, title: "Set the rules once.", chapter: 0 });
+
+      // Five windows in deck order (later = on top), built now so TK.ready waits on every screenshot.
+      var cards = DECK.map(function (d) {
+        var shot = TK.shot(d.id);
+        var w = TK.window(stage, { url: shot.url, src: shot.src, x: 310, y: 200, width: 1300 });
+        return { d: d, shot: shot, w: w };
+      });
+
+      TK.ready(root).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+
+        // Scene 1: the header rises; the eyebrow then steps with each card.
+        TK.showHeader(tl, h, 0.05);
+        RK.states(clock, h.eyebrow, DECK.map(function (d, i) {
+          return { t: i === 0 ? 0 : d.land, html: d.eyebrow };
+        }));
+
+        // Scenes 1–5: each card is dealt in from the right and lands with its one callout;
+        // the card below steps back, and the one two below fades away.
+        cards.forEach(function (c, i) {
+          var d = c.d;
+          var list = c.shot.callouts.map(function (co) { return Object.assign({}, co); });
+          if (d.edit) Object.assign(list[d.pick], d.edit);
+          var co = TK.callouts(c.w, list, { only: [d.pick], numbers: [1] })[0];
+
+          var enter = c.w.enter;
+          gsap.set(enter, { transformOrigin: "50% 0%" });
+          tl.fromTo(enter, { x: 260, opacity: 0 }, { x: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, d.land);
+          TK.showCallout(tl, co, d.show);
+
+          var next = DECK[i + 1];
+          if (next) {
+            tl.fromTo(enter, { scale: 1, y: 0, opacity: 1 },
+              { scale: 0.94, y: -26, opacity: 0.55, duration: 0.5, ease: "power3.out", immediateRender: false }, next.land);
+          }
+          var after = DECK[i + 2];
+          if (after) {
+            tl.fromTo(enter, { opacity: 0.55 },
+              { opacity: 0, duration: 0.5, ease: "power3.out", immediateRender: false }, after.land);
+          }
+        });
+
+        window.__timelines["15-setup"] = tl;
+      });
+    })();
+  </script>
+</template>

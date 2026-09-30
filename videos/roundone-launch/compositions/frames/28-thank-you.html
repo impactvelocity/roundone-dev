@@ -1,0 +1,154 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f28-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f28-stage"] { position: absolute; inset: 0; }
+
+    /* Pinned exactly where the mail body places the email image (left 50%, top 26px) and scrolled with it,
+       so the rings ride the email and are clipped by the mail body like the email itself. */
+    [id="f28-scroller"] { position: absolute; left: 50%; top: 26px; pointer-events: none; }
+
+    /* Film tag beside the mail window, top right of it (frame px, outside the camera). */
+    [id="f28-tag"] { position: absolute; left: 1664px; top: 264px; }
+
+    /* Full-frame layer for the pixel confetti, above the header and the window. */
+    [id="f28-confetti"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; pointer-events: none; }
+  </style>
+
+  <div id="root" data-composition-id="28-thank-you" data-width="1920" data-height="1080" data-duration="8.4">
+    <div id="f28-ground" class="clip" data-start="0" data-duration="8.4" data-track-index="0"></div>
+    <div id="f28-stage" class="clip" data-start="0" data-duration="8.4" data-track-index="1"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 8;
+      var ZOOM = 1.25;
+      var EMAIL_H = 2040; // css px of assets/tour/email-thank-you.png (680 × 2040 css, 2×)
+      var MAIL_W = 1260;
+      var MAIL_H = 900; // runs off the frame bottom at rest
+      var root = document.querySelector('[data-composition-id="28-thank-you"]');
+      var stage = root.querySelector('[id="f28-stage"]');
+
+      // Mail window + header (built now so TK.ready can wait on the email image).
+      var m = TK.mail(stage, {
+        x: 330, y: 196, width: MAIL_W, height: MAIL_H, zoom: ZOOM,
+        src: "assets/tour/email-thank-you.png", emailHeight: EMAIL_H,
+        subject: "Thank you for building Menu Mind",
+        from: "AI Agents Hack 2026", fromEmail: "hello@aiagentshack.dev", to: "Menu Mind team",
+      });
+      // The hackathon sends this one, so the sender tile carries its mark (as the email's own banner does).
+      m.head.querySelector(".tk-av").textContent = "AA";
+      var h = TK.header(stage, { eyebrow: "Results <b>›</b> Thank-you email", title: "Thank everyone who built.", chapter: 3 });
+
+      // Email regions measured from the PNG, in px on the email as displayed (css px × ZOOM), rings padded 6px.
+      // Your project · Menu Mind · Reviewed by 3 judges · Reached round 2 of 2 — block css [100, 434, 480, 109], radius 12.
+      var PROJ = [119, 536, 612, 149];
+      // A thank-you gift ($50 in credits for every team + the rewards list) — block css [100, 1223, 480, 360], radius 16.
+      var GIFT = [119, 1523, 612, 462];
+      // The gift icon's glyph center — css (150, 1273).
+      var GIFT_ICON = [150 * ZOOM, 1273 * ZOOM];
+
+      var scroller = document.createElement("div");
+      scroller.id = "f28-scroller";
+      scroller.style.width = m.emailWidth + "px";
+      scroller.style.height = EMAIL_H * ZOOM + "px";
+      scroller.style.marginLeft = -m.emailWidth / 2 + "px";
+      m.body.appendChild(scroller);
+
+      // Ring-only callouts: the kit's ring (class + accent), shown with TK.showCallout(…, {ringOnly: true}).
+      function ring(box, radius) {
+        var r = document.createElement("div");
+        r.className = "tk-ring";
+        r.style.setProperty("--tk-accent", TK.COLORS.violet);
+        r.style.left = box[0] + "px";
+        r.style.top = box[1] + "px";
+        r.style.width = box[2] + "px";
+        r.style.height = box[3] + "px";
+        r.style.borderRadius = radius + "px";
+        scroller.appendChild(r);
+        gsap.set(r, { opacity: 0 });
+        return { ring: r };
+      }
+      var ringProject = ring(PROJ, 21);
+      var ringGift = ring(GIFT, 26);
+
+      var tag = document.createElement("span");
+      tag.id = "f28-tag";
+      tag.className = "rk-tag rk-tag--neutral";
+      tag.textContent = "Optional";
+      stage.appendChild(tag);
+
+      var confettiLayer = document.createElement("div");
+      confettiLayer.id = "f28-confetti";
+      stage.appendChild(confettiLayer);
+
+      TK.ready(root).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+
+        // One small push (1.15×, within the packet's max 1.2) holds for the rest of the frame. Its anchor keeps
+        // the window's right edge near where it rests (1590 → 1640) so the Optional tag stays beside it, and
+        // lands the project ring's bottom at y = 872. At 1.15× the email's banner tile stays clear of the headline.
+        var S = 1.15;
+        var CAM = {
+          scale: S,
+          x: 1640 - S * (m.x + MAIL_W),
+          y: 872 - S * (m.y + m.emailTop + PROJ[1] + PROJ[3]),
+        };
+        // Scroll so the mail body ends between the footnote under the gift ("Credits expire…", css 1603–1615)
+        // and the RSVP button (css 1647): the gift block and its footnote read whole. The body shows
+        // email px [SCROLL - 26, SCROLL + 696] (the kit's body is MAIL_H - BAR_H - 132 tall, the email 26px down).
+        var SCROLL = 1631 * ZOOM - (MAIL_H - TK.BAR_H - 132 - 26);
+
+        // TK.focus centers a rect on an anchor in TK.VIEW; pick the anchor that lands the camera on `cam`.
+        function pushTo(t, rect, cam, o) {
+          var f = TK.toFrame(m, rect);
+          var V = TK.VIEW;
+          var ax = (cam.x + cam.scale * (f.x + f.w / 2) - V.x) / V.w;
+          var ay = (cam.y + cam.scale * (f.y + f.h / 2) - V.y) / V.h;
+          TK.focus(tl, m, t, rect, Object.assign({ max: cam.scale, anchor: [ax, ay] }, o || {}));
+        }
+
+        // Scene 1 (0.0–1.0): header rises, the mail window rises, the Optional tag pops.
+        TK.showHeader(tl, h, 0.05);
+        TK.showWindow(tl, m, 0.2);
+        RK.pop(tl, tag, 0.75);
+
+        // Scene 2 (1.0–2.5): small push onto the project block; its ring snaps on at 1.25.
+        pushTo(1.0, [m.emailLeft + PROJ[0], m.emailTop + PROJ[1], PROJ[2], PROJ[3]], CAM, { dur: 0.8, ease: "power3.out" });
+        TK.showCallout(tl, ringProject, 1.25, { ringOnly: true });
+
+        // Scene 3 (2.5–3.7): the email scrolls to the thank-you gift; the rings scroll with it.
+        TK.scroll(tl, m, 2.5, SCROLL, { dur: 1.2 });
+        tl.fromTo(scroller, { y: 0 }, { y: -SCROLL, duration: 1.2, ease: "power3.inOut", immediateRender: false }, 2.5);
+
+        // Scene 4 (4.0–6.0): ring on the gift block, then pixel confetti bursts from the gift icon.
+        TK.showCallout(tl, ringGift, 4.0, { ringOnly: true });
+        RK.confetti(clock, confettiLayer, {
+          x: CAM.x + S * (m.x + m.emailLeft + GIFT_ICON[0]),
+          y: CAM.y + S * (m.y + m.emailTop + GIFT_ICON[1] - SCROLL),
+          start: 4.25,
+          count: 24,
+          size: 10,
+          power: 0.8, // "a little" confetti: most bits peak inside the frame instead of shooting past the top
+        });
+
+        // Scene 5 (6.0–8.0): hold; the confetti has fallen out of frame by ~6.5s.
+        window.__timelines = window.__timelines || {};
+        window.__timelines["28-thank-you"] = tl;
+      });
+    })();
+  </script>
+</template>

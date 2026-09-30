@@ -1,0 +1,232 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f22-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f22-stage"] { position: absolute; inset: 0; }
+    [id="f22-head"], [id="f22-scene"], [id="f22-ripples"], [id="f22-fly"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+    [id="f22-ripples"], [id="f22-fly"] { pointer-events: none; }
+
+    /* Judges: three faces in a column at x 300 (centres y 330 / 500 / 670) */
+    .f22-judge { position: absolute; left: 268px; width: 64px; height: 64px; }
+    .f22-face {
+      width: 64px; height: 64px; font-size: 23px; letter-spacing: .01em;
+      box-shadow: 0 0 0 3px #FFFFFF, 0 16px 30px -14px rgba(76,29,149,.5);
+    }
+
+    /* The ranked list card: x 520–1800, y 230–880; six 100px rows */
+    [id="f22-card"] { position: absolute; left: 520px; top: 230px; width: 1280px; height: 650px; box-sizing: border-box; }
+    .f22-row { position: absolute; left: 11px; width: 1256px; height: 100px; border-radius: 14px; background: #FFFFFF; }
+    .f22-lift {
+      position: absolute; inset: 0; border-radius: 14px; background: #FFFFFF; opacity: 0;
+      box-shadow: 0 22px 44px -18px rgba(76,29,149,.42), 0 3px 8px rgba(46,22,88,.08);
+    }
+    .f22-div { position: absolute; left: 24px; right: 24px; top: 0; height: 1px; background: rgba(46,22,88,.1); }
+    .f22-mark { position: absolute; left: 24px; top: 22px; width: 56px; height: 56px; border-radius: 14px; font-size: 21px; letter-spacing: .02em; }
+    .f22-name {
+      position: absolute; left: 102px; top: 0; height: 100px; display: flex; align-items: center;
+      font: 600 28px/1 "GeistSans", sans-serif; color: #1D1433; white-space: nowrap; letter-spacing: -.005em;
+    }
+    /* Mini score strip: one cell per judge (AR · MK · JL), empty cells are dashed */
+    .f22-cell { position: absolute; top: 33px; width: 60px; height: 34px; box-sizing: border-box; border-radius: 999px; border: 1.5px dashed rgba(46,22,88,.24); }
+    .f22-chip {
+      position: absolute; width: 60px; height: 34px; border-radius: 999px; background: #EDE5FF; color: #7C3AED;
+      font: 600 19px/34px "GeistSans", sans-serif; text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums;
+    }
+    .f22-seat { top: 33px; }
+    .f22-flyer { box-shadow: 0 10px 22px -10px rgba(124,58,237,.7); }
+    .f22-tag { position: absolute; left: 840px; top: 33px; }
+    .f22-score { position: absolute; right: 36px; top: 28px; width: 160px; height: 44px; }
+    .f22-score span {
+      position: absolute; right: 0; top: 0; height: 44px;
+      font: 500 44px/44px "GeistPixelSquare", "GeistSans", sans-serif; white-space: nowrap;
+    }
+    .f22-num { color: #1D1433; }
+    .f22-dash { color: #8A80A3; }
+
+    /* Cut line under row 4: dashed magenta line, label on its right */
+    [id="f22-cut"] {
+      position: absolute; left: 35px; top: 407px; width: 1196px; height: 34px; z-index: 5;
+      display: flex; align-items: center; gap: 14px;
+    }
+    [id="f22-cutline"] {
+      display: block; flex: 1 1 auto; height: 2px;
+      background: repeating-linear-gradient(90deg, #E8318F 0 12px, transparent 12px 20px);
+    }
+    [id="f22-cutlabel"] { flex: none; }
+  </style>
+
+  <div id="root" data-composition-id="22-scoring" data-width="1920" data-height="1080" data-duration="6.5">
+    <div id="f22-ground" class="clip" data-start="0" data-duration="6.5" data-track-index="0"></div>
+    <div id="f22-stage" class="clip" data-start="0" data-duration="6.5" data-track-index="1">
+      <div id="f22-head"></div>
+      <div id="f22-scene">
+        <div id="f22-ripples" data-layout-ignore></div>
+        <div id="f22-card" class="rk-mock">
+          <div id="f22-cut" data-layout-allow-occlusion><i id="f22-cutline"></i><span id="f22-cutlabel" class="rk-tag rk-tag--flag">Top 4 → Semifinal</span></div>
+        </div>
+        <div id="f22-fly" data-layout-ignore></div>
+        <div id="f22-j0" class="f22-judge" style="top:298px"><div class="rk-face rk-face--0 f22-face">AR</div></div>
+        <div id="f22-j1" class="f22-judge" style="top:468px"><div class="rk-face rk-face--1 f22-face">MK</div></div>
+        <div id="f22-j2" class="f22-judge" style="top:638px"><div class="rk-face rk-face--2 f22-face">JL</div></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      var root = document.querySelector('[data-composition-id="22-scoring"]');
+      var q = function (id) { return root.querySelector('[id="' + id + '"]'); };
+      var card = q("f22-card");
+      var cut = q("f22-cut");
+      var cutLine = q("f22-cutline");
+      var cutLabel = q("f22-cutlabel");
+      var fly = q("f22-fly");
+      var ripples = q("f22-ripples");
+
+      var h = TK.header(q("f22-head"), { eyebrow: "Judging <b>›</b> Group review", title: "Every score counts.", chapter: 2 });
+
+      // Judges fire on 1.0 / 1.5 / 2.0; ripple colour = the dark end of each face's gradient.
+      var FACE_X = 300;
+      var JUDGES = [
+        { wrap: q("f22-j0"), y: 330, t: 1.0, color: "#7C3AED" },
+        { wrap: q("f22-j1"), y: 500, t: 1.5, color: "#E8318F" },
+        { wrap: q("f22-j2"), y: 670, t: 2.0, color: "#FB7A3C" },
+      ];
+      JUDGES.forEach(function (J) { J.face = J.wrap.querySelector(".f22-face"); });
+
+      // Projects in their starting order. rank = final slot. s = each judge's review total (AR, MK, JL);
+      // the three average exactly to the combined score.
+      var ROWS = [
+        { mark: "RW", name: "Repo Whisperer", score: 8.4, rank: 1, s: ["8.1", "8.8", "8.3"] },
+        { mark: "MM", name: "Menu Mind", score: 6.2, rank: 5, s: ["5.8", "6.9", "5.9"] },
+        { mark: "NS", name: "Nightshift", score: 8.9, rank: 0, s: ["9.2", "8.6", "8.9"] },
+        { mark: "TW", name: "Tripwire", score: 6.9, rank: 4, s: ["7.4", "6.5", "6.8"] },
+        { mark: "LE", name: "Ledgerly", score: 8.1, rank: 2, s: ["8.4", "7.6", "8.3"] },
+        { mark: "JC", name: "Judge Copilot", score: 7.7, rank: 3, s: ["7.2", "8.1", "7.8"] },
+      ];
+
+      // Geometry. The card's padding box starts at (521, 231) in frame px (520/230 + its 1px border).
+      var PAD_X = 521, PAD_Y = 231;
+      var ROW_X = 11, ROW_TOP = 24, ROW_H = 100;
+      var CELL_X = 540, CELL_W = 60, CELL_H = 34, CELL_STEP = 70, CELL_TOP = 33;
+
+      ROWS.forEach(function (R, i) {
+        var row = document.createElement("div");
+        row.className = "f22-row";
+        row.style.top = ROW_TOP + i * ROW_H + "px";
+        // Re-sort layering: risers pass over, the long faller (Menu Mind) passes under everything.
+        row.style.zIndex = R.rank < i ? 3 : R.rank - i > 1 ? 1 : 2;
+        var html = '<div class="f22-lift" data-layout-ignore></div><div class="f22-div"></div>' +
+          '<div class="rk-mark f22-mark">' + R.mark + '</div><div class="f22-name">' + R.name + "</div>";
+        for (var j = 0; j < 3; j++) html += '<div class="f22-cell" data-layout-ignore style="left:' + (CELL_X + j * CELL_STEP) + 'px"></div>';
+        for (var k = 0; k < 3; k++) html += '<div class="f22-chip f22-seat" style="left:' + (CELL_X + k * CELL_STEP) + 'px">' + R.s[k] + "</div>";
+        if (R.rank < 4) html += '<span class="rk-tag rk-tag--pass f22-tag">' + RK.icon("arrow-right", 14) + "Advances</span>";
+        html += '<div class="f22-score"><span class="f22-dash">–</span><span class="f22-num"></span></div>';
+        row.innerHTML = html;
+        card.insertBefore(row, cut);
+        R.el = row;
+        R.lift = row.querySelector(".f22-lift");
+        R.div = row.querySelector(".f22-div");
+        R.seats = row.querySelectorAll(".f22-seat");
+        R.tag = row.querySelector(".f22-tag");
+        R.dash = row.querySelector(".f22-dash");
+        R.num = row.querySelector(".f22-num");
+
+        // One flying chip per judge, parked on its landing spot (frame px) and flown in from the face.
+        R.flyers = [];
+        for (var m = 0; m < 3; m++) {
+          var f = document.createElement("div");
+          f.className = "f22-chip f22-flyer";
+          f.setAttribute("data-layout-ignore", "");
+          f.textContent = R.s[m];
+          var left = PAD_X + ROW_X + CELL_X + m * CELL_STEP;
+          var top = PAD_Y + ROW_TOP + i * ROW_H + CELL_TOP;
+          f.style.left = left + "px";
+          f.style.top = top + "px";
+          f.style.visibility = "hidden";
+          f.__dx = FACE_X - CELL_W / 2 - left;
+          f.__dy = JUDGES[m].y - CELL_H / 2 - top;
+          fly.appendChild(f);
+          R.flyers.push(f);
+        }
+      });
+
+      TK.ready(root).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+
+        // Scene 1 (0.0–1.0): header rises, the list card rises with its six rows (scores "–"), the judges pop in.
+        TK.showHeader(tl, h, 0.05);
+        tl.fromTo(card, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.2);
+        JUDGES.forEach(function (J) { RK.pop(tl, J.face, 0.5); });
+
+        // Scene 2 (1.0–2.75): each judge fires one volley of six chips on the beat (0.35s, power3.out);
+        // the flyer hands off to the row's own chip when it lands, so the chip rides the re-sort with its row.
+        JUDGES.forEach(function (J, j) {
+          tl.fromTo(J.wrap, { scale: 1 }, { scale: 1.12, duration: 0.06, ease: "steps(1)", immediateRender: false }, J.t);
+          tl.fromTo(J.wrap, { scale: 1.12 }, { scale: 1, duration: 0.12, ease: "steps(2)", immediateRender: false }, J.t + 0.06);
+          RK.click(clock, null, ripples, { t: J.t, x: FACE_X, y: J.y, color: J.color, size: 104 });
+          ROWS.forEach(function (R) {
+            var f = R.flyers[j];
+            var seat = R.seats[j];
+            var land = J.t + 0.35;
+            tl.fromTo(f, { x: f.__dx, y: f.__dy, scale: 0.5 }, { x: 0, y: 0, scale: 1, duration: 0.35, ease: "power3.out" }, J.t);
+            tl.fromTo(seat, { scale: 1.12 }, { scale: 1, duration: 0.1, ease: "steps(2)" }, land);
+            clock.add(function (t) {
+              f.style.visibility = t >= J.t && t < land ? "visible" : "hidden";
+              seat.style.visibility = t >= land ? "visible" : "hidden";
+            });
+          });
+        });
+        // 2.25–2.75: combined scores count up (1 decimal, 6 steps).
+        ROWS.forEach(function (R) {
+          RK.count(clock, R.num, { from: 0, to: R.score, start: 2.25, dur: 0.5, decimals: 1, steps: 6 });
+          clock.add(function (t) {
+            var on = t >= 2.25;
+            R.dash.style.visibility = on ? "hidden" : "visible";
+            R.num.style.visibility = on ? "visible" : "hidden";
+          });
+        });
+
+        // Scene 3 (2.75–3.35): FLIP the rows into rank order; risers lift over the rows they pass.
+        ROWS.forEach(function (R, i) {
+          tl.fromTo(R.el, { y: 0 }, { y: (R.rank - i) * ROW_H, duration: 0.6, ease: "power3.inOut", immediateRender: false }, 2.75);
+          if (R.rank < i) {
+            tl.fromTo(R.lift, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, 2.75);
+            tl.fromTo(R.lift, { opacity: 1 }, { opacity: 0, duration: 0.25, ease: "power2.inOut", immediateRender: false }, 3.1);
+          }
+        });
+        // The top slot has no divider: Repo Whisperer's appears as it drops, Nightshift's goes as it arrives.
+        tl.fromTo(ROWS[0].div, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 2.85);
+        tl.fromTo(ROWS[2].div, { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.out" }, 3.05);
+
+        // Scene 4 (3.75–6.0): the cut line draws left→right in 8 steps and its label pops on the beat,
+        // Advances tags pop down the top four, rows five and six dim. Hold.
+        var ranked = ROWS.slice().sort(function (a, b) { return a.rank - b.rank; });
+        // The cut line takes the place of row five's hairline (it sits exactly on it).
+        tl.fromTo(ranked[4].div, { opacity: 1 }, { opacity: 0, duration: 0.02, ease: "steps(1)" }, 3.75);
+        tl.fromTo(cutLine, { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.5, ease: "steps(8)" }, 3.75);
+        RK.pop(tl, cutLabel, 4.0);
+        for (var n = 0; n < 4; n++) RK.pop(tl, ranked[n].tag, 4.25 + n * 0.125);
+        [ranked[4], ranked[5]].forEach(function (R) {
+          tl.fromTo(R.el, { opacity: 1 }, { opacity: 0.4, duration: 0.3, ease: "power2.out", immediateRender: false }, 4.75);
+        });
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["22-scoring"] = tl;
+      });
+    })();
+  </script>
+</template>

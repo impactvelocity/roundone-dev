@@ -21,7 +21,7 @@
        sweep over the outgoing frame in the 0.35s before each cut. The incoming
        frame opens fully covered and clears its own tiles (RK.dither "reveal"). -->
   <div id="root" data-composition-id="pixel-wipes" data-width="1920" data-height="1080">
-    <div id="pw-layer" class="clip" data-start="0" data-duration="66" data-track-index="0">
+    <div id="pw-layer" class="clip" data-start="0" data-duration="204" data-track-index="0">
       <canvas id="pw-canvas" width="1920" height="1080"></canvas>
     </div>
   </div>
@@ -29,13 +29,13 @@
   <script src="assets/retro-kit.js"></script>
   <script>
     (function () {
-      var DURATION = 66;
+      var DURATION = 204;
       var COVER = 0.35; // seconds of sweep before each cut
       var HOLD = 0.05; // fully covered for the last frame or two before the cut
       var CELL = 48;
       var COLOR = "#150C2E";
       var LEVELS = 20;
-      var CUTS = [16, 22, 34, 40, 60];
+      var CUTS = [16, 22, 34, 40, 60, 92, 110, 126, 170, 198]; // story, then the tour's chapter changes
 
       var tl = gsap.timeline({ paused: true });
       var clock = RK.clock(tl, DURATION);

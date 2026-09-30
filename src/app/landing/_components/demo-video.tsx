@@ -2,6 +2,20 @@ import Image from "next/image";
 import { PixelIcon } from "@/components/pixel-icon";
 import { CornerMarks } from "./corner-marks";
 
+/** A YouTube player that fills its positioned parent. */
+export function YouTubeFrame({ youtubeId, title }: { youtubeId: string; title: string }) {
+  return (
+    <iframe
+      className="absolute inset-0 h-full w-full"
+      src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
+      title={title}
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerPolicy="strict-origin-when-cross-origin"
+      allowFullScreen
+    />
+  );
+}
+
 /**
  * The demo video in a framed 16:9 player. With no YouTube id yet it shows a
  * placeholder on the night-city art, so the section holds its shape until
@@ -12,14 +26,7 @@ export function DemoVideo({ youtubeId, title }: { youtubeId: string | null; titl
     <CornerMarks className="mx-auto max-w-4xl">
       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-[var(--screen-deep)]">
         {youtubeId ? (
-          <iframe
-            className="absolute inset-0 h-full w-full"
-            src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
-            title={title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          />
+          <YouTubeFrame youtubeId={youtubeId} title={title} />
         ) : (
           <>
             <Image src="/landing/retro-footer.webp" alt="" fill sizes="(min-width: 896px) 896px, 100vw" className="object-cover" />

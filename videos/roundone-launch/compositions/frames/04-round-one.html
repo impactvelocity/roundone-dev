@@ -41,15 +41,15 @@
       height: 1080px;
     }
 
-    /* ── Ground: landing pixel sky + night scrim + sparkles + dither tiles ── */
-    /* Scaled 1.18× from the top so the art's white cloud floor sits low and the
-       promise holds on night sky (frame 1 keeps the full art for its scroll-out). */
+    /* ── Ground: landing footer art (neon-floor city) + night scrim + sparkles + dither tiles ── */
+    /* The footer art is dark edge to edge, so it runs full-bleed (the hero sky's
+       white cloud floor used to need a 1.18× crop here). */
     #f04-art {
       position: absolute;
-      left: -173px;
-      top: -24px;
-      width: 2266px;
-      height: 1275px;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
       object-fit: cover;
       display: block;
     }
@@ -209,7 +209,7 @@
     <!-- Track 0 — the ground: pixel sky (creeping push), night scrim, beat sparkles, dither tiles on top -->
     <div id="f04-ground" class="clip" data-start="0" data-duration="6" data-track-index="0">
       <div id="f04-push" data-layout-allow-overflow>
-        <img id="f04-art" src="assets/retro-hero.png" alt="" data-layout-allow-overflow />
+        <img id="f04-art" src="assets/retro-footer.png" alt="" data-layout-allow-overflow />
       </div>
       <div id="f04-scrim"></div>
       <div id="f04-sparkles" aria-hidden="true" data-layout-ignore></div>

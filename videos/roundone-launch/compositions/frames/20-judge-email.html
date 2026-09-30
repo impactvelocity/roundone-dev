@@ -1,0 +1,198 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f20-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f20-stage"] { position: absolute; inset: 0; }
+
+    /* night-purple dither tiles, on top of everything */
+    [id="f20-dither"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 20; pointer-events: none; }
+
+    /* Film-style side card: the day strip (frame px 1330–1800 × 330–700) */
+    [id="f20-days"] { position: absolute; left: 1330px; top: 330px; width: 470px; height: 370px; box-sizing: border-box; overflow: hidden; }
+    .f20-dhead { display: flex; align-items: center; gap: 14px; height: 104px; padding: 0 32px; box-sizing: border-box; }
+    .f20-dhead .f20-cal { color: #7C3AED; }
+    .f20-dtitle { font: 600 26px/1.2 "GeistSans", sans-serif; color: #1D1433; white-space: nowrap; }
+    .f20-day { position: relative; display: flex; align-items: center; gap: 18px; height: 84px; padding: 0 32px; box-sizing: border-box; border-top: 1px solid rgba(46,22,88,0.1); }
+    .f20-daybg { position: absolute; inset: 0; background: rgba(109,40,217,0.045); pointer-events: none; }
+    .f20-tile { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; box-sizing: border-box; flex: none; }
+    .f20-tile--done { background: #DCF7EC; color: #0F9D6B; }
+    .f20-tile--open { background: #EDE5FF; }
+    .f20-tile--next { border: 1.5px dashed rgba(46,22,88,0.24); }
+    .f20-dot { display: block; width: 12px; height: 12px; background: #7C3AED; }
+    .f20-pulse { position: absolute; left: -4px; top: -4px; width: 44px; height: 44px; box-sizing: border-box; border: 3px solid #7C3AED; border-radius: 12px; opacity: 0; pointer-events: none; }
+    .f20-label { position: relative; font: 500 24px/1.2 "GeistSans", sans-serif; color: #1D1433; white-space: nowrap; }
+    .f20-label--next { color: #564B70; }
+    .f20-tag { position: relative; margin-left: auto; }
+
+    /* The email button's pressed state (inside the clipped mail body) */
+    .f20-press { position: absolute; left: 0; top: 0; border-radius: 15px; background: rgba(21,12,46,0.32); opacity: 0; pointer-events: none; }
+  </style>
+
+  <div id="root" data-composition-id="20-judge-email" data-width="1920" data-height="1080" data-duration="6.4">
+    <div id="f20-ground" class="clip" data-start="0" data-duration="6.4" data-track-index="0"></div>
+    <div id="f20-stage" class="clip" data-start="0" data-duration="6.4" data-track-index="1">
+      <div id="f20-days" class="rk-mock">
+        <div class="f20-dhead">
+          <span class="f20-cal" data-rk-icon="calendar" data-size="24"></span>
+          <span class="f20-dtitle">Daily batches</span>
+        </div>
+        <div class="f20-day">
+          <span class="f20-tile f20-tile--done"><span data-rk-icon="check" data-size="20"></span></span>
+          <span class="f20-label">Day 1</span>
+          <span class="rk-tag rk-tag--pass f20-tag">done</span>
+        </div>
+        <div class="f20-day">
+          <span id="f20-todaybg" class="f20-daybg"></span>
+          <span class="f20-tile f20-tile--open"><i id="f20-dot" class="f20-dot"></i><i id="f20-pulse" class="f20-pulse"></i></span>
+          <span class="f20-label">Day 2</span>
+          <span class="rk-tag rk-tag--agent f20-tag">open</span>
+        </div>
+        <div class="f20-day">
+          <span class="f20-tile f20-tile--next"></span>
+          <span class="f20-label f20-label--next">Day 3</span>
+          <span class="rk-tag rk-tag--neutral f20-tag">tomorrow</span>
+        </div>
+      </div>
+      <canvas id="f20-dither" width="1920" height="1080"></canvas>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      var root = document.querySelector('[data-composition-id="20-judge-email"]');
+      var stage = root.querySelector('[id="f20-stage"]');
+      var card = root.querySelector('[id="f20-days"]');
+      var dither = root.querySelector('[id="f20-dither"]');
+
+      // The judge's email in a mail window, then the header band over its top edge.
+      var m = TK.mail(stage, {
+        x: 200, y: 196, width: 1060, height: 760, zoom: 1.3,
+        src: "assets/tour/email-judge-batch.png", emailHeight: 560,
+        subject: "Day 2 is open", from: "RoundOne", fromEmail: "judging@roundone.dev", to: "Marcus",
+      });
+      var h = TK.header(stage, { eyebrow: "Judging <b>›</b> Email", title: "Today's batch is open.", chapter: 2 });
+
+      // Side card above the kit's layers; the dither canvas last (z-index 20 keeps it over everything).
+      RK.hydrate(card);
+      stage.appendChild(card);
+      stage.appendChild(dither);
+
+      // TK.mail builds no connector svg, but TK.callouts writes into w.links — give the mail window one.
+      if (!m.links) {
+        m.links = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        m.links.setAttribute("class", "tk-links");
+        m.layer.insertBefore(m.links, m.layer.firstChild);
+      }
+
+      // The button's pressed shade rides in the clipped mail body; the page cursor in the window's layer.
+      var shade = document.createElement("div");
+      shade.className = "f20-press";
+      m.body.appendChild(shade);
+      var CUR0 = { x: 985, y: 700 }; // lower right of the email, window-local px
+      var cur = RK.cursor(CUR0);
+      m.layer.appendChild(cur);
+
+      var days = Array.prototype.map.call(card.querySelectorAll(".f20-day"), function (row) {
+        return { tile: row.querySelector(".f20-tile"), label: row.querySelector(".f20-label"), tag: row.querySelector(".f20-tag") };
+      });
+      var todayBg = root.querySelector('[id="f20-todaybg"]');
+      var dot = root.querySelector('[id="f20-dot"]');
+      var pulse = root.querySelector('[id="f20-pulse"]');
+
+      TK.ready(root).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+
+        // Measure the email inside the window (window-local px = m.layer px) before anything moves.
+        function local(elm) {
+          var L = m.layer.getBoundingClientRect();
+          var R = elm.getBoundingClientRect();
+          var k = L.width / m.layer.offsetWidth || 1;
+          return { x: (R.left - L.left) / k, y: (R.top - L.top) / k, w: R.width / k, h: R.height / k };
+        }
+        var E = local(m.email);
+        var B = local(m.body);
+        var s = E.w / 1360; // display px per PNG px (the email PNG is 1360×1120, 2×)
+        // At zoom 1.3 the stats and the button sit below the body's fold: scroll until the email's bottom meets it.
+        var SCROLL = Math.round(E.y + E.h - (B.y + B.h)) - 1;
+        function px(ix, iy) { return { x: E.x + ix * s, y: E.y + iy * s - SCROLL }; } // PNG px → layer px, scrolled
+
+        // Ring-only highlight around the three stat boxes (PNG px 200–1160 × 692–874).
+        var PAD = 12;
+        var g0 = px(200, 692);
+        var g1 = px(1160, 874);
+        var stats = TK.callouts(m, [{
+          box: [g0.x - PAD, g0.y - PAD, g1.x - g0.x + PAD * 2, g1.y - g0.y + PAD * 2],
+          cardAt: [g0.x, g0.y], title: "", body: "", radius: 20 * (1238 / 1440),
+        }])[0];
+
+        // "Open today's batch →" (PNG px 200–632 × 938–1036): pressed shade + the click point.
+        var b0 = px(200, 938);
+        var b1 = px(632, 1036);
+        shade.style.left = b0.x - B.x + "px";
+        shade.style.top = b0.y - B.y + "px";
+        shade.style.width = b1.x - b0.x + "px";
+        shade.style.height = b1.y - b0.y + "px";
+        var hit = px(430, 986);
+
+        // Scene 1 (0.0–1.0): tiles clear, header rises on 0.4, the mail window on 0.45.
+        RK.dither(clock, dither, { start: 0, dur: 0.4, mode: "reveal", color: "#150C2E", angle: "diagonal" });
+        TK.showHeader(tl, h, 0.4);
+        TK.showWindow(tl, m, 0.45);
+
+        // Scene 2 (1.0–2.0): the email scrolls to its numbers; ring on the three stat boxes on 1.25.
+        TK.scroll(tl, m, 0.75, SCROLL, { dur: 0.45 });
+        TK.showCallout(tl, stats, 1.25, { ringOnly: true });
+
+        // Scene 3 (2.0–3.5): the day strip rises on 2.0; its days pop on 2.25 / 2.5 / 2.75.
+        tl.fromTo(card, { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 2.0);
+        days.forEach(function (d, i) {
+          var t = 2.25 + i * 0.25;
+          RK.pop(tl, d.tile, t);
+          RK.pop(tl, d.tag, t);
+          tl.fromTo(d.label, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" }, t);
+        });
+        tl.fromTo(todayBg, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "steps(2)" }, 2.5);
+        // 3.0: Day 2's dot pulses once — a stepped pop and one square ring stepping outward.
+        clock.add(function (t) {
+          var d = t - 3.0;
+          var k = d >= 0 && d < 0.08 ? 1.5 : d >= 0.08 && d < 0.16 ? 1.25 : 1;
+          dot.style.transform = k === 1 ? "" : "scale(" + k + ")";
+          var p = d / 0.4;
+          if (p < 0 || p >= 1) {
+            pulse.style.opacity = "0";
+            pulse.style.transform = "";
+            return;
+          }
+          var q = Math.floor(p * 4) / 4;
+          pulse.style.opacity = String(0.9 * (1 - q));
+          pulse.style.transform = "scale(" + (1 + 0.8 * q) + ")";
+        });
+
+        // Scene 4 (3.5–6.0): the cursor glides onto the button by 4.35, clicks on 4.5 (darkens 0.15s). Hold.
+        tl.fromTo(cur, { opacity: 0 }, { opacity: 1, duration: 0.1, ease: "steps(2)" }, 3.5);
+        tl.fromTo(cur, { x: CUR0.x, y: CUR0.y }, { x: hit.x, y: hit.y, duration: 0.85, ease: "power3.inOut", immediateRender: false }, 3.5);
+        // Magenta = the human / judge (frame.md); the kit's default violet vanishes on the email's violet button.
+        RK.click(clock, cur, m.layer, { t: 4.5, x: hit.x, y: hit.y, color: "#E8318F" });
+        clock.add(function (t) {
+          shade.style.opacity = t >= 4.5 && t < 4.65 ? "1" : "0";
+        });
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["20-judge-email"] = tl;
+      });
+    })();
+  </script>
+</template>

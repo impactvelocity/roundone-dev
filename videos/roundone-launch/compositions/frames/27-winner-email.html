@@ -1,0 +1,226 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f27-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f27-stage"] { position: absolute; inset: 0; }
+
+    /* The winner-email editor: a film card (rk-mock) holding the app's fields (email-tabs.tsx), frame px */
+    [id="f27-editor"] {
+      position: absolute; left: 120px; top: 230px; width: 620px; height: 652px; box-sizing: border-box;
+      padding: 28px 36px 28px; display: flex; flex-direction: column;
+    }
+    .f27-hint { margin: 0 0 16px; font: 400 18px/1.4 "GeistSans", sans-serif; color: #625D78; }
+    .f27-hint code { font: 500 15.5px/1 "GeistMono", monospace; color: #1A1530; background: rgba(109,40,217,.07); padding: 2px 5px; border-radius: 5px; }
+    .f27-field { display: flex; flex-direction: column; gap: 7px; }
+    .f27-field + .f27-field { margin-top: 14px; }
+    .f27-labelrow { display: flex; align-items: baseline; justify-content: space-between; }
+    .f27-label { font: 500 19px/1.2 "GeistSans", sans-serif; color: #1A1530; }
+    .f27-opt { font: 400 18px/1.2 "GeistSans", sans-serif; color: #625D78; }
+    .f27-input {
+      position: relative; box-sizing: border-box; height: 46px; padding: 0 16px; display: flex; align-items: center;
+      background: #FFFFFF; border: 1px solid #E6E1F0; border-radius: 10px; box-shadow: inset 0 2px 0 rgba(26,21,48,.03);
+      font: 400 19px/25px "GeistSans", sans-serif; color: #1A1530; white-space: nowrap; overflow: hidden;
+    }
+    .f27-input--area { height: 74px; align-items: flex-start; padding: 11px 16px; white-space: normal; }
+    .f27-pair { display: grid; grid-template-columns: minmax(0, 1fr) 222px; gap: 8px; }
+    .f27-focus {
+      position: absolute; inset: -1px; border: 2px solid #7C3AED; border-radius: 10px;
+      box-shadow: 0 0 0 5px rgba(124,58,237,.16); pointer-events: none;
+    }
+    .f27-typed { position: relative; }
+    .f27-actions { margin-top: auto; display: flex; align-items: center; gap: 14px; }
+    /* The app's primary button: brand violet, white text, 12px radius, pressable bottom lip */
+    [id="f27-editor"] .f27-btn {
+      display: inline-flex; align-items: center; justify-content: center; height: 48px; padding: 0 32px; border-radius: 12px;
+      background: #6E56E7; color: #FFFFFF; font: 600 19px/1 "GeistSans", sans-serif; white-space: nowrap;
+      box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.18), 0 8px 18px -10px rgba(110,86,231,.7);
+    }
+
+    /* The preview window's tab row (stands in for the mail header), frame px */
+    [id="f27-stage"] .f27-head { display: flex; align-items: center; justify-content: space-between; height: 78px; padding: 0 28px; }
+    .f27-eyebrow { font: 500 20px/1 "GeistPixelSquare", sans-serif; letter-spacing: .08em; text-transform: uppercase; color: #625D78; }
+    .f27-seg { display: inline-flex; gap: 3px; padding: 4px; border: 2px solid #E6E1F0; border-radius: 14px; background: #FFFFFF; }
+    .f27-seg span { display: flex; align-items: center; height: 40px; padding: 0 18px; border-radius: 10px; font: 600 19px/1 "GeistSans", sans-serif; color: #625D78; }
+    .f27-seg .f27-seg-on { background: #1A1530; color: #FFFFFF; box-shadow: inset 0 -3px 0 rgba(0,0,0,.28); }
+    [id="f27-sheet"] { position: absolute; left: 0; top: 0; width: 100%; }
+    /* The email's description paragraph, rebuilt so the preview follows the typing (email: Geist 16/26 #71717a, ×1.1) */
+    .f27-cover { position: absolute; background: #FFFFFF; }
+    .f27-ptext { position: absolute; font: 400 17.6px/28.6px "GeistSans", sans-serif; color: #71717A; white-space: normal; }
+  </style>
+
+  <div id="root" data-composition-id="27-winner-email" data-width="1920" data-height="1080" data-duration="6.5">
+    <div id="f27-ground" class="clip" data-start="0" data-duration="6.5" data-track-index="0"></div>
+    <div id="f27-stage" class="clip" data-start="0" data-duration="6.5" data-track-index="1"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      var ZOOM = 1.1;
+      var DESC = "Out of 112 finalists, the judges ranked yours #1. Here's everything you've earned:";
+      var root = document.querySelector('[data-composition-id="27-winner-email"]');
+      var stage = root.querySelector('[id="f27-stage"]');
+
+      // ── The editor: the app's Winner email fields, top to bottom (email-tabs.tsx) ──
+      var editor = document.createElement("div");
+      editor.id = "f27-editor";
+      editor.className = "rk-mock";
+      editor.innerHTML =
+        '<p class="f27-hint">Use <code>{project}</code>, <code>{hackathon}</code> and <code>{rank}</code> in the title or description to fill in names and places.</p>' +
+        '<div class="f27-field"><span class="f27-label">From name</span>' +
+          '<div class="f27-input">AI Agents Hack 2026</div></div>' +
+        '<div class="f27-field"><span class="f27-label">Title</span>' +
+          '<div class="f27-input">Congrats, {project}!</div></div>' +
+        '<div class="f27-field"><span class="f27-label">Description</span>' +
+          '<div class="f27-input f27-input--area"><div class="f27-focus"></div><div class="f27-typed"></div></div></div>' +
+        '<div class="f27-field"><span class="f27-label">Button</span>' +
+          '<div class="f27-pair"><div class="f27-input">acme.dev/hackathon/claim</div><div class="f27-input">Claim your rewards</div></div></div>' +
+        '<div class="f27-field"><span class="f27-labelrow"><span class="f27-label">Fine print</span><span class="f27-opt">optional</span></span>' +
+          '<div class="f27-input">Cash prizes go out by bank transfer within 30 days.</div></div>' +
+        '<div class="f27-actions">' +
+          '<span class="f27-btn f27-save">Save</span>' +
+          '<span class="rk-tag rk-tag--pass" id="f27-tag">' + RK.icon("check", 14) + "<span>Saved</span></span>" +
+        "</div>";
+      stage.appendChild(editor);
+      var focusRing = editor.querySelector(".f27-focus");
+      var typed = editor.querySelector(".f27-typed");
+      var save = editor.querySelector(".f27-save");
+      var tag = editor.querySelector('[id="f27-tag"]');
+
+      // ── The preview: a TK.mail window whose header is the app's Preview · Desktop / Phone row ──
+      var m = TK.mail(stage, {
+        x: 800, y: 230, width: 1000, height: 900, zoom: ZOOM,
+        src: "assets/tour/email-winner.png", emailHeight: 1356,
+        subject: "Congrats, Repo Whisperer!", from: "AI Agents Hack 2026",
+      });
+      var LOCK =
+        '<svg width="13" height="13" viewBox="0 0 12 12" fill="none"><rect x="2" y="5.2" width="8" height="5.6" rx="1.4" fill="#8f89a6"/><path d="M4 5.2V3.8a2 2 0 0 1 4 0v1.4" stroke="#8f89a6" stroke-width="1.3"/></svg>';
+      m.bar.querySelector(".tk-url").innerHTML = LOCK + "<span><b>roundone.dev</b>/h/agent-hacks-2026/judging/rewards</span>";
+      m.head.className = "tk-mailhead f27-head";
+      m.head.innerHTML =
+        '<span class="f27-eyebrow">Preview</span>' +
+        '<span class="f27-seg"><span class="f27-seg-on">Desktop</span><span>Phone</span></span>';
+      m.body.style.height = "820px"; // runs off the frame bottom
+      m.body.style.background = "#F7F7F9"; // the email's own ground, so its edges disappear
+
+      // The email rides on a sheet with the rebuilt description and the ring, so TK.scroll moves them together.
+      var sheet = document.createElement("div");
+      sheet.id = "f27-sheet";
+      sheet.style.height = 26 + 1356 * ZOOM + 40 + "px";
+      m.body.appendChild(sheet);
+      sheet.appendChild(m.email);
+      var cover = document.createElement("div");
+      cover.className = "f27-cover";
+      sheet.appendChild(cover);
+      var ptext = document.createElement("div");
+      ptext.className = "f27-ptext";
+      sheet.appendChild(ptext);
+      var ring = document.createElement("div");
+      ring.className = "tk-ring";
+      ring.style.setProperty("--tk-accent", "#7C3AED");
+      sheet.appendChild(ring);
+      var echo = ring.cloneNode(false);
+      echo.style.setProperty("--tk-accent", "#7C3AED");
+      sheet.appendChild(echo);
+      gsap.set(sheet, { y: 0 });
+
+      // ── Header (over the cards, as in every tour frame) ──
+      var h = TK.header(stage, { eyebrow: "Results <b>›</b> Winner email", title: "Preview it. Perfect it.", chapter: 3 });
+
+      // ── The pixel cursor: starts below the frame, reaches Save in Scene 4 ──
+      var CUR0 = { x: 600, y: 1120 };
+      var cur = RK.cursor(CUR0);
+      stage.appendChild(cur);
+
+      function offsetIn(el, anc) {
+        var x = 0, y = 0;
+        while (el && el !== anc) { x += el.offsetLeft; y += el.offsetTop; el = el.offsetParent; }
+        return { x: x, y: y };
+      }
+
+      // The click point is measured from the button's width, so wait for its face too.
+      var face = document.fonts && document.fonts.load ? document.fonts.load('600 19px "GeistSans"').catch(function () {}) : null;
+      Promise.all([TK.ready(root), face]).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+
+        // Measure at layout (no transforms yet). Email regions in its own css px, from the PNG:
+        // description column x 99–581 (card 62–618, 36px padding), first line box at y 332.
+        var ix = m.email.offsetLeft;
+        var iy = m.email.offsetTop;
+        function place(el, x, y, w, hh) {
+          el.style.left = ix + x * ZOOM + "px";
+          el.style.top = iy + y * ZOOM + "px";
+          if (w != null) el.style.width = w * ZOOM + "px";
+          if (hh != null) el.style.height = hh * ZOOM + "px";
+        }
+        place(cover, 88, 322, 506, 72); // the email's own paragraph, painted out with the card's white
+        place(ptext, 99, 332, 482);
+        place(ring, 88, 326, 492, 64);
+        place(echo, 88, 326, 492, 64);        var para = { x: ix + 88 * ZOOM, y: iy + 326 * ZOOM, w: 492 * ZOOM, h: 64 * ZOOM };
+        var scrollTo = Math.round(iy + 416 * ZOOM - 34); // "Your rewards" lands just under the tab row
+        var sp = offsetIn(save, stage);
+        // Click right of the label's centre; the resting arrow stays above y=900.
+        var SX = Math.round(sp.x + save.offsetWidth / 2 + 34);
+        var SY = Math.round(sp.y + save.offsetHeight / 2 + 2);
+
+        // Scene 1 (0.0–1.0): header rises; the editor at 0.2, the preview at 0.35.
+        TK.showHeader(tl, h, 0.05);
+        tl.fromTo(editor, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 0.2);
+        TK.showWindow(tl, m, 0.35);
+
+        // Scene 2 (1.0–2.75): the Description takes focus and types 1.0–2.4; the preview's paragraph
+        // types in step, character for character. A violet ring pulses once around it on 2.5.
+        var cps = DESC.length / 1.4;
+        tl.fromTo(focusRing, { opacity: 0 }, { opacity: 1, duration: 0.08, ease: "steps(2)" }, 1.0);
+        RK.type(clock, typed, DESC, { start: 1.0, cps: cps });
+        RK.type(clock, ptext, DESC, { start: 1.0, cps: cps, caret: false });
+        tl.fromTo(ring, { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 0.24, ease: "steps(3)", transformOrigin: "50% 50%" }, 2.5);
+        clock.add(function (t) {
+          // One stepped pulse: an echo of the ring steps outward and fades.
+          var p = (t - 2.6) / 0.4;
+          if (p < 0 || p >= 1) {
+            echo.style.opacity = "0";
+            return;
+          }
+          var q = Math.floor(p * 4) / 4;
+          var d = 6 + 18 * q;
+          echo.style.opacity = String(0.8 * (1 - q));
+          echo.style.left = para.x - d + "px";
+          echo.style.top = para.y - d + "px";
+          echo.style.width = para.w + d * 2 + "px";
+          echo.style.height = para.h + d * 2 + "px";
+          echo.style.borderRadius = 14 + d + "px";
+        });
+
+        // Scene 3 (2.75–4.25): the preview scrolls down to Your rewards, 2.75–3.9;
+        // the ring rides up with its paragraph and dims before it reaches the top edge.
+        TK.scroll(tl, { email: sheet, scrollY: 0 }, 2.75, scrollTo, { dur: 1.15 });
+        tl.fromTo(ring, { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.out", immediateRender: false }, 3.4);
+
+        // Scene 4 (4.25–6.0): the cursor reaches Save and clicks on 4.5 (the field blurs);
+        // "Saved" pops on 4.75. Hold.
+        tl.fromTo(cur, { x: CUR0.x, y: CUR0.y }, { x: SX, y: SY, duration: 0.65, ease: "power3.inOut" }, 3.8);
+        RK.click(clock, cur, stage, { t: 4.5, x: SX, y: SY });
+        tl.fromTo(save, { scale: 1 }, { scale: 0.94, duration: 0.05, ease: "power2.out" }, 4.5);
+        tl.fromTo(save, { scale: 0.94 }, { scale: 1, duration: 0.22, ease: "power3.out", immediateRender: false }, 4.58);
+        tl.fromTo(focusRing, { opacity: 1 }, { opacity: 0, duration: 0.08, ease: "steps(2)", immediateRender: false }, 4.5);
+        RK.pop(tl, tag, 4.75);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["27-winner-email"] = tl;
+      });
+    })();
+  </script>
+</template>

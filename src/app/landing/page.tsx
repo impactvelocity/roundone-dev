@@ -10,9 +10,10 @@ import { DEMO_MODE } from "@/lib/demo";
 import { NebiusLogo, NvidiaLogo, TavilyLogo } from "./_components/brand-logos";
 import { GetStarted, TryDemo } from "./_components/cta";
 import { DemoVideo } from "./_components/demo-video";
-import { DEMO_YOUTUBE_ID, DEVPOST_URL, GITHUB_REPO, PROMO_YOUTUBE_ID } from "./_components/links";
-import { AiOnlyJudge, HeroPillars, JudgeQueue, RankingTable, SubmissionFlood, Tag } from "./_components/mocks";
+import { DEMO_YOUTUBE_ID, DEVPOST_URL, GITHUB_REPO, PROMO_RUNTIME, PROMO_YOUTUBE_ID } from "./_components/links";
+import { AiOnlyJudge, JudgeQueue, RankingTable, SubmissionFlood, Tag } from "./_components/mocks";
 import { PixelDither } from "./_components/pixel-dither";
+import { RetroTv } from "./_components/retro-tv";
 import { ScreenTour, type Shot } from "./_components/screen-tour";
 import { CodeWindow, IconRow, Reveal, Section, Showcase } from "./_components/section";
 import { SiteHeader } from "./_components/site-header";
@@ -26,7 +27,6 @@ export default function LandingPage() {
       <SiteHeader />
       <main>
         <Hero />
-        <Promo />
         <AiJudges />
         <WhyHackathons />
         <Flood />
@@ -103,34 +103,41 @@ function Hero() {
         </div>
       </section>
 
-      <div className="reveal reveal-delay-4 relative z-10 -mt-44 px-4 sm:-mt-52 sm:px-6 lg:-mt-40">
-        <HeroPillars />
+      {/* The promo video sits where the three pillars (HeroPillars in mocks.tsx) were; they're hidden for now. */}
+      <div id="promo" className="reveal reveal-delay-4 relative z-10 -mt-60 scroll-mt-28 px-4 sm:-mt-68 sm:px-6 lg:-mt-56">
+        <RetroTv youtubeId={PROMO_YOUTUBE_ID} runtime={PROMO_RUNTIME} title={`${brand.name} promo video`} />
       </div>
 
-      <div className="mx-auto mt-12 flex max-w-4xl flex-wrap items-start justify-center gap-x-14 gap-y-6 px-6 text-center">
-        {SPONSORS.map((s) => (
-          <div key={s.role}>
-            <div className="flex h-8 items-center justify-center gap-2 text-lg font-semibold">
-              {s.logo}
-              {s.name}
+      <div className="mx-auto mt-16 flex max-w-4xl flex-col items-center px-6 text-center">
+        <p className="thanks-badge m-0 inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-medium text-balance sm:rounded-full">
+          <PixelIcon name="heart" size={13} className="text-[var(--magenta)]" />
+          <span>
+            Thank you to the sponsors of this hackathon &amp;{" "}
+            <a href={DEVPOST_URL} target="_blank" rel="noreferrer" className="text-[var(--violet)] underline underline-offset-4">
+              Devpost
+            </a>
+          </span>
+        </p>
+        <div className="mt-8 flex flex-wrap items-start justify-center gap-x-14 gap-y-6">
+          {SPONSORS.map((s) => (
+            <div key={s.role}>
+              <div className="flex h-8 items-center justify-center gap-2 text-lg font-semibold">
+                {s.logo}
+                {s.name}
+              </div>
+              <div className="mt-1.5 text-sm text-[var(--muted)]">{s.role}</div>
             </div>
-            <div className="mt-1.5 text-sm text-[var(--muted)]">{s.role}</div>
-          </div>
-        ))}
+          ))}
+        </div>
+      </div>
+
+      {/* A hairline with a sparkle, closing the hero before the first section. */}
+      <div aria-hidden className="mx-auto mt-20 flex max-w-4xl items-center gap-4 px-6">
+        <span className="h-px flex-1 bg-[linear-gradient(to_right,transparent,rgba(124,58,237,0.35))]" />
+        <PixelIcon name="spark" size={16} className="text-[var(--violet)]" />
+        <span className="h-px flex-1 bg-[linear-gradient(to_left,transparent,rgba(124,58,237,0.35))]" />
       </div>
     </>
-  );
-}
-
-// ── Promo video ───────────────────────────────────────────────────────────
-
-function Promo() {
-  return (
-    <section id="promo" className="mx-auto max-w-6xl scroll-mt-28 px-6 pt-20">
-      <Reveal>
-        <DemoVideo youtubeId={PROMO_YOUTUBE_ID} title={`${brand.name} promo video`} />
-      </Reveal>
-    </section>
   );
 }
 
@@ -147,6 +154,7 @@ function AiJudges() {
   return (
     <Section
       id="ai-judges"
+      center
       headline="AI makes a bad hackathon judge"
       subheadline="Most submissions are written with AI now, so they're tuned to hit every note in your requirements. An AI judge grades work shaped like its own, and it can give 8 lines of code a 10 out of 10."
     >
@@ -177,7 +185,9 @@ function AiJudges() {
       </Reveal>
       <Reveal delay={0.08} className="mx-auto mt-12 max-w-3xl text-center">
         <p className="display m-0 text-2xl leading-snug text-pretty sm:text-3xl">
-          {brand.name} doesn&rsquo;t replace human judges. <span className="text-dusk">It lets them judge at scale.</span>
+          {brand.name} doesn&rsquo;t replace human judges.
+          <br />
+          <span className="text-dusk">It lets them judge at scale.</span>
         </p>
       </Reveal>
     </Section>
@@ -602,49 +612,20 @@ function Demo() {
         ) : null}
         <ScreenTour shots={SHOTS} label={`${brand.name} screens`} />
       </Reveal>
-      <Reveal delay={0.08} className="mock mx-auto mt-14 grid max-w-4xl divide-y divide-[var(--line-soft)] text-left md:grid-cols-3 md:divide-x md:divide-y-0">
-        <StageCell icon="inbox" title="Projects in">
-          Share a submission form built from the fields you ask for (title, video, repo and so on), or send projects from another
-          system with one request to the intake API.
-        </StageCell>
-        <StageCell icon="chat" title="Ask about any project">
-          Chat searches the submissions and the READMEs and demo pages they link to. It reads the scores and the agent&rsquo;s
-          reviews, and can search the web.
-          <span className="mt-3 block rounded-2xl rounded-bl-sm bg-[var(--tint)] px-3.5 py-2 text-sm text-[var(--silver)]">
-            Check if the top project&rsquo;s idea already exists on the web
-          </span>
-        </StageCell>
-        <StageCell icon="crown" title="Winners out">
-          Attach prizes and awards, email each winner what they won and publish a winners page in the hackathon&rsquo;s colors.
-        </StageCell>
-      </Reveal>
       {DEMO_MODE ? (
         <Reveal delay={0.1} className="mx-auto mt-14 flex max-w-xl flex-col items-center gap-6 text-center">
           <div>
-            <h3 className="display m-0 text-2xl leading-tight">Or click around yourself</h3>
+            <h3 className="display m-0 text-2xl leading-tight">Take it for a spin</h3>
             <p className="m-0 mt-2 leading-relaxed text-pretty text-[var(--muted)]">
-              The demo login opens three sample hackathons: one wrapped up, one{" "}
-              <span className="whitespace-nowrap">mid-judging</span> and one just set up. Try anything; nothing you change is
-              saved.
+              Sign in to the demo and you&rsquo;ll find three sample hackathons: one finished, one{" "}
+              <span className="whitespace-nowrap">mid-judging</span> and one just set up. Click anything you like. Nothing you
+              change is saved.
             </p>
           </div>
           <TryDemo />
         </Reveal>
       ) : null}
     </Section>
-  );
-}
-
-/** One stage of a hackathon the demo walks through: an icon, a title and what RoundOne does there. */
-function StageCell({ icon, title, children }: { icon: IconName; title: string; children: ReactNode }) {
-  return (
-    <div className="flex flex-col p-6">
-      <span className="grid size-9 place-items-center rounded-lg bg-[var(--violet-soft)] text-[var(--violet)]">
-        <PixelIcon name={icon} size={14} />
-      </span>
-      <h3 className="m-0 mt-4 text-lg font-semibold">{title}</h3>
-      <div className="mt-1.5 leading-relaxed text-[var(--muted)]">{children}</div>
-    </div>
   );
 }
 

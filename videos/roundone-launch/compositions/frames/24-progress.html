@@ -1,0 +1,143 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f24-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f24-stage"] { position: absolute; inset: 0; }
+  </style>
+
+  <div id="root" data-composition-id="24-progress" data-width="1920" data-height="1080" data-duration="6.5">
+    <div id="f24-ground" class="clip" data-start="0" data-duration="6.5" data-track-index="0"></div>
+    <div id="f24-stage" class="clip" data-start="0" data-duration="6.5" data-track-index="1"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour/shots.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      var root = document.querySelector('[data-composition-id="24-progress"]');
+      var stage = root.querySelector('[id="f24-stage"]');
+      var shot = TK.shot("progress");
+
+      // Window + header (built now so TK.ready can wait on the screenshot).
+      var w = TK.window(stage, { url: shot.url, src: shot.src });
+      var h = TK.header(stage, { eyebrow: "Judging <b>›</b> Progress", title: "Every round at a glance.", chapter: 2 });
+
+      // ── Covers (static DOM, page px, measured from progress.png) ─────────────
+      // "Run agent" (page [1197,164]–[1327.5,207.5]) is hidden for the whole frame, no tween:
+      // a flat cover in the page ground colour, then a patch of empty ground taken 440px
+      // (20 periods of the page's 22px dot grid) to the left, so the dots run straight through.
+      var HIDE = [1185, 150, 160, 70];
+      TK.cover(w, HIDE, "#F9F9FB");
+      var hidePatch = TK.crop(w, HIDE);
+      hidePatch.style.backgroundPosition = -(HIDE[0] - 440) + "px " + -HIDE[1] + "px";
+
+      // Counters row: each column's label / number / sub-line (y 266–338) under plain white,
+      // kept clear of the dividers at x 417 / 720 / 1023 and the panel's rounded corners.
+      var COLS = [[118, 295], [422, 294], [725, 294], [1028, 294]];
+      COLS.forEach(function (c) { TK.cover(w, [c[0], 260, c[1], 84], "#FFFFFF"); });
+
+      // Funnel: the chart area under white, the three column dividers redrawn, and the
+      // panel's 16px inner radius on the bottom corners so its border stays intact.
+      // Border-coloured strips are tucked under the cover's side edges first: once the camera
+      // scales, those edges fall mid-pixel and the screenshot's resampled funnel colour would
+      // otherwise show through the panel border as a thin sliver.
+      [112, 1324].forEach(function (x) { TK.cover(w, [x, 350, 4, 226], "#DFDFE3"); });
+      var FC = [114, 346, 1212, 246];
+      var funnelCover = TK.cover(w, FC, "#FFFFFF");
+      funnelCover.style.borderRadius = "0 0 16px 16px";
+      [417, 720, 1023].forEach(function (x) {
+        var d = document.createElement("div");
+        d.style.cssText = "position:absolute;top:0;bottom:0;width:1px;left:" + (x - FC[0]) + "px;background:#DFDFE3;";
+        funnelCover.appendChild(d);
+      });
+
+      // ── Crops (pixel-aligned copies, 2px past their covers so no seam shows) ──
+      // Counter columns reveal top → bottom in 3 steps of 88/3px: label, number, sub-line.
+      var CH = 88;
+      var counterCrops = COLS.map(function (c) {
+        var d = TK.crop(w, [c[0] - 2, 258, c[1] + 4, CH]);
+        d.style.clipPath = "inset(0px 0px " + CH + "px 0px)";
+        return d;
+      });
+      // Funnel reveals left → right; its cells are 12px, 101 columns from x 114.
+      var FUN = [112, 344, 1216, 250];
+      var funnelCrop = TK.crop(w, FUN);
+      funnelCrop.style.clipPath = "inset(0px " + FUN[2] + "px 0px 0px)";
+
+      // Make a callout's connector a vertical drop from the card's bottom edge to the ring's top edge at page x.
+      function straighten(c, x) {
+        if (!c.line) return;
+        var y1 = c.cardRect.y + c.cardRect.h;
+        var y2 = c.box.y;
+        var len = y2 - y1;
+        c.line.setAttribute("x1", x);
+        c.line.setAttribute("y1", y1);
+        c.line.setAttribute("x2", x);
+        c.line.setAttribute("y2", y2);
+        c.line.setAttribute("stroke-dasharray", len + " " + len);
+        c.line.__len = len;
+        gsap.set(c.line, { attr: { "stroke-dashoffset": len } });
+        c.dot.setAttribute("cx", x);
+        c.dot.setAttribute("cy", y2);
+      }
+
+      TK.ready(root).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+
+        // Callouts 1 and 3 from shots.js only (callout 2 is the hidden "Run agent" button; never built).
+        // Both cards sit side by side above the panel, right of the tab row, so they clear the header
+        // band after the push and stay above y = 900.
+        var c1 = Object.assign({}, shot.callouts[0], { cardAt: [540, 100] });
+        var c3 = Object.assign({}, shot.callouts[2], { cardAt: [904, 100] });
+        var co = TK.callouts(w, [c1, c3]); // 1 Reviewed and advanced · 2 The whole funnel
+        straighten(co[0], 600); // onto Group review's ring
+        straighten(co[1], 964); // down column 3's empty right side onto the funnel ring
+
+        // Scene 1 (0.0–1.0): header, then the window rises.
+        TK.showHeader(tl, h, 0.05);
+        TK.showWindow(tl, w, 0.2);
+
+        // Scene 2 (1.0–2.0): the four counters tick in, one column per eighth, 3 steps in 0.2s each.
+        var COUNT_AT = [1.0, 1.25, 1.5, 1.75];
+        counterCrops.forEach(function (d, i) {
+          var t0 = COUNT_AT[i];
+          clock.add(function (t) {
+            var k = t < t0 ? 0 : Math.min(3, Math.floor((t - t0) / 0.1 + 1e-6) + 1);
+            d.style.clipPath = "inset(0px 0px " + ((3 - k) * CH / 3).toFixed(2) + "px 0px)";
+          });
+        });
+
+        // Scene 3 (2.0–3.25): camera pushes toward the funnel (1.2×, framed so the callout strip
+        // above the panel clears the header band); the funnel draws left → right in 16 steps
+        // from 2.0, each step ending on a cell edge, fully drawn at 3.125.
+        TK.focus(tl, w, 1.9, { x: 110, y: 100, w: 1220, h: 606 }, { max: 1.2 });
+        var STEPS = 16;
+        var CELLS = 101;
+        clock.add(function (t) {
+          var k = t < 2.0 ? 0 : Math.min(STEPS, Math.floor((t - 2.0) / 0.075 + 1e-6) + 1);
+          var shown = k === 0 ? 0 : k === STEPS ? FUN[2] : 2 + Math.round((k * CELLS) / STEPS) * 12;
+          funnelCrop.style.clipPath = "inset(0px " + (FUN[2] - shown) + "px 0px 0px)";
+        });
+
+        // Scene 4 (3.25–6.0): the two callouts, then hold.
+        TK.showCallout(tl, co[0], 3.5);
+        TK.showCallout(tl, co[1], 4.25);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["24-progress"] = tl;
+      });
+    })();
+  </script>
+</template>

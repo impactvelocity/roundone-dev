@@ -1,0 +1,264 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f16-start-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f16-start-stage"] { position: absolute; inset: 0; }
+    [id="f16-start-preload"] { display: none; }
+
+    /* ── The rebuilt Progress page, not started (page px inside the window) ──
+       The app's own proportions (page.tsx NotStarted + globals.css): grid 1fr / 280px, gap 40; text-sm 14/20,
+       text-xs 12/16; h1/h2 Geist Pixel 600. Geometry and colors sampled from assets/tour/raw/progress.png +
+       distribution.png: content from page x 112, h1 box top 164, aside at x 1048, 2px #DFDFE3 panels + 4px lip,
+       ink #18181B, muted #71717A. Primary button = the hackathon's brand violet #6E56E7. */
+    [id="f16-start-app"] {
+      position: absolute; left: 0; top: 0; width: 1440px; height: 1100px;
+      background-color: #F9F9FB;
+      background-image: radial-gradient(circle at 1px 1px, rgba(24,24,27,0.10) 1px, transparent 0);
+      background-size: 22px 22px;
+      font-family: "GeistSans", sans-serif; color: #18181B;
+    }
+    [id="f16-start-app"] * { box-sizing: border-box; }
+    .f16-start-grid { position: absolute; left: 112px; top: 164px; width: 1216px; display: grid; grid-template-columns: minmax(0, 1fr) 280px; column-gap: 40px; align-items: start; }
+    .f16-start-h1 { margin: 0 0 32px; font-family: "GeistPixelSquare", "GeistSans", sans-serif; font-size: 36px; font-weight: 600; line-height: 36px; letter-spacing: -0.01em; color: #18181B; white-space: nowrap; }
+    .f16-start-panel { background: #FFFFFF; border: 2px solid #DFDFE3; border-radius: 12px; box-shadow: 0 4px 0 0 #DFDFE3; }
+
+    .f16-start-row { display: flex; align-items: center; gap: 16px; padding: 16px 20px; }
+    .f16-start-row + .f16-start-row { border-top: 1px solid #DFDFE3; }
+    .f16-start-tile { position: relative; display: block; flex: none; width: 28px; height: 28px; border-radius: 6px; background: #F1EEF8; }
+    .f16-start-tile-on { position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; background: #DCF7EC; color: #0F9D6B; }
+    .f16-start-txt { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .f16-start-label { font-size: 14px; font-weight: 500; line-height: 20px; color: #18181B; white-space: nowrap; }
+    .f16-start-hint { font-size: 12px; font-weight: 400; line-height: 16px; color: #71717A; white-space: nowrap; }
+    .f16-start-edit { flex: none; font-size: 14px; font-weight: 400; line-height: 20px; color: #71717A; text-decoration: underline; text-decoration-color: #C6C6C7; text-underline-offset: 4px; }
+
+    .f16-start-when { margin-top: 24px; padding: 24px; display: flex; flex-direction: column; gap: 16px; background: rgba(239,239,240,0.4); }
+    .f16-start-eyebrow { font-family: "GeistPixelSquare", sans-serif; font-size: 12px; font-weight: 500; line-height: 16px; letter-spacing: 0.08em; text-transform: uppercase; color: #71717A; white-space: nowrap; }
+    .f16-start-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .f16-start-li { display: flex; gap: 12px; font-size: 14px; font-weight: 400; line-height: 20px; color: #18181B; white-space: nowrap; }
+    .f16-start-n { flex: none; font-family: "GeistPixelSquare", sans-serif; font-size: 12px; font-weight: 500; line-height: 16px; color: #71717A; }
+    .f16-start-actions { display: flex; align-items: center; justify-content: flex-end; }
+    /* HeroUI primary button as the app draws it: 44px, 18px padding, 12px radius, 15px/600, pressable bottom lip */
+    .f16-start-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 12px;
+      background: #6E56E7; color: #FFFFFF; font-size: 15px; font-weight: 600; line-height: 1; white-space: nowrap;
+      box-shadow: inset 0 -3px 0 0 rgba(0,0,0,0.2), inset 0 1px 0 0 rgba(255,255,255,0.18);
+    }
+    .f16-start-btn svg { display: block; }
+
+    .f16-start-aside { display: flex; flex-direction: column; gap: 12px; }
+    .f16-start-h2 { margin: 0; font-family: "GeistPixelSquare", "GeistSans", sans-serif; font-size: 18px; font-weight: 600; line-height: 18px; letter-spacing: -0.01em; color: #18181B; white-space: nowrap; }
+    .f16-start-ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .f16-start-ai { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; line-height: 20px; color: #18181B; white-space: nowrap; }
+    .f16-start-atile { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 6px; background: #EFEFF0; color: #71717A; }
+
+    /* ── Night (frame px, above the page and the header) ── */
+    [id="f16-start-night"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 10; pointer-events: none; }
+    [id="f16-start-glow"] {
+      position: absolute; inset: 0; z-index: 11; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 118%, rgba(251,122,60,0.42), transparent 70%),
+        radial-gradient(ellipse 90% 70% at 50% 110%, rgba(217,70,239,0.3), transparent 72%),
+        #150C2E;
+    }
+    [id="f16-start-label"] { position: absolute; left: 660px; top: 420px; width: 600px; z-index: 12; padding-left: 0.18em; text-align: center; font-family: "GeistMono", monospace; font-size: 20px; font-weight: 600; letter-spacing: 0.18em; line-height: 24px; color: #B9ABD9; white-space: nowrap; }
+    [id="f16-start-marks"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 13; pointer-events: none; }
+    .f16-start-mark { position: absolute; width: 44px; height: 44px; border-radius: 12px; font-size: 16px; line-height: 1; letter-spacing: 0.02em; box-shadow: 0 10px 22px -10px rgba(0,0,0,0.65); }
+    /* The R1 logo, handed to frame 17 at center (960, 300), 170px, radius 38 */
+    [id="f16-start-logo"] { position: absolute; left: 875px; top: 215px; width: 170px; height: 170px; border-radius: 38px; display: block; z-index: 14; }
+    /* Pixel wipe in: night tiles clear 0–0.4s, on top of everything */
+    [id="f16-start-reveal"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 20; pointer-events: none; }
+  </style>
+
+  <div id="root" data-composition-id="16-start" data-width="1920" data-height="1080">
+    <div id="f16-start-ground" class="clip" data-start="0" data-duration="6" data-track-index="0"></div>
+    <div id="f16-start-stage" class="clip" data-start="0" data-duration="6" data-track-index="1">
+      <!-- The nav crop is a CSS background; this makes TK.ready wait for the screenshot too. -->
+      <img id="f16-start-preload" src="assets/tour/raw/progress.png" alt="" />
+      <canvas id="f16-start-night" width="1920" height="1080" data-layout-ignore></canvas>
+      <div id="f16-start-glow" data-layout-ignore><div class="rk-stars"></div></div>
+      <div id="f16-start-label">ROUND ONE &middot; THE AGENT</div>
+      <div id="f16-start-marks" data-layout-ignore></div>
+      <img id="f16-start-logo" src="assets/roundone-r1-logo.png" alt="RoundOne" />
+      <canvas id="f16-start-reveal" width="1920" height="1080" data-layout-ignore></canvas>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      window.__timelines = window.__timelines || {};
+      var root = document.querySelector('[data-composition-id="16-start"]');
+      var stage = root.querySelector('[id="f16-start-stage"]');
+      function $(id) { return root.querySelector('[id="f16-start-' + id + '"]'); }
+
+      // ── The Progress page before judging (src/app/h/[slug]/judging/progress/page.tsx NotStarted) ──
+      var CHECKS = [
+        ["12 projects ready", "Every active project goes into the first phase."],
+        ["Group review → Semifinal → Final panel", "3 phases; each narrows the pool for the next."],
+        ["6 judges in Group review", "2 per project"],
+        ["5 criteria · weights add to 100%", "The rubric judges and the agent score against."],
+        ["Agent first · mixed · daily over 3 days", "How the work is handed out."],
+      ];
+      var SUMMARY = [
+        "12 projects move into Group review.",
+        "The agent's review is queued for each of them.",
+        "24 reviews go out to 6 judges, about 4 each.",
+      ];
+      var ASIDE = [["spark", "Agent first"], ["users", "Assignments"], ["arrow-right", "Closing a phase"], ["trophy", "Last phase"]];
+
+      var page =
+        '<div id="f16-start-app"><div class="f16-start-grid">' +
+          '<div class="f16-start-main">' +
+            '<h1 class="f16-start-h1">Progress</h1>' +
+            '<div class="f16-start-panel">' +
+              CHECKS.map(function (c) {
+                return '<div class="f16-start-row">' +
+                  '<span class="f16-start-tile"><span class="f16-start-tile-on">' + RK.icon("check", 12) + "</span></span>" +
+                  '<span class="f16-start-txt"><span class="f16-start-label">' + c[0] + '</span><span class="f16-start-hint">' + c[1] + "</span></span>" +
+                  '<span class="f16-start-edit">Edit</span>' +
+                "</div>";
+              }).join("") +
+            "</div>" +
+            '<div id="f16-start-when" class="f16-start-panel f16-start-when">' +
+              '<div class="f16-start-eyebrow">When you start</div>' +
+              '<ol class="f16-start-list">' +
+                SUMMARY.map(function (s, i) {
+                  return '<li class="f16-start-li"><span class="f16-start-n">' + (i + 1) + "</span><span>" + s + "</span></li>";
+                }).join("") +
+              "</ol>" +
+              '<div class="f16-start-actions"><span id="f16-start-btn" class="f16-start-btn">' +
+                '<span id="f16-start-btn-label">Start judging</span><span id="f16-start-btn-ico">' + RK.icon("arrow-right", 18) + "</span>" +
+              "</span></div>" +
+            "</div>" +
+          "</div>" +
+          '<aside class="f16-start-aside"><h2 class="f16-start-h2">How judging runs</h2><ul class="f16-start-ul">' +
+            ASIDE.map(function (a) {
+              return '<li class="f16-start-ai"><span class="f16-start-atile">' + RK.icon(a[0], 12) + "</span><span>" + a[1] + "</span></li>";
+            }).join("") +
+          "</ul></aside>" +
+        "</div></div>";
+
+      // Window (real nav cropped in from the screenshot) + header, built now so TK.ready waits on them.
+      var w = TK.window(stage, { url: "roundone.dev/h/agent-hacks-2026/judging/progress", html: page, pageHeight: 1100 });
+      TK.crop(w, [0, 0, 1440, 124], "assets/tour/raw/progress.png");
+      var h = TK.header(stage, { eyebrow: "The agent <b>›</b> Start", title: "Start judging.", chapter: 1 });
+
+      var app = $("app");
+      var btn = $("btn");
+      var btnLabel = $("btn-label");
+      var btnIco = $("btn-ico");
+      var ons = app.querySelectorAll(".f16-start-tile-on");
+
+      // The ingest: 12 project marks in a fan along the bottom (centers; bottoms stay above y = 900).
+      var INITIALS = ["NS", "RW", "LE", "JC", "SB", "PQ", "CA", "MM", "TW", "GS", "CC", "LL"];
+      var HUB = { x: 960, y: 300 };
+      var marksEl = $("marks");
+      var marks = INITIALS.map(function (txt, i) {
+        var u = (i - 5.5) / 5.5;
+        var cx = 960 + u * 560;
+        var cy = 842 - 52 * u * u;
+        var m = document.createElement("div");
+        m.className = "rk-mark f16-start-mark";
+        m.textContent = txt;
+        m.style.left = cx - 22 + "px";
+        m.style.top = cy - 22 + "px";
+        marksEl.appendChild(m);
+        return { el: m, cx: cx, cy: cy };
+      });
+
+      /**
+       * An element's rect in page px, relative to the rebuilt page (robust to any ancestor scale).
+       * Falls back to the layout's known rect if the page isn't laid out (zero size).
+       */
+      function pageRect(el, known) {
+        var a = app.getBoundingClientRect();
+        var r = el.getBoundingClientRect();
+        if (!a.width || !r.width) return known;
+        var k = a.width / 1440;
+        return { x: (r.left - a.left) / k, y: (r.top - a.top) / k, w: r.width / k, h: r.height / k };
+      }
+
+      TK.ready(root).then(function () {
+        var when = pageRect($("when"), { x: 112, y: 614, w: 896, h: 220 });
+        var b = pageRect(btn, { x: 826, y: 764, w: 156, h: 44 });
+
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+
+        // ── Scene 1 (0.0–1.0s): night tiles clear, header rises, the window rises ──
+        RK.dither(clock, $("reveal"), { start: 0, dur: 0.4, mode: "reveal", color: "#150C2E", angle: "diagonal" });
+        TK.showHeader(tl, h, 0.4);
+        TK.showWindow(tl, w, 0.45);
+
+        // ── Scene 2 (1.0–2.5s): the five readiness checks pop green, one per eighth-bar ──
+        [1.0, 1.25, 1.5, 1.75, 2.0].forEach(function (t, i) { RK.pop(tl, ons[i], t); });
+
+        // ── Scene 3 (2.5–3.9s): push to "When you start"; the cursor clicks Start judging ──
+        TK.focus(tl, w, 2.4, when, { max: 1.35 });
+        // Tip over "judging", right of centre: the pending label is narrower (the button stays right-aligned),
+        // so the click point is still on the button after it steps to "Starting…".
+        var bx = b.x + b.w * 0.62;
+        var by = b.y + b.h * 0.55;
+        var sx = bx + 250;
+        var sy = by + 150;
+        var cursor = RK.cursor({ x: sx, y: sy });
+        w.layer.appendChild(cursor);
+        tl.fromTo(cursor, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "steps(2)" }, 2.75);
+        tl.fromTo(cursor, { x: sx, y: sy }, { x: bx, y: by, duration: 0.65, ease: "power3.inOut" }, 2.75);
+        RK.click(clock, cursor, w.layer, { t: 3.5, x: bx, y: by });
+        // The button's own states, as the app draws them: hover (accent-hover), the pressed lip, then pending —
+        // ActionButton swaps its children for "Starting…" and disables it (HeroUI's 0.5 opacity), still violet.
+        var lastKey = "";
+        clock.add(function (t) {
+          var pending = t >= 3.6;
+          var pressed = t >= 3.5 && t < 3.62;
+          var hover = t >= 3.38 && !pending;
+          var key = (pending ? "p" : "") + (pressed ? "d" : "") + (hover ? "h" : "");
+          if (key === lastKey) return;
+          lastKey = key;
+          btnLabel.textContent = pending ? "Starting…" : "Start judging";
+          btnIco.style.display = pending ? "none" : "";
+          btn.style.opacity = pending ? "0.5" : "";
+          btn.style.backgroundColor = hover ? "#5C47C3" : "";
+          btn.style.transform = pressed ? "translateY(2px)" : "";
+          btn.style.boxShadow = pressed ? "inset 0 -1px 0 0 rgba(0,0,0,0.2)" : "";
+        });
+
+        // ── Scene 4 (3.9–6.0s): night sweeps in, the R1 agent logo pops, every project streams into it ──
+        RK.dither(clock, $("night"), { start: 3.9, dur: 0.6, mode: "cover", color: "#150C2E", angle: "center" });
+        tl.fromTo($("glow"), { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "none" }, 4.4);
+        // The fan deals in from the middle out on 4.5, then streams in centre-out 4.8–5.6. Each mark swings in
+        // (x eases across, y accelerates late), so every one rises through the label's centre gap and slides
+        // under the logo's bottom edge; it is fully covered before it's switched off.
+        var ORDER = [5, 6, 4, 7, 3, 8, 2, 9, 1, 10, 0, 11];
+        ORDER.forEach(function (i, k) {
+          var m = marks[i];
+          RK.pop(tl, m.el, 4.5 + Math.floor(k / 2) * 0.025);
+          var s = 4.8 + k * 0.045;
+          var D = 0.3;
+          tl.fromTo(m.el, { x: 0 }, { x: HUB.x - m.cx, duration: D, ease: "power1.inOut", immediateRender: false }, s);
+          tl.fromTo(m.el, { y: 0 }, { y: HUB.y - m.cy, duration: D, ease: "power2.in", immediateRender: false }, s);
+          tl.fromTo(m.el, { scale: 1 }, { scale: 0.4, duration: D, ease: "power2.in", immediateRender: false }, s);
+          tl.fromTo(m.el, { opacity: 1 }, { opacity: 0, duration: 0.02, ease: "steps(1)", immediateRender: false }, s + D - 0.01);
+        });
+        RK.pop(tl, $("logo"), 4.75); // lands at scale 1 by 4.95, then static through the cut
+        tl.fromTo($("label"), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 5.0);
+        // Frame 17 opens on the bare logo (its own hub label comes later), so let this one go before the cut.
+        tl.fromTo($("label"), { opacity: 1 }, { opacity: 0, duration: 0.3, ease: "power2.in", immediateRender: false }, 5.6);
+
+        window.__timelines["16-start"] = tl;
+      });
+    })();
+  </script>
+</template>

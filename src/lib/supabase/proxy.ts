@@ -4,9 +4,10 @@ import { isSiteHost } from "@/lib/site";
 
 // Reachable without signing in. Judge links (/j), public winners pages (/w)
 // and submission forms (/f) are shared with people who don't have admin
-// accounts; /api/intake checks its own API key or form token. The docs and
-// the landing page are public too (the landing page only on site hosts).
-// The /components reference page is dev-only (it 404s in production).
+// accounts; /api/intake checks its own API key or form token, and /api/cron
+// Vercel's CRON_SECRET (cron requests don't follow the /login redirect). The
+// docs and the landing page are public too (the landing page only on site
+// hosts). The /components reference page is dev-only (it 404s in production).
 const PUBLIC_PATHS = [
   "/login",
   "/signup",
@@ -16,6 +17,7 @@ const PUBLIC_PATHS = [
   "/w/",
   "/f/",
   "/api/intake",
+  "/api/cron",
   ...(process.env.NODE_ENV === "production" ? [] : ["/components"]),
 ];
 

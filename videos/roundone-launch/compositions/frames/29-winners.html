@@ -1,0 +1,152 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans", sans-serif; color: #1D1433; }
+    [id="f29-ground"] {
+      position: absolute; inset: 0; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px);
+      background-size: 32px 32px;
+    }
+    [id="f29-stage"] { position: absolute; inset: 0; }
+
+    /* Pixel confetti: frame px, above the header, clipped to the canvas */
+    [id="f29-fx"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; pointer-events: none; }
+
+    /* In the window's callout layer (page px, rides the camera) */
+    .f29-crown { position: absolute; left: 698px; top: 402px; width: 44px; height: 44px; color: #FBBF24; filter: drop-shadow(0 3px 0 #C2410C); }
+    .f29-crown svg { display: block; }
+    .f29-copied { position: absolute; right: 265px; top: 15px; }
+    /* Hover ring on the Share crop (the crop is 1px larger than the button) */
+    .f29-hover { position: absolute; left: 1px; top: 1px; right: 1px; bottom: 1px; border-radius: 8px; box-shadow: inset 0 0 0 1.5px rgba(124,58,237,.55); background: rgba(124,58,237,.05); }
+  </style>
+
+  <div id="root" data-composition-id="29-winners" data-width="1920" data-height="1080">
+    <div id="f29-ground" class="clip" data-start="0" data-duration="6" data-track-index="0"></div>
+    <div id="f29-stage" class="clip" data-start="0" data-duration="6" data-track-index="1"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script src="assets/tour-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      var root = document.querySelector('[data-composition-id="29-winners"]');
+      var stage = root.querySelector('[id="f29-stage"]');
+
+      // Window + header (built now so TK.ready can wait on the screenshot).
+      var w = TK.window(stage, { url: "roundone.dev/w/agent-hacks-2026", src: "assets/tour/raw/winners-page.png" });
+      var h = TK.header(stage, { eyebrow: "Results <b>›</b> Winners page", title: "Winners, announced.", chapter: 3 });
+
+      // Confetti layer: frame px, on top of the header (as in the film's winners frame).
+      var fx = document.createElement("div");
+      fx.id = "f29-fx";
+      fx.setAttribute("data-layout-ignore", "");
+      stage.appendChild(fx);
+
+      // The page ground: #F9F9FB with a 22px dot grid anchored at page (1, 1).
+      function ground(x, y) {
+        return "radial-gradient(circle at 1px 1px, #E2E2E3 0.95px, rgba(226,226,227,0) 1.4px) " + -x + "px " + -y + "px / 22px 22px, #F9F9FB";
+      }
+
+      // Podium cards (page px, measured on the screenshot, +1px for anti-aliasing). Each is covered
+      // with the page ground, and a crop of the card rises back into place.
+      var CARDS = [
+        { rect: [175, 683, 324, 217], r: 17, t: 0.75 }, // 2nd — Ledgerly
+        { rect: [513, 445, 414, 455], r: 21, t: 1.0 },  // 1st — Nightshift (with its violet ring)
+        { rect: [941, 663, 324, 237], r: 17, t: 1.25 }, // 3rd — Judge Copilot
+      ];
+      CARDS.forEach(function (c) {
+        var radius = c.r + "px " + c.r + "px 0 0";
+        TK.cover(w, c.rect, ground(c.rect[0], c.rect[1])).style.borderRadius = radius;
+        c.crop = TK.crop(w, c.rect);
+        c.crop.style.borderRadius = radius;
+      });
+      var PODIUM = [176, 446, 1088, 454];
+
+      // The page's ghost Share button: covered with ground, then a crop we can hover and press.
+      var SHARE = [1184, 14, 81, 36];
+      TK.cover(w, SHARE, ground(SHARE[0], SHARE[1]));
+      var share = TK.crop(w, SHARE);
+      share.style.borderRadius = "9px";
+      var hover = document.createElement("div");
+      hover.className = "f29-hover";
+      share.appendChild(hover);
+
+      // Crown over 1st place (the kit's crown, 44px, #FBBF24).
+      var crown = document.createElement("span");
+      crown.className = "f29-crown";
+      crown.innerHTML = RK.icon("crown", 44);
+      w.layer.appendChild(crown);
+      var CROWN_C = [720, 423]; // the glyph's centre, page px
+
+      // "Link copied" film tag, left of Share.
+      var copied = document.createElement("span");
+      copied.className = "rk-tag rk-tag--pass f29-copied";
+      copied.innerHTML = RK.icon("link", 14) + "<span>Link copied</span>";
+      w.layer.appendChild(copied);
+
+      // The page cursor (page px, rides the camera).
+      var CUR_FROM = { x: 1330, y: 520 };
+      var CLICK = { x: 1220, y: 34 };
+      var cur = RK.cursor(CUR_FROM);
+      cur.id = "f29-cursor";
+      cur.setAttribute("data-layout-ignore", "");
+      cur.setAttribute("data-layout-allow-occlusion", "");
+      w.layer.appendChild(cur);
+
+      // Sprite-style stepped ease whose first jump lands ON the beat, then n-1 more jumps.
+      function stepIn(n) {
+        return function (p) {
+          return p <= 0 ? 0 : Math.min(1, Math.ceil(p * n - 1e-6) / n);
+        };
+      }
+
+      TK.ready(root).then(function () {
+        var tl = gsap.timeline({ paused: true });
+        var clock = RK.clock(tl, DURATION);
+
+        // Scene 1 (0.0–0.75): header, the window rises, the camera eases toward the podium.
+        TK.showHeader(tl, h, 0.05);
+        TK.showWindow(tl, w, 0.15);
+        var podCam = TK.focus(tl, w, 0.5, PODIUM, { max: 1.2 });
+
+        // Scene 2 (0.75–2.25): the cards rise 120px in steps(5) — 2nd 0.75, 1st 1.0, 3rd 1.25 (each lands 0.25 later).
+        CARDS.forEach(function (c) {
+          tl.fromTo(c.crop, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.02, ease: stepIn(1) }, c.t);
+          tl.fromTo(c.crop, { y: 120 }, { y: 0, duration: 0.3125, ease: stepIn(5) }, c.t);
+        });
+        // 1.5: the crown pops over 1st place; confetti bursts from it (the camera has settled at podCam by 1.4).
+        RK.pop(tl, crown, 1.5, { from: 0.4 });
+        var c0 = TK.toFrame(w, [CROWN_C[0], CROWN_C[1], 0, 0]);
+        RK.confetti(clock, fx, {
+          x: Math.round(podCam.x + podCam.scale * c0.x),
+          y: Math.round(podCam.y + podCam.scale * c0.y),
+          start: 1.5, count: 38, size: 14,
+        });
+        fx.querySelectorAll(".rk-bit").forEach(function (bit) { bit.setAttribute("data-layout-ignore", ""); });
+
+        // Scene 3 (2.25–4.0): the camera eases up to the page's top edge with Share at the upper right;
+        // the cursor glides in, hovers (2.75), clicks Share on 3.0; Link copied pops on 3.25.
+        TK.focus(tl, w, 2.25, SHARE, { scale: 1.3, anchor: [0.82, 0.155], dur: 0.8 });
+        tl.fromTo(cur, { opacity: 0 }, { opacity: 1, duration: 0.1, ease: "steps(2)" }, 2.25);
+        tl.fromTo(cur, { x: CUR_FROM.x, y: CUR_FROM.y }, { x: CLICK.x, y: CLICK.y, duration: 0.7, ease: "power3.inOut", immediateRender: false }, 2.25);
+        tl.fromTo(hover, { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "power2.out" }, 2.75);
+        tl.fromTo(share, { scale: 1 }, { scale: 0.94, duration: 0.02, ease: stepIn(1), immediateRender: false }, 3.0);
+        tl.fromTo(share, { scale: 0.94 }, { scale: 1, duration: 0.1, ease: stepIn(2), immediateRender: false }, 3.1);
+        RK.click(clock, cur, w.layer, { t: 3.0, x: CLICK.x, y: CLICK.y, color: "#7C3AED" });
+        w.layer.querySelectorAll(".rk-ripple").forEach(function (r) { r.setAttribute("data-layout-ignore", ""); });
+        RK.pop(tl, copied, 3.25);
+
+        // Scene 4 (4.0–6.0): the camera rests on the whole page; hold while the confetti clears.
+        TK.rest(tl, w, 4.0);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["29-winners"] = tl;
+      });
+    })();
+  </script>
+</template>
