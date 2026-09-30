@@ -17,7 +17,6 @@ import { EditDrawer } from "@/components/edit-drawer";
 import { SaveError, UpdateButton, useListEditor } from "@/components/list-editor";
 import { LockedNote } from "@/components/locked-note";
 import { PixelIcon } from "@/components/pixel-icon";
-import { useReadOnly } from "@/components/read-only";
 import { SortableList } from "@/components/sortable-list";
 import { Badge, Chip, Eyebrow, ExplainerItem, PageHeader, TextLink, cn } from "@/components/ui";
 import { foregroundFor } from "@/lib/branding";
@@ -264,7 +263,6 @@ function PhaseFields({
 }) {
   const reviews = p.reviewsPerProject ?? pool;
   const load = incoming && pool ? Math.ceil((incoming * Math.min(reviews, pool)) / pool) : null;
-  const readOnly = useReadOnly();
 
   return (
     <>
@@ -277,7 +275,7 @@ function PhaseFields({
       {locked && <LockedNote>Judging has started, so only the name and color can change.</LockedNote>}
 
       {/* Locked once judging starts: these decided the assignments already handed out. */}
-      <fieldset disabled={locked || readOnly} className="flex min-w-0 flex-col gap-5 disabled:pointer-events-none disabled:opacity-60">
+      <fieldset disabled={locked} className="flex min-w-0 flex-col gap-5 disabled:pointer-events-none disabled:opacity-60">
         <div className="flex flex-col gap-2">
           <FieldLabel>Judges</FieldLabel>
           <div className="flex flex-wrap gap-2">
@@ -410,11 +408,10 @@ function PhaseColor({
   defaultColor: string;
   onChange: (color: string | null) => void;
 }) {
-  const readOnly = useReadOnly();
   return (
     <div className="flex flex-col gap-2">
       <FieldLabel>Color</FieldLabel>
-      <div className={cn("flex items-center gap-3", readOnly && "opacity-60")} inert={readOnly}>
+      <div className="flex items-center gap-3">
         <ColorPicker value={color ?? defaultColor} onChange={(c) => onChange(c.toString("hex").toLowerCase())}>
           <ColorPicker.Trigger>
             <ColorSwatch size="lg" />

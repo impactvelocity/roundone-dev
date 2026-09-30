@@ -50,13 +50,7 @@ export function HackathonSettings({ hackathon, notifications }: { hackathon: Hac
             </Field>
             <label className="flex items-center gap-2 self-end pb-2 text-sm">
               <input type="hidden" name="published_present" value="1" />
-              <input
-                type="checkbox"
-                name="published"
-                defaultChecked={hackathon.published}
-                disabled={readOnly}
-                className="size-4 accent-[var(--accent)]"
-              />
+              <input type="checkbox" name="published" defaultChecked={hackathon.published} className="size-4 accent-[var(--accent)]" />
               Winners page is public
             </label>
 

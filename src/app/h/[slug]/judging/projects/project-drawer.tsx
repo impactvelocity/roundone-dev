@@ -99,7 +99,7 @@ export function ProjectDrawer({
           target && (
             <div className="flex w-full items-center gap-2">
               <span className="mr-auto text-sm text-muted" aria-live="polite">
-                {dirty && !pending ? "Unsaved changes" : ""}
+                {dirty && !pending ? (readOnly ? "Demo: changes aren't saved" : "Unsaved changes") : ""}
               </span>
               <Button variant="tertiary" onPress={requestClose}>
                 Cancel

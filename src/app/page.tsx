@@ -9,7 +9,7 @@ export default async function Home() {
   const demo = !!user?.demo;
   return (
     <>
-      {demo && <DemoBanner>Demo account. Open any hackathon to look around; editing is turned off.</DemoBanner>}
+      {demo && <DemoBanner>You&apos;re in the demo. Open any hackathon and try things out; nothing you change is saved.</DemoBanner>}
       <AppBar />
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-8 sm:py-14">
         <HackathonCollection hackathons={hackathons} demo={demo} />

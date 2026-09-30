@@ -46,7 +46,7 @@ In **Authentication → Sign In / Providers**, switch off **Allow new users to s
 
 ### What the migrations create
 
-- Every table the app uses, with row-level security. Organizers can only read and change hackathons they own. [Demo accounts](/docs/reference/configuration#demo-accounts) can read the hackathons marked as demos, and change nothing.
+- Every table the app uses, with row-level security. Organizers can only read and change hackathons they own. The [demo login](/docs/reference/configuration#demo-login) can read the hackathons marked as demos, and change nothing.
 - Database functions for judging: starting and closing phases, ranking, intake, and the public winners page.
 - Triggers that give each new hackathon its [default setup](/docs/workspace/new-hackathon#what-a-new-hackathon-starts-with).
 - The `vector` extension, for the chat's project search.

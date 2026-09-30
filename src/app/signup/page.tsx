@@ -2,43 +2,10 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { BrandMark } from "@/components/brand-mark";
 import { PixelIcon } from "@/components/pixel-icon";
-import { ButtonLink, Eyebrow, Panel, TextLink } from "@/components/ui";
+import { ButtonLink, Eyebrow, Panel } from "@/components/ui";
 import { brand } from "@/lib/branding";
-import { DEMO_MODE } from "@/lib/demo";
-import { SignupForm } from "./signup-form";
 
 export const metadata: Metadata = { title: `Sign up — ${brand.name}` };
-
-// With DEMO_MODE on, anyone can make a demo account here (see lib/demo.ts).
-// Otherwise there's no public sign-up, and the page explains how to add admins.
-export default function SignupPage() {
-  return DEMO_MODE ? <DemoSignup /> : <AdminsByHand />;
-}
-
-function DemoSignup() {
-  return (
-    <main className="grid flex-1 place-items-center px-6 py-16">
-      <div className="flex w-full max-w-sm flex-col gap-8">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <BrandMark className="size-14 rounded-xl" badgeClassName="lip bg-accent text-lg text-accent-foreground" />
-          <div className="flex flex-col gap-2">
-            <h1 className="font-pixel text-3xl leading-none">Try {brand.name}</h1>
-            <p className="text-muted">
-              Make a demo account to look around three sample hackathons: one wrapped up, one mid-judging and one
-              just set up. It&apos;s view-only, so nothing you click changes them.
-            </p>
-          </div>
-        </div>
-        <Panel className="p-7">
-          <SignupForm />
-        </Panel>
-        <p className="text-center text-[15px] text-muted">
-          Have an account? <TextLink href="/login">Sign in</TextLink>
-        </p>
-      </div>
-    </main>
-  );
-}
 
 // https://<ref>.supabase.co → <ref>, so dashboard links open the right project.
 function projectRef() {
@@ -61,7 +28,7 @@ function Path({ children }: { children: ReactNode }) {
   return <span className="rounded bg-surface-secondary px-1.5 py-0.5 font-mono text-xs">{children}</span>;
 }
 
-function AdminsByHand() {
+export default function SignupPage() {
   const dashboard = `https://supabase.com/dashboard/project/${projectRef()}`;
 
   return (

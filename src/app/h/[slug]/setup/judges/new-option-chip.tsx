@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { PixelIcon } from "@/components/pixel-icon";
-import { useReadOnly } from "@/components/read-only";
 
 /**
  * A dashed "+ New" chip that turns into a small input; Enter adds the option.
@@ -19,7 +18,6 @@ export function NewOptionChip({
 }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState("");
-  const readOnly = useReadOnly();
 
   const commit = (keepOpen = false) => {
     const v = value.trim();
@@ -33,8 +31,7 @@ export function NewOptionChip({
       <button
         type="button"
         onClick={() => setEditing(true)}
-        disabled={readOnly}
-        className="inline-flex items-center gap-1.5 rounded-full border-2 border-dashed border-border-secondary px-3 py-1 text-sm font-semibold text-muted transition enabled:hover:border-accent enabled:hover:text-accent-soft-foreground disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-full border-2 border-dashed border-border-secondary px-3 py-1 text-sm font-semibold text-muted transition hover:border-accent hover:text-accent-soft-foreground"
       >
         <PixelIcon name="plus" size={10} />
         {label}

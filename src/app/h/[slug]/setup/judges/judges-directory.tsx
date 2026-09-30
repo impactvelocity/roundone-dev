@@ -5,7 +5,6 @@ import { Button } from "@heroui/react";
 import { Segmented } from "@/components/controls";
 import { LockedNote } from "@/components/locked-note";
 import { PixelIcon } from "@/components/pixel-icon";
-import { useReadOnly } from "@/components/read-only";
 import { SearchInput, ToolbarSelect } from "@/components/toolbar";
 import { Badge, Eyebrow, PageHeader, cn } from "@/components/ui";
 import type { IconName, JudgeDirectory, JudgeField, JudgeGroup, JudgeProfile } from "@/lib/data";
@@ -36,7 +35,6 @@ export function JudgesDirectory({
 }) {
   const [directory, setDirectory] = useState(initial);
   const { judges, fields, groups } = directory;
-  const readOnly = useReadOnly();
 
   const [view, setView] = useState<View>("grid");
   const [query, setQuery] = useState("");
@@ -145,8 +143,7 @@ export function JudgesDirectory({
           <button
             type="button"
             onClick={newGroup}
-            disabled={readOnly}
-            className="flex items-center gap-2 rounded-lg border-2 border-dashed border-border px-3 py-2 text-sm font-semibold text-muted transition enabled:hover:border-accent enabled:hover:text-accent-soft-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg border-2 border-dashed border-border px-3 py-2 text-sm font-semibold text-muted transition hover:border-accent hover:text-accent-soft-foreground"
           >
             <PixelIcon name="plus" size={10} />
             {filtering && visible.length > 0 ? `Save ${visible.length} as group` : "New group"}
@@ -171,7 +168,7 @@ export function JudgesDirectory({
               <p className="text-sm text-muted">
                 Reusable fields like Company or Track, to filter and group judges by.
               </p>
-              <Button size="sm" variant="secondary" isDisabled={readOnly} onPress={() => setFieldsOpen(true)}>
+              <Button size="sm" variant="secondary" onPress={() => setFieldsOpen(true)}>
                 <PixelIcon name="plus" size={10} />
                 Add a field
               </Button>
@@ -200,7 +197,7 @@ export function JudgesDirectory({
                   Edit group
                 </Button>
               )}
-              <Button isDisabled={readOnly} onPress={newJudge}>
+              <Button onPress={newJudge}>
                 <PixelIcon name="plus" size={12} />
                 Add judge
               </Button>
@@ -262,7 +259,6 @@ export function JudgesDirectory({
               />
               <Segmented
                 size="sm"
-                alwaysEnabled
                 value={view}
                 onChange={setView}
                 options={[
@@ -554,7 +550,6 @@ function Th({ children }: { children: ReactNode }) {
 }
 
 function EmptyState({ onAdd }: { onAdd: () => void }) {
-  const readOnly = useReadOnly();
   return (
     <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-border px-6 py-16 text-center">
       <span className="grid size-14 place-items-center rounded-xl bg-accent-soft text-accent-soft-foreground">
@@ -566,7 +561,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
           Add each judge with a name, title, email and photo. Custom fields like Company let you filter and group them.
         </p>
       </div>
-      <Button isDisabled={readOnly} onPress={onAdd}>
+      <Button onPress={onAdd}>
         <PixelIcon name="plus" size={12} />
         Add your first judge
       </Button>

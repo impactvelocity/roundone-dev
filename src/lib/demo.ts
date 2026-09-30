@@ -1,12 +1,22 @@
-// Demo accounts. With DEMO_MODE=true, /signup is a public sign-up form and the
-// accounts it creates are demo accounts (app_metadata.demo, which only the
-// server can set). A demo account sees just the hackathons flagged `demo`
-// (scripts/seed-demo.mjs creates three) and can't change anything: the
-// database refuses its writes (migrations/*_demo_accounts.sql) and the app
-// turns off the controls that would make them.
+// Demo mode. With DEMO_MODE=true, the sign-in form comes filled in with a
+// shared demo login, so anyone can look around. The demo account
+// (app_metadata.demo, created by scripts/seed-demo.mjs) sees just the
+// hackathons flagged `demo`, and nothing it does is saved: it can change
+// things on screen, but the app turns off every control that saves, and the
+// database refuses its writes anyway (migrations/*_demo_accounts.sql).
 
-/** Whether public demo sign-ups are open on this instance. Server-only. */
+/** Whether the sign-in page offers the demo login. Server-only. */
 export const DEMO_MODE = process.env.DEMO_MODE === "true";
 
-/** Why a control is off for a demo account. */
-export const DEMO_READ_ONLY = "Demo accounts can look around but can't change anything.";
+/**
+ * The shared demo login. Public on purpose: it's shown on the sign-in page,
+ * and the account can't change anything. The seed script reads the same
+ * variables, with the same defaults, when it creates the account.
+ */
+export const DEMO_LOGIN = {
+  email: (process.env.DEMO_EMAIL || "demo@roundone.dev").toLowerCase(),
+  password: process.env.DEMO_PASSWORD || "try-roundone-demo",
+};
+
+/** Why a control is off for the demo account. */
+export const DEMO_READ_ONLY = "This is a demo, so changes aren't saved. Self-host RoundOne to run your own.";

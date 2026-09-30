@@ -165,8 +165,7 @@ export function GroupDrawer({
                 {shown.length > 0 && (
                   <button
                     type="button"
-                    disabled={readOnly}
-                    className="text-sm text-muted underline decoration-border-secondary underline-offset-4 enabled:hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                    className="text-sm text-muted underline decoration-border-secondary underline-offset-4 hover:text-foreground"
                     onClick={() => setMembers(shown.map((j) => j.id), !allShownIn)}
                   >
                     {allShownIn ? "Clear" : "Select"} {filtering ? `${shown.length} matching` : "all"}
@@ -229,11 +228,10 @@ export function GroupDrawer({
                           type="button"
                           role="checkbox"
                           aria-checked={on}
-                          disabled={readOnly}
                           onClick={() => setMembers([j.id], !on)}
                           className={cn(
-                            "flex w-full items-center gap-3 px-3 py-2 text-left transition disabled:cursor-default",
-                            on ? "bg-accent-soft" : "enabled:hover:bg-surface-secondary",
+                            "flex w-full items-center gap-3 px-3 py-2 text-left transition",
+                            on ? "bg-accent-soft" : "hover:bg-surface-secondary",
                           )}
                         >
                           <JudgePhoto name={j.name} imagePath={j.imagePath} size={28} />

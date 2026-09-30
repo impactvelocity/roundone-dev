@@ -426,7 +426,6 @@ function PreviewAside<P extends object>({
         <Eyebrow>Preview</Eyebrow>
         <Segmented
           size="sm"
-          alwaysEnabled
           value={width}
           onChange={setWidth}
           options={[

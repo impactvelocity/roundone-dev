@@ -144,7 +144,7 @@ function RunReview({ slug, projectId, projectName, review, models, working }: Pr
 
   return (
     <>
-      <Button size="sm" variant={review ? "secondary" : "primary"} isDisabled={readOnly || working} onPress={() => setOpen(true)}>
+      <Button size="sm" variant={review ? "secondary" : "primary"} isDisabled={working} onPress={() => setOpen(true)}>
         {working ? <Spinner className="size-3" /> : <PixelIcon name="spark" size={12} />}
         {working ? "Agent working…" : review ? "Re-run review" : "Run agent review"}
       </Button>
@@ -173,7 +173,7 @@ function RunReview({ slug, projectId, projectName, review, models, working }: Pr
                 Re-run review
               </ConfirmButton>
             ) : (
-              <Button isDisabled={pending} onPress={() => start(async () => setError(await run()))}>
+              <Button isDisabled={readOnly || pending} onPress={() => start(async () => setError(await run()))}>
                 {pending ? "Queuing…" : "Run agent review"}
               </Button>
             )}
@@ -485,10 +485,10 @@ function StepDetails({
             <Button size="sm" isDisabled={readOnly || pending || running} onPress={resolve}>
               <PixelIcon name="check" size={10} /> {pending ? "Saving…" : "Looks right"}
             </Button>
-            <Button size="sm" variant="secondary" isDisabled={readOnly || running} onPress={() => onAction("override")}>
+            <Button size="sm" variant="secondary" isDisabled={running} onPress={() => onAction("override")}>
               Override…
             </Button>
-            <Button size="sm" variant="secondary" isDisabled={readOnly || running || reviewBusy} onPress={() => onAction("rerun")}>
+            <Button size="sm" variant="secondary" isDisabled={running || reviewBusy} onPress={() => onAction("rerun")}>
               Re-run with guidance…
             </Button>
           </div>
@@ -615,15 +615,15 @@ function StepDetails({
             .filter(Boolean)
             .join(" · ")}
         </span>
-        <Button size="sm" variant="secondary" isDisabled={readOnly || running || reviewBusy} onPress={() => onAction("rerun")}>
+        <Button size="sm" variant="secondary" isDisabled={running || reviewBusy} onPress={() => onAction("rerun")}>
           <PixelIcon name="spark" size={10} /> Re-run…
         </Button>
         {!step.needsReview && (
-          <Button size="sm" variant="secondary" isDisabled={readOnly || running} onPress={() => onAction("flag")}>
+          <Button size="sm" variant="secondary" isDisabled={running} onPress={() => onAction("flag")}>
             <PixelIcon name="flag" size={10} /> Flag…
           </Button>
         )}
-        <Button size="sm" variant="secondary" isDisabled={readOnly || running} onPress={() => onAction("override")}>
+        <Button size="sm" variant="secondary" isDisabled={running} onPress={() => onAction("override")}>
           <PixelIcon name="user" size={10} /> Override…
         </Button>
       </div>
@@ -729,6 +729,7 @@ function StepDrawer({
   const [note, setNote] = useState(mode === "override" ? (step.override?.note ?? "") : "");
   const [error, setError] = useState<string>();
   const [pending, start] = useTransition();
+  const readOnly = useReadOnly();
 
   const submit = () =>
     start(async () => {
@@ -758,7 +759,7 @@ function StepDrawer({
           <Button variant="tertiary" onPress={onClose}>
             Cancel
           </Button>
-          <Button isDisabled={pending || !ready} onPress={submit}>
+          <Button isDisabled={readOnly || pending || !ready} onPress={submit}>
             {pending ? "Saving…" : { rerun: "Re-run step", override: "Save override", flag: "Flag it" }[mode]}
           </Button>
         </div>

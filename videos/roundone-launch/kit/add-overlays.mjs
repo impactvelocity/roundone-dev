@@ -17,6 +17,9 @@
 //    with a 0.1 s crossfade across the 8.0 bar line and a fade over the end card.
 //    Both clips ride one bus: -4 dB (the master is ~-12 LUFS, peaks 0 dBFS; this
 //    lands near -16 LUFS for web playback) into a -1 dB limiter.
+// 3. The voiceover (assets/voiceover/), on its own bus. The music makes room for
+//    it through a carve that this script cannot write, so run
+//    `node kit/carve-music.mjs` after it (this script's music block drops the carve).
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -139,7 +142,50 @@ const music = `      <!-- music:start (written by kit/add-overlays.mjs) -->
 html = html.replace(/\n?      <!-- music:start[\s\S]*?<!-- music:end -->\n/, "\n");
 html = html.replace(/\n      <audio\n        id="bgm"\n        data-timeline-role="music"[\s\S]*?><\/audio>\n/, "\n");
 html = html.replace(ROOT_END, `\n${music}${ROOT_END}`);
-writeFileSync(indexPath, html);
 console.log(
   `✓ music bed: rate ${RATE} · intro ${introStart}–${r3(introEnd)}s (song 0→${r3(introLen * RATE)}) · main ${mainStart}–${FILM}s from song ${mainMediaStart} · drop (song ${DROP}) → video ${r3(mainStart + (DROP - mainMediaStart) / RATE)}`,
+);
+
+// ── 3. Voiceover ───────────────────────────────────────────────────────────
+// The ElevenLabs read of VOICEOVER.md ("Flint", v4), placed whole from 0:00 for a
+// first listen. It measures -22 LUFS with peaks at -4.4 dBFS, so the bus lifts it
+// 5 dB (about -17 LUFS, the level the music-only cut was mixed around) into a
+// -1.5 dB ceiling. Chopped takes join the same group, so the bus and the carve
+// cover them without further wiring.
+const VO_CLIPS = [
+  { id: "vo", src: "assets/voiceover/roundone-vo.mp3", start: 0, duration: 59.794, mediaStart: 0 },
+];
+const voBus = json({
+  version: 1,
+  nodes: [
+    { type: "gain", id: "v1", label: "Up to about -17 LUFS", params: { gain: 5 } },
+    { type: "limiter", id: "v2", label: "Ceiling", params: { limit: -1.5, attack: 5, release: 50, level_out: 0 } },
+  ],
+});
+const voClips = VO_CLIPS.map(
+  (c) => `      <audio
+        id="${c.id}"
+        data-audio-group="voiceover"
+        src="${c.src}"
+        data-start="${c.start}"
+        data-duration="${c.duration}"
+        data-media-start="${c.mediaStart}"
+        data-track-index="10"
+      ></audio>
+`,
+).join("");
+const voiceover = `      <!-- voiceover:start (written by kit/add-overlays.mjs) -->
+      <hf-audio-group
+        id="voiceover"
+        data-label="Voiceover"
+        data-volume="1"
+        data-fx-chain="${voBus}"
+      ></hf-audio-group>
+${voClips}      <!-- voiceover:end -->
+`;
+html = html.replace(/\n?      <!-- voiceover:start[\s\S]*?<!-- voiceover:end -->\n/, "\n");
+html = html.replace(ROOT_END, `\n${voiceover}${ROOT_END}`);
+writeFileSync(indexPath, html);
+console.log(
+  `✓ voiceover: ${VO_CLIPS.map((c) => `${c.id} ${c.start}–${r3(c.start + c.duration)}s`).join(" · ")} · bus +5 dB into -1.5 dB`,
 );

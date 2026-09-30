@@ -1,0 +1,1 @@
+The judges of the Nebius × NVIDIA Global AI Hackathon have 1,500+ projects to get through. RoundOne's agent runs every repo in a Nebius Sandbox, reads the live web with Tavily and checks every claim with NVIDIA Nemotron on Token Factory, so human judging stays human. Open-source hackathon judging & management: roundone.dev

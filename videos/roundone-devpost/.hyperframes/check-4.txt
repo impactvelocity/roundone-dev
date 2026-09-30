@@ -1,0 +1,79 @@
+◆  Checking roundone-devpost
+[hyperframes] browserGpuMode probe → hardware (WebGL renderer vendor="Google Inc. (Apple)" renderer="ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Max, Unspecified Version)")
+
+Lint
+  ⚠ composition_file_too_large: This HTML composition file has 469 lines. Smaller sub-compositions are easier to read, iterate on, and diff.
+    /Users/dylanjones/apps/judge-agent-nebius/videos/roundone-devpost/compositions/frames/04-agent.html [data-composition-id] t=0s
+    Fix: Split this sub-composition further into smaller .html files, then mount them from the parent with data-composition-src so each file stays small enough to inspect, revise, and validate independently.
+  0 error(s), 1 warning(s), 0 info(s)
+
+Runtime
+  ◇ 0 errors, 0 warnings
+
+Layout
+  ⚠ t=15-21.67s (3 samples) connector_orphan #f04-agent-w-a inside #f04-agent-wires — Connector shaft is visible while its endpoint #f02-slow-part-r3 is not on stage.
+        Fix: Show the shaft only after both ends are on, and hide it with the earlier exit. Do not give the line its own clock.
+  ⚠ t=15-21.67s (3 samples) connector_orphan #f04-agent-w-b inside #f04-agent-wires — Connector shaft is visible while its endpoint #f02-slow-part-r3 is not on stage.
+        Fix: Show the shaft only after both ends are on, and hide it with the earlier exit. Do not give the line its own clock.
+  ⚠ t=15-21.67s (3 samples) connector_orphan #f04-agent-w-c inside #f04-agent-wires — Connector shaft is visible while its endpoint #f02-slow-part-r3 is not on stage.
+        Fix: Show the shaft only after both ends are on, and hide it with the earlier exit. Do not give the line its own clock.
+  ℹ t=8.33s text_occluded div.f03-round-one-row.f03-round-one-front > span:nth-of-type(1) > span:nth-of-type(1) inside div.f03-round-one-row.f03-round-one-front > span:nth-of-type(2) > span:nth-of-type(1) > span:nth-of-type(1) "R" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=8.33s text_occluded div.f03-round-one-row.f03-round-one-front > span:nth-of-type(2) > span:nth-of-type(1) > span:nth-of-type(1) inside div.f03-round-one-row.f03-round-one-front > span:nth-of-type(2) > span:nth-of-type(2) > span:nth-of-type(1) "O" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=8.33s text_occluded div.f03-round-one-row.f03-round-one-front > span:nth-of-type(2) > span:nth-of-type(2) > span:nth-of-type(1) inside div.f03-round-one-row.f03-round-one-front > span:nth-of-type(2) > span:nth-of-type(3) > span:nth-of-type(1) "U" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=8.33s text_occluded div.f03-round-one-row.f03-round-one-front > span:nth-of-type(2) > span:nth-of-type(3) > span:nth-of-type(1) inside div.f03-round-one-row.f03-round-one-front > span:nth-of-type(2) > span:nth-of-type(4) > span:nth-of-type(1) "N" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=8.33s container_overflow #f03-round-one-shake inside #f03-round-one-stage-clip overflowed left 9px, bottom 6px — Element extends outside a clipping layout container.
+        Fix: Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.
+  ℹ t=21.67s container_overflow span.rk-tag.rk-tag--pass inside span.f04-agent-res-l overflowed left 2.91px — Nowrap text is wider than its container.
+        Fix: Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.
+  ℹ t=25s text_occluded #f05-keep-human-headline inside #f05-keep-human-dither "Keep human judging" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-headline > span:nth-of-type(1) inside #f05-keep-human-dither "human." — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-l > div:nth-of-type(1) > span:nth-of-type(2) inside #f05-keep-human-dither "AI judges" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-l > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) inside #f05-keep-human-dither "The code" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-l > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) inside #f05-keep-human-dither "builds, tests, sponsor calls" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-l > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) inside #f05-keep-human-dither "Classifying" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-l > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2) inside #f05-keep-human-dither "which projects are alike" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-l > div:nth-of-type(4) > div:nth-of-type(1) > div:nth-of-type(1) inside #f05-keep-human-dither "Summaries" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-l > div:nth-of-type(4) > div:nth-of-type(1) > div:nth-of-type(2) inside #f05-keep-human-dither "what each one is, how it did" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-r > div:nth-of-type(1) > span:nth-of-type(2) inside #f05-keep-human-dither "People judge" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-r > div:nth-of-type(2) > span:nth-of-type(1) inside #f05-keep-human-dither "Novelty" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-r > div:nth-of-type(2) > span:nth-of-type(2) inside #f05-keep-human-dither "Human only" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-r > div:nth-of-type(3) > span:nth-of-type(1) inside #f05-keep-human-dither "Creativity" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-r > div:nth-of-type(3) > span:nth-of-type(2) inside #f05-keep-human-dither "Human only" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-r > div:nth-of-type(4) > span:nth-of-type(1) inside #f05-keep-human-dither "The idea" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-card-r > div:nth-of-type(4) > span:nth-of-type(2) inside #f05-keep-human-dither "Human only" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=25s text_occluded #f05-keep-human-badge-l inside #f05-keep-human-dither "the slow part" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  ℹ t=28.33s text_occluded #f05-keep-human-btn inside #f05-keep-human-dither "How it works" — Text is hidden beneath an opaque element.
+        Fix: Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.
+  0 error(s), 3 warning(s), 24 info(s)
+
+Motion
+  ◇ 0 errors, 0 warnings
+
+Contrast
+  ◇ 71/71 text checks pass WCAG AA
+
+Snapshots
+  ◇ disabled
+
+◇  Check passed

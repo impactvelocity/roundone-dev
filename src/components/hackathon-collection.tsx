@@ -14,7 +14,7 @@ const STAGE_TONE: Record<Hackathon["stage"], Tone> = {
   results: "success",
 };
 
-/** The home page. A demo account (`demo`) sees the demo hackathons and can't start one. */
+/** The home page. The demo account (`demo`) sees the demo hackathons and can't start one; it's pointed at self-hosting instead. */
 export function HackathonCollection({ hackathons, demo = false }: { hackathons: Hackathon[]; demo?: boolean }) {
   const [view, setView] = useState<"cards" | "list">("cards");
 
@@ -62,8 +62,36 @@ export function HackathonCollection({ hackathons, demo = false }: { hackathons: 
         </div>
       </div>
 
+      {demo && <SelfHost />}
+
       {view === "cards" ? <Shelf hackathons={hackathons} demo={demo} /> : <Rows hackathons={hackathons} demo={demo} />}
     </>
+  );
+}
+
+/** For the demo account: this instance won't make it a hackathon, but its own copy of RoundOne will. */
+function SelfHost() {
+  return (
+    <div className="mb-10 flex flex-wrap items-center gap-5 rounded-2xl border-2 border-dashed border-border-secondary bg-surface px-6 py-5">
+      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-accent-soft text-accent-soft-foreground">
+        <PixelIcon name="code" size={20} />
+      </span>
+      <div className="flex min-w-60 flex-1 flex-col gap-1">
+        <h2 className="text-lg leading-tight">Run your own hackathons</h2>
+        <p className="text-sm text-muted">
+          The demo can&apos;t create hackathons. RoundOne is self-hosted: deploy it with your own Supabase project, then
+          create as many as you like.
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <ButtonLink href="/docs/reference/deployment">
+          Self-hosting guide <PixelIcon name="arrow-right" size={12} />
+        </ButtonLink>
+        <ButtonLink href="/docs" variant="secondary">
+          Read the docs
+        </ButtonLink>
+      </div>
+    </div>
   );
 }
 

@@ -34,14 +34,9 @@ export function EditProjectButton({
   slug: string;
 }) {
   const [target, setTarget] = useState<ProjectDraft | null>(null);
-  const readOnly = useReadOnly();
   return (
     <>
-      <Button
-        variant="secondary"
-        isDisabled={readOnly}
-        onPress={() => setTarget({ id: project.id, values: project.values, contactEmail: project.contactEmail })}
-      >
+      <Button variant="secondary" onPress={() => setTarget({ id: project.id, values: project.values, contactEmail: project.contactEmail })}>
         <PixelIcon name="paint-brush" size={12} />
         Edit
       </Button>

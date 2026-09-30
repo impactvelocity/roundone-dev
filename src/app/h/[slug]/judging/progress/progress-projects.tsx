@@ -62,7 +62,6 @@ export function ProgressProjects({
         {phaseName && (
           <Segmented
             size="sm"
-            alwaysEnabled
             className="ml-auto"
             value={view}
             onChange={setView}

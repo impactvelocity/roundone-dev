@@ -81,7 +81,7 @@ function Hero() {
           </p>
           <div className="reveal reveal-delay-2 mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
             <GetStarted />
-            {/* With demo sign-ups open, the demo takes the second button. The docs stay in the nav. */}
+            {/* With the demo login on, the demo takes the second button. The docs stay in the nav. */}
             {DEMO_MODE ? (
               <TryDemo />
             ) : (
@@ -623,9 +623,9 @@ function Demo() {
           <div>
             <h3 className="display m-0 text-2xl leading-tight">Or click around yourself</h3>
             <p className="m-0 mt-2 leading-relaxed text-pretty text-[var(--muted)]">
-              A demo account opens three sample hackathons: one wrapped up, one{" "}
-              <span className="whitespace-nowrap">mid-judging</span> and one just set up. It&rsquo;s view-only, so nothing you click
-              changes them.
+              The demo login opens three sample hackathons: one wrapped up, one{" "}
+              <span className="whitespace-nowrap">mid-judging</span> and one just set up. Try anything; nothing you change is
+              saved.
             </p>
           </div>
           <TryDemo />
@@ -859,7 +859,7 @@ function Finale() {
             ·{" "}
             {DEMO_MODE ? (
               <>
-                <Link href="/signup" className="text-inherit underline decoration-white/30 underline-offset-2 hover:text-white">
+                <Link href="/login" className="text-inherit underline decoration-white/30 underline-offset-2 hover:text-white">
                   Try the demo
                 </Link>{" "}
                 ·{" "}

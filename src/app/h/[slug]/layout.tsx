@@ -18,7 +18,7 @@ export default async function HackathonLayout({ children, params }: LayoutProps<
     <div className="brand flex flex-1 flex-col has-[[data-bleed]]:max-h-dvh" style={{ "--brand": hackathon.color } as CSSProperties}>
       <BrandScope color={hackathon.color} />
       <ReadOnlyProvider value={readOnly}>
-        {readOnly && <DemoBanner>Demo hackathon. Look around as much as you like; editing is turned off.</DemoBanner>}
+        {readOnly && <DemoBanner>Demo hackathon. Try anything you like; nothing you change is saved.</DemoBanner>}
         <HackathonNav hackathon={hackathon} failedInbox={failedInbox} />
         {/* A page whose root has data-bleed (e.g. the chat) fills the screen below the nav, edge to edge. */}
         <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-8 sm:py-10 has-[>[data-bleed]]:flex has-[>[data-bleed]]:min-h-0 has-[>[data-bleed]]:max-w-none has-[>[data-bleed]]:p-0">

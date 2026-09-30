@@ -121,7 +121,7 @@ export function BrandingEditor({ hackathon }: { hackathon: Hackathon }) {
             </Field>
           )}
 
-          <div className={cn("flex flex-col gap-3", readOnly && "opacity-60")} inert={readOnly}>
+          <div className="flex flex-col gap-3">
             <FieldLabel>Primary color</FieldLabel>
             <ColorSwatchPicker
               aria-label="Preset colors"

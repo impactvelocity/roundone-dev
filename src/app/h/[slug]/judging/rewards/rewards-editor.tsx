@@ -707,7 +707,6 @@ function AwardFields({
   criteria: CriterionOption[];
   onChange: (patch: Partial<RewardTier>) => void;
 }) {
-  const readOnly = useReadOnly();
   return (
     <>
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -737,11 +736,7 @@ function AwardFields({
           ) : (
             <div className="flex flex-wrap gap-2">
               {criteria.map((c) => (
-                <Chip
-                  key={c.id}
-                  active={t.criterionId === c.id}
-                  onClick={readOnly ? undefined : () => onChange({ criterionId: c.id })}
-                >
+                <Chip key={c.id} active={t.criterionId === c.id} onClick={() => onChange({ criterionId: c.id })}>
                   {c.title}
                 </Chip>
               ))}

@@ -95,7 +95,7 @@ export function ScoringRail({
         </p>
       )}
 
-      <fieldset disabled={locked || readOnly || pending} className="flex flex-col gap-5 disabled:opacity-60">
+      <fieldset disabled={locked || pending} className="flex flex-col gap-5 disabled:opacity-60">
         {criteria.map((c) => (
           <RubricField key={c.id} criterion={c} value={scores[c.id]} onChange={(v) => set(c.id, v)} />
         ))}

@@ -23,8 +23,8 @@
        (RK.dither "reveal"). The last cover (30.0) ends the intro fully
        covered, so the app demo that follows can reveal from the same tiles. -->
   <div id="root" data-composition-id="pixel-wipes" data-width="1920" data-height="1080">
-    <div id="pw-layer" class="clip" data-start="0" data-duration="30" data-track-index="0">
-      <canvas id="pw-canvas" width="1920" height="1080"></canvas>
+    <div id="pw-layer" class="clip" data-start="0" data-duration="30" data-track-index="0" data-layout-ignore>
+      <canvas id="pw-canvas" width="1920" height="1080" data-layout-ignore aria-hidden="true"></canvas>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
@@ -71,6 +71,9 @@
         if (q === last) return;
         last = q;
         ctx.clearRect(0, 0, 1920, 1080);
+        // Hidden between wipes (it's fully transparent then), so layout audits
+        // don't read the empty canvas as covering the frames beneath it.
+        canvas.style.visibility = q <= 0 ? "hidden" : "inherit";
         if (q <= 0) return;
         ctx.fillStyle = COLOR;
         for (var k = 0; k < th.length; k++) {

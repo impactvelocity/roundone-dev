@@ -240,3 +240,15 @@ Scene 2 (1.2–2.3s): items tick in — left at 1.2 / 1.45 / 1.7s (tile `RK.pop`
 Scene 3 (2.3–4.8s): badges spring-pop at 2.3s (left) and 2.6s (right) with `RK.pop`. Then a readable hold to 4.8s.
 Scene 4 (4.8–5.5s): the headline and both cards step down and out together (y +50, opacity → 0, `steps(4)`, 0.3s, 4.8–5.1s). On 5.1s the arcade button rises into the center (40px rise, `power3.out`, 0.35s).
 Scene 5 (5.5–7.5s): the pixel cursor enters from (1500, 940) at 5.5s and glides to the button's right half (about (1120, 520)) by 6.1s (`power3.inOut`); on 6.5s it clicks (`RK.click`) and the button presses (`RK.press`). Hold on the pressed-and-released button; an overlay covers the frame over its last 0.35s, and the app demo will reveal from those tiles.
+
+## Review round 1 — 2026-09-30 (as rendered)
+
+What changed between the frame workers' output and `renders/video.mp4` (30.0s, 900 frames):
+
+- Element ids and classes in every frame now use a letter-first prefix (`f01-hook-…` … `f05-keep-human-…`); composition ids and timeline keys are unchanged. Digit-first ids broke `getElementById` lookups built from a bare frame-name constant (frames 1 and 5 threw at runtime).
+- 04-agent: the card flip shows a face with `visibility: inherit`, never `visible` — an explicit `visible` escaped the frame host's gating and left the verdict face on screen during frame 5.
+- `compositions/pixel-wipes.html`: the wipe canvas is `visibility: hidden` between wipes (it's transparent then), so layout audits don't read it as covering every frame.
+- 02-slow-part: the six peeking stack cards carry `data-layout-ignore` (intentional layering; their text is never visible).
+- 05-keep-human: the "How it works" arcade button is 58px (was 44px) so it holds the empty page.
+- Checks: lint 0 errors; check passed (runtime 0, layout 0 errors / 3 connector_orphan false positives, motion 0, contrast 71/71). Audio: −17.3 LUFS integrated, music fades over the last 1.2s (remove `FADE_OUT` in `kit/add-overlays.mjs` when the demo is cut on after 30.0).
+- Poster: 21.97s (frame 659) — every station lit, the verdict all Pass — baked in as frame 0 of `../../brag-output-2026-09-29-230353/brag.mp4`.

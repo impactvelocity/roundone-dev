@@ -9,7 +9,6 @@ import { JudgeLinkButtons, judgeLinkPath, useCopy } from "@/components/judge-lin
 import { DoneScreen, StartScreen, type ScreenCriterion } from "@/components/judge-screens";
 import { SaveError, UpdateButton } from "@/components/list-editor";
 import { PixelIcon } from "@/components/pixel-icon";
-import { useReadOnly } from "@/components/read-only";
 import { AddTile, Eyebrow, ExplainerItem, PageHeader, Panel, SectionTitle } from "@/components/ui";
 import type { JudgePortalSettings } from "@/lib/data";
 import { regenerateJudgeLink, savePortalSettings } from "@/lib/judge-actions";
@@ -67,7 +66,6 @@ export function PortalEditor({
   const [error, setError] = useState<string>();
   const [justSaved, setJustSaved] = useState(false);
   const [pending, startSave] = useTransition();
-  const readOnly = useReadOnly();
   const [screen, setScreen] = useState<"start" | "done">("start");
   const [judges, setJudges] = useState(initialJudges);
 
@@ -187,7 +185,6 @@ export function PortalEditor({
                           isIconOnly
                           aria-label={`Remove goal ${i + 1}`}
                           className="shrink-0 text-muted"
-                          isDisabled={readOnly}
                           onPress={() => removeGoal(i)}
                         >
                           <PixelIcon name="x" size={12} />
@@ -196,9 +193,7 @@ export function PortalEditor({
                     </div>
                   ))}
                   {settings.goals.length < MAX_GOALS && (
-                    <AddTile disabled={readOnly} onClick={() => set({ goals: [...settings.goals, ""] })}>
-                      Add a goal
-                    </AddTile>
+                    <AddTile onClick={() => set({ goals: [...settings.goals, ""] })}>Add a goal</AddTile>
                   )}
                   <span className="text-xs text-muted">
                     Short points judges read before they start. The criteria are listed for them anyway.
@@ -222,7 +217,6 @@ export function PortalEditor({
                 <Eyebrow>Preview</Eyebrow>
                 <Segmented
                   size="sm"
-                  alwaysEnabled
                   value={screen}
                   onChange={setScreen}
                   options={[

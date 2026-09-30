@@ -8,7 +8,6 @@ import { EditDrawer } from "@/components/edit-drawer";
 import { SaveError, UpdateButton, useListEditor } from "@/components/list-editor";
 import { LockedNote } from "@/components/locked-note";
 import { PixelIcon } from "@/components/pixel-icon";
-import { useReadOnly } from "@/components/read-only";
 import { SortableList } from "@/components/sortable-list";
 import { Badge, Chip, Eyebrow, ExplainerItem, PageHeader, TextLink, cn } from "@/components/ui";
 import { DOUBLE_CHECKS, MODEL_TIERS, modelName } from "@/lib/agent/tiers";
@@ -307,9 +306,8 @@ function CriterionTabs({
 }
 
 function TabFields({ locked, children }: { locked: boolean; children: ReactNode }) {
-  const readOnly = useReadOnly();
   return (
-    <fieldset disabled={locked || readOnly} className="flex min-w-0 flex-col gap-6 disabled:pointer-events-none disabled:opacity-60">
+    <fieldset disabled={locked} className="flex min-w-0 flex-col gap-6 disabled:pointer-events-none disabled:opacity-60">
       {children}
     </fieldset>
   );

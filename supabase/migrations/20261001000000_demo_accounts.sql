@@ -1,6 +1,6 @@
--- Demo accounts. With DEMO_MODE on, anyone can sign up at /signup; the server
--- creates those accounts with app_metadata.demo = true (only the secret key
--- can set app_metadata, so users can't flip it). A demo user can read the
+-- Demo accounts: accounts with app_metadata.demo = true, which only the secret
+-- key can set (scripts/seed-demo.mjs creates the shared demo login that the
+-- sign-in page fills in when DEMO_MODE is on). A demo user can read the
 -- hackathons flagged `demo`, and nothing else: every read policy below now
 -- goes through can_view_hackathon(), while writes keep checking
 -- owns_hackathon(), which a demo user never passes.

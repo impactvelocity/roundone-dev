@@ -121,7 +121,8 @@ Emails to reserved example domains, such as `example.com` or anything ending in 
 | Variable | What it does |
 | --- | --- |
 | `SITE_HOSTS` | Hostnames that serve the marketing landing page. See [Landing page and site hosts](#landing-page-and-site-hosts). |
-| `DEMO_MODE` | Set to `true` to let anyone make a view-only demo account at `/signup`. See [Demo accounts](#demo-accounts). |
+| `DEMO_MODE` | Set to `true` to fill in a shared demo login on the sign-in page. See [Demo login](#demo-login). |
+| `DEMO_EMAIL`, `DEMO_PASSWORD` | The demo login. Default `demo@roundone.dev` and `try-roundone-demo`. |
 | `NODE_ENV` | Set by Next.js. In production, `/landing` is limited to site hosts and the `roundone.localhost` preview is off. |
 | `PORT` | The dev or server port, used for email links when nothing else sets the origin. |
 | `VERCEL_PROJECT_PRODUCTION_URL` | Set by Vercel. Used for email links when `APP_URL` isn't set. |
@@ -152,25 +153,28 @@ When `NODE_ENV` isn't `production`:
 
 `/docs` is public on every host, signed in or not.
 
-## Demo accounts
+## Demo login
 
-For a public demo, set `DEMO_MODE=true`. `/signup` becomes a sign-up form, and the accounts it makes are [demo accounts](/docs/workspace/account#demo-accounts): they see only the hackathons marked as demos, and can't change anything.
+For a public demo, set `DEMO_MODE=true`. The sign-in form then comes filled in with a shared demo login, so visitors such as hackathon judges just click **Sign in**. See [Demo login](/docs/workspace/account#demo-login) for what they can do.
 
 ```dotenv
 DEMO_MODE=true
+# Optional: the demo login. These are the defaults.
+DEMO_EMAIL=demo@roundone.dev
+DEMO_PASSWORD=try-roundone-demo
 ```
 
-Sign-ups need `SUPABASE_SECRET_KEY`. The server creates each account with `demo: true` in its Supabase app metadata, which users can't edit themselves, so the flag can't be switched off from the browser. Row-level security reads the same flag: a demo account can read a demo hackathon's rows but writes nothing, and can't create hackathons. Each address can sign up 5 times an hour, and the whole instance 200 times.
+The login is public on purpose. The demo account carries `demo: true` in its Supabase app metadata, which only the secret key can set. Row-level security reads the same flag: the demo account can read the hackathons marked as demos and nothing else, can't write anything, and can't create hackathons. The app also turns off every control that would save.
 
-Create the demo hackathons with the seed script, once the migrations are applied:
+Create the demo account and the demo hackathons with the seed script, once the migrations are applied:
 
 ```bash
 pnpm demo:seed
 ```
 
-It builds three hackathons with sample projects, judges, agent reviews and scores: one with results published, one partway through judging and one still in setup. They belong to a separate `demo-owner@roundone.dev` account, which no one signs in to. Pass `--owner you@example.com` (or set `DEMO_OWNER_EMAIL`) to own them yourself, so you can edit them in the app. Running the script again replaces them.
+It builds three hackathons with sample projects, judges, agent reviews and scores: one with results published, one partway through judging and one still in setup. They belong to a separate `demo-owner@roundone.dev` account, which no one signs in to. Pass `--owner you@example.com` (or set `DEMO_OWNER_EMAIL`) to own them yourself, so you can edit them in the app. Running the script again replaces them and resets the demo login's password to `DEMO_PASSWORD`.
 
-Demo hackathons keep their submission form and Intake API turned off, and their judge links can't submit scores, so a demo account can open a judge link without changing anything. Turning `DEMO_MODE` off closes sign-ups; demo accounts that already exist can still sign in and look around until you delete them in Supabase.
+Demo hackathons keep their submission form and Intake API turned off, and their judge links can't submit scores, so the demo account can open a judge link without changing anything. Turning `DEMO_MODE` off only hides the login from the sign-in page. To close the demo, also delete the demo account in Supabase.
 
 ## Related
 

@@ -169,7 +169,7 @@ export function JudgeDrawer({
                 </ConfirmButton>
               )}
               <span className="ml-auto text-sm text-muted" aria-live="polite">
-                {dirty && !pending ? "Unsaved changes" : ""}
+                {dirty && !pending ? (readOnly ? "Demo: changes aren't saved" : "Unsaved changes") : ""}
               </span>
               <Button variant="tertiary" onPress={requestClose}>
                 Cancel
@@ -308,11 +308,7 @@ export function JudgeDrawer({
                   <FieldLabel>{f.name}</FieldLabel>
                   <div className="flex flex-wrap gap-2">
                     {options.map((o) => (
-                      <Chip
-                        key={o.id}
-                        active={draft.values[f.id] === o.id}
-                        onClick={readOnly ? undefined : () => pickOption(f.id, o.id)}
-                      >
+                      <Chip key={o.id} active={draft.values[f.id] === o.id} onClick={() => pickOption(f.id, o.id)}>
                         {o.label}
                       </Chip>
                     ))}
@@ -333,11 +329,7 @@ export function JudgeDrawer({
                         key={g.id}
                         active={on}
                         icon={on ? "check" : "users"}
-                        onClick={
-                          readOnly
-                            ? undefined
-                            : () => set({ groups: on ? draft.groups.filter((x) => x !== g.id) : [...draft.groups, g.id] })
-                        }
+                        onClick={() => set({ groups: on ? draft.groups.filter((x) => x !== g.id) : [...draft.groups, g.id] })}
                       >
                         {g.name}
                       </Chip>

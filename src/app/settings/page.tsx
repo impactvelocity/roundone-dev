@@ -149,8 +149,9 @@ export default function SettingsPage() {
               Database password for the Supabase CLI. Only needed to run migrations; the app doesn&apos;t use it.
             </Option>
             <Option name="DEMO_MODE" value={DEMO_MODE ? <Badge tone="success">on</Badge> : <Badge>off</Badge>}>
-              Set to <Code>true</Code> to open <Code>/signup</Code> to anyone. It makes demo accounts, which can look
-              around the demo hackathons but can&apos;t change anything. Needs <Code>SUPABASE_SECRET_KEY</Code>.
+              Set to <Code>true</Code> to fill in the shared demo login on the sign-in page (<Code>DEMO_EMAIL</Code>{" "}
+              and <Code>DEMO_PASSWORD</Code>; <Code>pnpm demo:seed</Code> creates it). The demo account can try
+              anything in the demo hackathons, but nothing it changes is saved.
             </Option>
           </Panel>
         </Section>
@@ -179,23 +180,11 @@ export default function SettingsPage() {
           </Panel>
         </Section>
 
-        <Section
-          title="Admins"
-          hint={DEMO_MODE ? "Managed in Supabase Auth. Public sign-up makes demo accounts only." : "Managed in Supabase Auth. There is no public sign-up."}
-        >
+        <Section title="Admins" hint="Managed in Supabase Auth. There is no public sign-up.">
           <Panel className="flex gap-3 p-6 text-sm">
             <PixelIcon name="lock" size={14} className="mt-0.5 shrink-0 text-muted" />
             <p className="text-muted">
-              {DEMO_MODE ? (
-                <>
-                  Create admin accounts by hand in the Supabase dashboard. Anyone can make a read-only demo account at{" "}
-                  <TextLink href="/signup">/signup</TextLink> while <Code>DEMO_MODE</Code> is on.
-                </>
-              ) : (
-                <>
-                  Create admin accounts by hand in the Supabase dashboard. <TextLink href="/signup">See the steps</TextLink>.
-                </>
-              )}
+              Create admin accounts by hand in the Supabase dashboard. <TextLink href="/signup">See the steps</TextLink>.
             </p>
           </Panel>
         </Section>

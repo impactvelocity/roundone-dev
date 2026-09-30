@@ -45,7 +45,7 @@ export function Account({ user, compact = false }: { user: CurrentUser | null; c
             <Header className="flex max-w-56 flex-col font-sans tracking-normal normal-case">
               <span className="truncate text-sm font-medium text-foreground">{name}</span>
               {user?.name && user.email && <span className="truncate text-xs text-muted">{user.email}</span>}
-              {user?.demo && <span className="text-xs text-muted">Demo account · view-only</span>}
+              {user?.demo && <span className="text-xs text-muted">Demo account · nothing is saved</span>}
             </Header>
           </Dropdown.Section>
           <Separator />

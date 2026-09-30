@@ -1,0 +1,225 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    /* Frame ids start with a digit ("f01-hook-…"), so they are selected as [id="…"] — valid CSS with no escaping. */
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+
+    /* ── Ground (track 0): paper base under the camera ── */
+    [id="f01-hook-ground"] { position: absolute; inset: 0; background: #FAF8FF; }
+
+    /* ── Scene (track 1): the viewport. The camera moves only the world inside it (viewport-change). ── */
+    [id="f01-hook-scene"] { position: absolute; inset: 0; overflow: hidden; }
+    [id="f01-hook-world"] { position: absolute; left: 0; top: 0; width: 1920px; height: 2160px; transform-origin: 50% 50%; will-change: transform; }
+
+    /* Section A — the sky (world y 0–1080): landing hero art + pixel sparkles (creeping push), night scrim, the typed greeting */
+    [id="f01-hook-sky"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; background: #150C2E; }
+    [id="f01-hook-push"] { position: absolute; inset: 0; transform-origin: 50% 34%; }
+    [id="f01-hook-art"] { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    [id="f01-hook-scrim"] {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 50% 42% at 50% 34%, rgba(24,8,48,0.78), rgba(24,8,48,0.45) 55%, transparent 82%);
+    }
+    /* 5×5 plus-shaped pixel sparkles, 6px pixels, all in open sky above y=520 and clear of the greeting */
+    [id="f01-hook-sparkles"] { position: absolute; inset: 0; }
+    [id^="f01-hook-spk-"] { position: absolute; display: block; width: 30px; height: 30px; }
+    [id="f01-hook-spk-a"] { left: 731px;  top: 135px; }  /* centre (746, 150)  white — beat 2 */
+    [id="f01-hook-spk-b"] { left: 945px;  top: 81px;  }  /* centre (960, 96)   gold  — beat 3 */
+    [id="f01-hook-spk-c"] { left: 1191px; top: 181px; }  /* centre (1206, 196) gold  — beat 2 */
+    [id="f01-hook-spk-d"] { left: 1315px; top: 455px; }  /* centre (1330, 470) white — beat 3 */
+    [id="f01-hook-spk-e"] { left: 575px;  top: 465px; }  /* centre (590, 480)  white — beat 2 */
+
+    /* The greeting. Ghost + typed share one grid cell so the centred line never shifts while it types.
+       Both carry 0.59em side room (= the kit caret's .52em + .07em margin), so the caret never widens the cell. */
+    [id="f01-hook-hi"] {
+      position: absolute; left: 0; right: 0; top: 250px;
+      text-align: center; font-size: 168px; line-height: 1; color: #F7F2FF; white-space: nowrap;
+      filter: drop-shadow(0 2px 10px rgba(24,8,48,.85)) drop-shadow(0 0 2px rgba(24,8,48,.6));
+    }
+    [id="f01-hook-hi-cell"] { display: inline-grid; text-align: left; }
+    [id="f01-hook-hi-ghost"] { grid-area: 1 / 1; visibility: hidden; padding: 0 0.59em; }
+    [id="f01-hook-hi-typed"] { grid-area: 1 / 1; padding-left: 0.59em; }
+
+    /* Section B — the page (world y 1080–2160): paper + dot grid, a white melt at its top so the art's cloud base has no seam */
+    [id="f01-hook-page"] { position: absolute; left: 0; top: 1080px; width: 1920px; height: 1080px; overflow: hidden; background: #FAF8FF; }
+    [id="f01-hook-melt"] { position: absolute; left: 0; top: 0; width: 1920px; height: 220px; background: linear-gradient(180deg, #FFFFFF 0%, rgba(250,248,255,0) 100%); }
+    [id="f01-hook-eyebrow"] { position: absolute; left: 120px; top: 150px; line-height: 1; white-space: nowrap; }
+    [id="f01-hook-field"] { position: absolute; left: 120px; top: 220px; width: 996px; height: 596px; display: block; }
+
+    /* Stat column: glyph ink starts at x≈1209 and "1,500+" ends at x≈1800 (Geist Pixel side bearing ≈ 16px at 210px) */
+    [id="f01-hook-stat"] { position: absolute; left: 1193px; top: 360px; font-size: 210px; line-height: 1; color: #1D1433; white-space: nowrap; }
+    [id="f01-hook-num"] { display: inline-block; }
+    [id="f01-hook-plus"] { display: inline-block; transform-origin: 50% 55%; }
+    [id="f01-hook-label"] {
+      position: absolute; left: 1205px; top: 600px;
+      font-family: "GeistSans", sans-serif; font-size: 52px; font-weight: 600; line-height: 1; color: #564B70; white-space: nowrap;
+    }
+  </style>
+
+  <div id="root" data-composition-id="01-hook" data-width="1920" data-height="1080" data-duration="3">
+    <div id="f01-hook-ground" class="clip" data-start="0" data-duration="3" data-track-index="0"></div>
+
+    <div id="f01-hook-scene" class="clip" data-start="0" data-duration="3" data-track-index="1">
+      <!-- The camera's world: 1920×2160, always half off-canvas by design (camera travel) -->
+      <div id="f01-hook-world" data-layout-allow-overflow>
+        <div id="f01-hook-sky">
+          <div id="f01-hook-push">
+            <img id="f01-hook-art" src="assets/retro-hero.png" alt="" />
+            <div id="f01-hook-sparkles" aria-hidden="true" data-layout-ignore>
+              <svg id="f01-hook-spk-a" viewBox="0 0 5 5" width="30" height="30" shape-rendering="crispEdges" fill="#FFFFFF" aria-hidden="true">
+                <g data-part="tips"><rect x="2" y="0" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/></g>
+                <g data-part="core"><rect x="2" y="1" width="1" height="1"/><rect x="1" y="2" width="3" height="1"/><rect x="2" y="3" width="1" height="1"/></g>
+              </svg>
+              <svg id="f01-hook-spk-b" viewBox="0 0 5 5" width="30" height="30" shape-rendering="crispEdges" fill="#FCD34D" aria-hidden="true">
+                <g data-part="tips"><rect x="2" y="0" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/></g>
+                <g data-part="core"><rect x="2" y="1" width="1" height="1"/><rect x="1" y="2" width="3" height="1"/><rect x="2" y="3" width="1" height="1"/></g>
+              </svg>
+              <svg id="f01-hook-spk-c" viewBox="0 0 5 5" width="30" height="30" shape-rendering="crispEdges" fill="#FCD34D" aria-hidden="true">
+                <g data-part="tips"><rect x="2" y="0" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/></g>
+                <g data-part="core"><rect x="2" y="1" width="1" height="1"/><rect x="1" y="2" width="3" height="1"/><rect x="2" y="3" width="1" height="1"/></g>
+              </svg>
+              <svg id="f01-hook-spk-d" viewBox="0 0 5 5" width="30" height="30" shape-rendering="crispEdges" fill="#FFFFFF" aria-hidden="true">
+                <g data-part="tips"><rect x="2" y="0" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/></g>
+                <g data-part="core"><rect x="2" y="1" width="1" height="1"/><rect x="1" y="2" width="3" height="1"/><rect x="2" y="3" width="1" height="1"/></g>
+              </svg>
+              <svg id="f01-hook-spk-e" viewBox="0 0 5 5" width="30" height="30" shape-rendering="crispEdges" fill="#FFFFFF" aria-hidden="true">
+                <g data-part="tips"><rect x="2" y="0" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/></g>
+                <g data-part="core"><rect x="2" y="1" width="1" height="1"/><rect x="1" y="2" width="3" height="1"/><rect x="2" y="3" width="1" height="1"/></g>
+              </svg>
+            </div>
+          </div>
+          <!-- The landing's radial night scrim sits still behind the type (the type does not ride the push either) -->
+          <div id="f01-hook-scrim"></div>
+          <div id="f01-hook-hi" class="rk-display">
+            <span id="f01-hook-hi-cell"><span id="f01-hook-hi-ghost" aria-hidden="true">Hi, judges.</span><span id="f01-hook-hi-typed"></span></span>
+          </div>
+        </div>
+
+        <div id="f01-hook-page">
+          <div class="rk-dotgrid"></div>
+          <div id="f01-hook-melt"></div>
+          <div id="f01-hook-eyebrow" class="rk-eyebrow">THIS HACKATHON</div>
+          <svg id="f01-hook-field" aria-hidden="true"></svg>
+          <div id="f01-hook-stat" class="rk-display"><span id="f01-hook-num">0</span><span id="f01-hook-plus" class="rk-sunset-text">+</span></div>
+          <div id="f01-hook-label">projects</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      const ID = "f01-hook"; // element-id prefix (the composition id stays "01-hook")
+      const DURATION = 3;
+      const BEAT = 0.5; // 120 BPM grid
+      const Q = BEAT / 4; // one sparkle sprite frame
+      const EPS = 1e-4; // step boundaries sit a hair early, so a frame exactly on the mark is already past them
+      const T = {
+        typeStart: 0.05, // Scene 1: the greeting types…
+        typeEnd: 0.45, //            …and is complete before beat 2
+        sparkA: 0.5, //              sparkles blink on beat 2…
+        sparkB: 1.0, //              …and beat 3
+        tilt: 1.2, // Scene 2: the camera tilts down into the page
+        tiltDur: 0.5,
+        page: 1.6, // Scene 3: eyebrow rises, the flood and the count start
+        land: 2.3, //            flood and count land together
+        plus: 2.35, //           "+" pops, "projects" rises; Scene 4 holds from 2.4
+      };
+
+      const $ = (name) => document.getElementById(ID + "-" + name);
+      const tl = gsap.timeline({ paused: true });
+      const clock = RK.clock(tl, DURATION);
+
+      // ── Camera (viewport-change): one world wrapper, one cam object, one writer ──
+      // Camera tilts DOWN → the world translates UP by one screen (section B lands exactly in frame).
+      const world = $("world");
+      const sky = $("sky");
+      const hi = $("hi");
+      const page = $("page");
+      const cam = { x: 0, y: 0, scale: 1 };
+      function applyCamera() {
+        world.style.transform = "translate(" + cam.x + "px, " + cam.y + "px) scale(" + cam.scale + ")";
+        // Whatever the camera has carried fully off-canvas is hidden, so the layout audit never meets it
+        // (no visual change): the page until the tilt starts, the greeting (ink + glow end at world y≈440)
+        // once it clears the top edge, the sky once the tilt lands.
+        page.style.visibility = cam.y >= 0 ? "hidden" : "";
+        hi.style.visibility = cam.y <= -450 ? "hidden" : "";
+        sky.style.visibility = cam.y <= -1080 ? "hidden" : "";
+      }
+      applyCamera(); // seed frame 0
+      tl.fromTo(cam, { y: 0 }, { y: -1080, duration: T.tiltDur, ease: "power3.inOut", onUpdate: applyCamera }, T.tilt);
+
+      // Section A creeps in (linear push on the art's inner wrapper) for as long as the sky is on screen.
+      tl.fromTo($("push"), { scale: 1 }, { scale: 1.03, duration: T.tilt + T.tiltDur, ease: "none" }, 0);
+
+      // ── Scene 1 (0.0–1.2): "Hi, judges." types under the block caret (last glyph at 0.45);
+      // the caret blinks through the read and is off before the camera moves.
+      const HI = "Hi, judges.";
+      RK.type(clock, $("hi-typed"), HI, {
+        start: T.typeStart,
+        cps: HI.length / (T.typeEnd - T.typeStart), // 27.5 cps
+        caretHold: T.tilt - T.typeEnd,
+      });
+
+      // Sparkles: a/c/e twinkle on beat 2, b/d on beat 3. Sprite: full plus for a quarter-beat, inner plus for a quarter-beat, off.
+      [["spk-a", T.sparkA], ["spk-b", T.sparkB], ["spk-c", T.sparkA], ["spk-d", T.sparkB], ["spk-e", T.sparkA]].forEach(function (s) {
+        const el = $(s[0]);
+        const hit = s[1];
+        const tips = el.querySelector('[data-part="tips"]');
+        const core = el.querySelector('[data-part="core"]');
+        let last = -1;
+        clock.add(function (t) {
+          const d = t - hit + 1e-6;
+          const st = d >= 0 && d < Q ? 2 : d >= Q && d < 2 * Q ? 1 : 0;
+          if (st === last) return;
+          last = st;
+          tips.style.opacity = st === 2 ? "1" : "0";
+          core.style.opacity = st > 0 ? "1" : "0";
+        });
+      });
+
+      // ── Scene 3 (1.55–2.4): the page ──
+      const rise = (el, at, dy, dur) =>
+        tl.fromTo(el, { autoAlpha: 0, y: dy }, { autoAlpha: 1, y: 0, duration: dur, ease: "power3.out" }, at);
+      rise($("eyebrow"), T.page, 12, 0.4);
+
+      // 1,500 sunset pixels: 50 × 30 squares of 16px with 4px gaps. The kit's `cell` is the pitch (square + gap),
+      // so cell 20 / gap 4 draws the 996 × 596 field at exactly 1:1.
+      const field = $("field");
+      RK.pixelField(field, { cols: 50, rows: 30, cell: 20, gap: 4, palette: ["#FCD34D", "#FB923C", "#F43F5E", "#E11D8F", "#A21CAF"], seed: 7 });
+
+      // The flood: a stepped clip sweep anchored at the bottom-left corner, growing toward the top-right —
+      // 10 steps (1.6 → 2.3), +5 columns and +3 rows per step, every cut falling in the gaps between pixels.
+      const F_N = 10;
+      const F_T0 = T.page - EPS;
+      const F_INT = (T.land - T.page) / (F_N - 1);
+      let lastStep = -1;
+      clock.add(function (t) {
+        const k = t < F_T0 ? 0 : Math.min(F_N, Math.floor((t - F_T0) / F_INT) + 1);
+        if (k === lastStep) return;
+        lastStep = k;
+        field.style.clipPath = "inset(" + Math.max(0, 600 - 60 * k) + "px " + Math.max(0, 1000 - 100 * k) + "px 0px 0px)";
+        field.style.visibility = k === 0 ? "hidden" : ""; // fully clipped before the first step anyway
+      });
+
+      // 1,500 counts up alongside the flood in 12 arcade steps of 125, landing with the last flood step at 2.3.
+      rise($("stat"), T.page, 16, 0.3);
+      const C_N = 12;
+      const C_INT = (T.land - T.page) / C_N;
+      RK.count(clock, $("num"), { from: 0, to: 1500, steps: C_N, ease: "linear", start: T.page + 0.5 * C_INT - EPS, dur: C_N * C_INT });
+
+      // The "+" pops once the count has landed (sprite peak lands on beat 2.5); "projects" rises with it.
+      RK.pop(tl, $("plus"), T.plus);
+      rise($("label"), T.plus, 16, 0.45);
+
+      // ── Scene 4 (2.4–3.0): settled, readable hold — nothing moves. ──
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["01-hook"] = tl;
+    })();
+  </script>
+</template>

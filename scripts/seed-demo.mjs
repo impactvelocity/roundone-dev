@@ -1,5 +1,5 @@
-// Seeds the three demo hackathons that demo accounts look around
-// (src/lib/demo.ts):
+// Seeds the three demo hackathons, and the shared demo login that looks
+// around them (src/lib/demo.ts):
 //
 //   • demo-open-agents-2026: finished. Two phases judged and closed, final
 //     ranking, award winners, results published at /w/demo-open-agents-2026.
@@ -24,6 +24,12 @@
 // Re-running replaces the demos: the three slugs are deleted (only when the
 // demo owner owns them; it stops if another account has one) and made again.
 // Last, the demos are flagged `demo`, which needs migrations/*_demo_accounts.sql.
+//
+// The demo login is DEMO_EMAIL / DEMO_PASSWORD (default demo@roundone.dev /
+// try-roundone-demo), the same pair the sign-in page fills in when DEMO_MODE
+// is on. It's a demo account (app_metadata.demo), so it can only look; its
+// password is reset on every run. An existing regular account with that email
+// is never touched.
 
 import { randomBytes, randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
@@ -32,6 +38,12 @@ import { createClient } from "@supabase/supabase-js";
 
 const DEFAULT_OWNER = "demo-owner@roundone.dev";
 const OWNER_NAME = "RoundOne Demo";
+
+// Same variables and defaults as DEMO_LOGIN in src/lib/demo.ts.
+const DEMO_LOGIN = {
+  email: (process.env.DEMO_EMAIL || "demo@roundone.dev").trim().toLowerCase(),
+  password: process.env.DEMO_PASSWORD || "try-roundone-demo",
+};
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -3522,6 +3534,42 @@ async function signInAsOwner(admin, email) {
   return { db, user: data.user, created: !created.error };
 }
 
+/** An auth user by email. The admin API can't look one up directly, so page through them. */
+async function findUser(admin, email) {
+  for (let page = 1; ; page++) {
+    const { users } = must(await admin.auth.admin.listUsers({ page, perPage: 1000 }), "Listing users");
+    const user = users.find((u) => u.email?.toLowerCase() === email);
+    if (user || users.length < 1000) return user ?? null;
+  }
+}
+
+/**
+ * The shared demo login: a demo account (app_metadata.demo), so the database
+ * lets it read the demo hackathons and write nothing. Creating it needs the
+ * secret key, as does resetting its password to DEMO_PASSWORD on later runs.
+ */
+async function ensureDemoLogin(admin) {
+  const { email, password } = DEMO_LOGIN;
+  const created = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    app_metadata: { demo: true },
+    user_metadata: { display_name: "Demo judge" },
+  });
+  if (!created.error) return "created";
+  if (created.error.code !== "email_exists" && !/already (been )?registered/i.test(created.error.message)) {
+    throw new SeedError(`Couldn't create the demo login ${email}: ${created.error.message}`);
+  }
+  const user = await findUser(admin, email);
+  if (!user) throw new SeedError(`Couldn't find the demo login ${email}.`);
+  if (user.app_metadata?.demo !== true) {
+    throw new SeedError(`${email} is a regular account, so it can't be the demo login. Set DEMO_EMAIL to another address.`);
+  }
+  must(await admin.auth.admin.updateUserById(user.id, { password }), `Setting the demo login's password`);
+  return "found";
+}
+
 /**
  * Delete earlier runs' demos. The owner can't see other accounts' hackathons,
  * so the secret key checks who holds each slug; the delete itself runs as the
@@ -3583,6 +3631,9 @@ async function main() {
     throw new SeedError(`Missing ${missing.map(([k]) => k).join(", ")}. Run it with node --env-file-if-exists=.env.local scripts/seed-demo.mjs`);
   }
   const email = ownerEmail();
+  if (email === DEMO_LOGIN.email) {
+    throw new SeedError(`${email} is the demo login, which can't own hackathons. Pick another owner with --owner.`);
+  }
   const admin = createClient(url, secretKey, CLIENT_OPTIONS);
   // Judges' links: no account, the token is the credential.
   const anon = createClient(url, publishableKey, CLIENT_OPTIONS);
@@ -3599,8 +3650,10 @@ async function main() {
 
   const flagged = await flagDemos(db, ids);
   await db.auth.signOut({ scope: "local" });
+  const login = await ensureDemoLogin(admin);
+  console.log(`\nDemo login (${login}): ${DEMO_LOGIN.email} / ${DEMO_LOGIN.password}. The sign-in page fills it in when DEMO_MODE=true.`);
   if (flagged) {
-    console.log("\nFlagged all three as demo hackathons.");
+    console.log("Flagged all three as demo hackathons.");
   } else {
     console.warn(
       "\nWarning: hackathons.demo doesn't exist yet, so the demos aren't flagged and demo accounts can't see them. Run the migration (supabase/migrations/*_demo_accounts.sql), then re-run the seed.",

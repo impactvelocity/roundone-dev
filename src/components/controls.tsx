@@ -2,12 +2,7 @@
 
 import { useRef, useState, type ComponentProps, type ReactNode } from "react";
 import { PixelIcon } from "./pixel-icon";
-import { useReadOnly } from "./read-only";
 import { cn } from "./ui";
-
-// Every control here edits data, so each one locks itself in a read-only view
-// (a demo account, see read-only.tsx). Segmented also switches what's shown in
-// a few places; those pass alwaysEnabled.
 
 export const inputClass =
   "min-h-11 w-full rounded-lg border-2 border-border bg-surface px-3.5 py-2.5 text-[15px] shadow-[inset_0_2px_0_0_oklch(0_0_0/0.03)] outline-none transition placeholder:text-field-placeholder hover:border-border-strong focus:border-accent focus:ring-4 focus:ring-accent-soft";
@@ -42,14 +37,11 @@ export function Field({
 }
 
 export function TextInput(props: ComponentProps<"input">) {
-  // A search box filters what's shown rather than editing, so it stays usable.
-  const locked = useReadOnly() && props.type !== "search";
-  return <input {...props} readOnly={props.readOnly || locked} className={cn(inputClass, props.className)} />;
+  return <input {...props} className={cn(inputClass, props.className)} />;
 }
 
 export function TextArea(props: ComponentProps<"textarea">) {
-  const readOnly = useReadOnly();
-  return <textarea {...props} readOnly={props.readOnly || readOnly} className={cn(inputClass, "resize-none", props.className)} />;
+  return <textarea {...props} className={cn(inputClass, "resize-none", props.className)} />;
 }
 
 /**
@@ -74,7 +66,6 @@ export function TagInput({
 }) {
   const [draft, setDraft] = useState("");
   const input = useRef<HTMLInputElement>(null);
-  const readOnly = useReadOnly();
   const add = (raw: string) => {
     const fresh = raw
       .split("\n")
@@ -92,19 +83,17 @@ export function TagInput({
       {values.map((v) => (
         <span key={v} className="inline-flex max-w-full items-center gap-1.5 rounded-md bg-surface-secondary px-2 py-1 font-mono text-xs">
           <span className="truncate">{v}</span>
-          {!readOnly && (
-            <button
-              type="button"
-              aria-label={`Remove ${v}`}
-              onClick={() => onChange(values.filter((x) => x !== v))}
-              className="shrink-0 text-muted transition hover:text-danger"
-            >
-              <PixelIcon name="x" size={8} />
-            </button>
-          )}
+          <button
+            type="button"
+            aria-label={`Remove ${v}`}
+            onClick={() => onChange(values.filter((x) => x !== v))}
+            className="shrink-0 text-muted transition hover:text-danger"
+          >
+            <PixelIcon name="x" size={8} />
+          </button>
         </span>
       ))}
-      {values.length < max && !readOnly && (
+      {values.length < max && (
         <input
           ref={input}
           value={draft}
@@ -139,10 +128,9 @@ export function Select({
   className,
   ...rest
 }: ComponentProps<"select"> & { options: string[] }) {
-  const readOnly = useReadOnly();
   return (
     <div className="relative">
-      <select {...rest} disabled={rest.disabled || readOnly} className={cn(inputClass, "appearance-none pr-10", className)}>
+      <select {...rest} className={cn(inputClass, "appearance-none pr-10", className)}>
         {options.map((o) => (
           <option key={o}>{o}</option>
         ))}
@@ -158,20 +146,22 @@ export function Toggle({
   label,
   description,
   className,
+  disabled,
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
   label?: ReactNode;
   description?: ReactNode;
   className?: string;
+  /** For a switch that saves as soon as it flips, e.g. off in a demo (components/read-only.tsx). */
+  disabled?: boolean;
 }) {
-  const readOnly = useReadOnly();
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
-      disabled={readOnly}
+      disabled={disabled}
       onClick={() => onChange(!checked)}
       className={cn("flex items-start gap-3 text-left disabled:cursor-not-allowed disabled:opacity-60", className)}
     >
@@ -204,35 +194,26 @@ export function Segmented<T extends string>({
   onChange,
   className,
   size = "md",
-  alwaysEnabled = false,
 }: {
   value: T;
   options: { value: T; label: ReactNode }[];
   onChange: (v: T) => void;
   className?: string;
   size?: "sm" | "md";
-  /** It switches what's shown (a view, a preview) rather than editing, so read-only views keep it. */
-  alwaysEnabled?: boolean;
 }) {
-  const locked = useReadOnly() && !alwaysEnabled;
   return (
-    <div
-      className={cn("inline-flex gap-0.5 rounded-xl border-2 border-border bg-surface p-1", locked && "opacity-60", className)}
-      role="radiogroup"
-    >
+    <div className={cn("inline-flex gap-0.5 rounded-xl border-2 border-border bg-surface p-1", className)} role="radiogroup">
       {options.map((o) => (
         <button
           key={o.value}
           type="button"
           role="radio"
           aria-checked={value === o.value}
-          disabled={locked}
           onClick={() => onChange(o.value)}
           className={cn(
             "flex items-center gap-1.5 rounded-lg font-semibold transition whitespace-nowrap",
             size === "sm" ? "h-8 px-3 text-sm" : "h-9 px-3.5 text-[15px]",
-            value === o.value ? "lip bg-foreground text-background" : "text-muted enabled:hover:bg-surface-secondary enabled:hover:text-foreground",
-            locked && "cursor-not-allowed",
+            value === o.value ? "lip bg-foreground text-background" : "text-muted hover:bg-surface-secondary hover:text-foreground",
           )}
         >
           {o.label}
@@ -258,15 +239,14 @@ export function Stepper({
   suffix?: string;
 }) {
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
-  const readOnly = useReadOnly();
   return (
-    <div className={cn("inline-flex items-center rounded-lg border-2 border-border bg-surface", readOnly && "opacity-60")}>
+    <div className="inline-flex items-center rounded-lg border-2 border-border bg-surface">
       <button
         type="button"
         aria-label="Decrease"
         onClick={() => onChange(clamp(value - step))}
         className="grid size-10 place-items-center text-muted hover:text-foreground disabled:opacity-30"
-        disabled={readOnly || value <= min}
+        disabled={value <= min}
       >
         <span className="block h-[2px] w-2.5 bg-current" />
       </button>
@@ -279,7 +259,7 @@ export function Stepper({
         aria-label="Increase"
         onClick={() => onChange(clamp(value + step))}
         className="grid size-10 place-items-center text-muted hover:text-foreground disabled:opacity-30"
-        disabled={readOnly || value >= max}
+        disabled={value >= max}
       >
         <PixelIcon name="plus" size={12} />
       </button>
@@ -304,7 +284,6 @@ export function BlockRating({
   ghost?: number | null;
   label?: string;
 }) {
-  const readOnly = useReadOnly();
   return (
     <div className="flex gap-1" role="radiogroup" aria-label={label}>
       {Array.from({ length: max }, (_, i) => {
@@ -319,11 +298,10 @@ export function BlockRating({
             aria-checked={value === n}
             aria-label={`${n}`}
             title={`${n}`}
-            disabled={readOnly}
             onClick={() => onChange(n)}
             className={cn(
-              "relative h-8 flex-1 rounded-[5px] transition enabled:active:translate-y-px disabled:cursor-not-allowed",
-              lit ? "lip bg-accent enabled:hover:bg-accent-hover" : "bg-surface-tertiary enabled:hover:bg-accent-soft-hover",
+              "relative h-8 flex-1 rounded-[5px] transition active:translate-y-px",
+              lit ? "lip bg-accent hover:bg-accent-hover" : "bg-surface-tertiary hover:bg-accent-soft-hover",
             )}
           >
             {isGhost && (

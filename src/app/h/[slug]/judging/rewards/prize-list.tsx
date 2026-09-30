@@ -5,7 +5,6 @@ import { Dropdown, Label, ListBox, Select } from "@heroui/react";
 import { ConfirmButton } from "@/components/confirm-button";
 import { TextInput } from "@/components/controls";
 import { PixelIcon } from "@/components/pixel-icon";
-import { useReadOnly } from "@/components/read-only";
 import { cn } from "@/components/ui";
 import { rewardIcon, type RewardItem, type RewardKind } from "@/lib/data";
 
@@ -67,7 +66,6 @@ export function PrizeList({
   // Drop position: the card index the dragged one lands before.
   const [overIdx, setOverIdx] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState("");
-  const readOnly = useReadOnly();
 
   const set = (id: string, patch: Partial<RewardItem>) => onChange(items.map((i) => (i.id === id ? { ...i, ...patch } : i)));
 
@@ -115,36 +113,33 @@ export function PrizeList({
                   dragId === it.id && "opacity-40",
                 )}
               >
-                {/* Reordering is editing, so a read-only view has no handle. */}
-                {!readOnly && (
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    draggable
-                    aria-label={`Reorder ${it.label || KIND_LABEL[it.kind].toLowerCase()}, position ${i + 1} of ${items.length}`}
-                    aria-keyshortcuts="ArrowUp ArrowDown"
-                    title="Drag, or use the arrow keys, to reorder"
-                    onDragStart={(e) => {
-                      setDragId(it.id);
-                      e.dataTransfer.effectAllowed = "move";
-                      e.dataTransfer.setData("application/x-prize", it.id);
-                      const card = e.currentTarget.closest("li");
-                      if (card) e.dataTransfer.setDragImage(card, 16, 22);
-                    }}
-                    onDragEnd={() => {
-                      setDragId(null);
-                      setOverIdx(null);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
-                      e.preventDefault();
-                      nudge(i, e.key === "ArrowUp" ? i - 1 : i + 1);
-                    }}
-                    className="grid h-11 w-5 shrink-0 cursor-grab place-items-center rounded-md text-border-tertiary outline-none transition hover:text-foreground focus-visible:text-foreground focus-visible:ring-2 focus-visible:ring-accent active:cursor-grabbing"
-                  >
-                    <PixelIcon name="grip" size={14} />
-                  </span>
-                )}
+                <span
+                  role="button"
+                  tabIndex={0}
+                  draggable
+                  aria-label={`Reorder ${it.label || KIND_LABEL[it.kind].toLowerCase()}, position ${i + 1} of ${items.length}`}
+                  aria-keyshortcuts="ArrowUp ArrowDown"
+                  title="Drag, or use the arrow keys, to reorder"
+                  onDragStart={(e) => {
+                    setDragId(it.id);
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("application/x-prize", it.id);
+                    const card = e.currentTarget.closest("li");
+                    if (card) e.dataTransfer.setDragImage(card, 16, 22);
+                  }}
+                  onDragEnd={() => {
+                    setDragId(null);
+                    setOverIdx(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+                    e.preventDefault();
+                    nudge(i, e.key === "ArrowUp" ? i - 1 : i + 1);
+                  }}
+                  className="grid h-11 w-5 shrink-0 cursor-grab place-items-center rounded-md text-border-tertiary outline-none transition hover:text-foreground focus-visible:text-foreground focus-visible:ring-2 focus-visible:ring-accent active:cursor-grabbing"
+                >
+                  <PixelIcon name="grip" size={14} />
+                </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-2">
                   <div className="flex gap-2">
                     <KindSelect value={it.kind} onChange={(kind) => set(it.id, { kind })} />
@@ -192,7 +187,7 @@ export function PrizeList({
 
       <Dropdown>
         <Dropdown.Trigger
-          isDisabled={readOnly || items.length >= max}
+          isDisabled={items.length >= max}
           className="flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border-secondary px-4 text-sm font-semibold text-muted transition hover:border-accent hover:bg-accent-soft hover:text-accent-soft-foreground data-[pressed]:translate-y-px data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
         >
           <PixelIcon name="plus" size={12} />
@@ -225,12 +220,10 @@ function DropLine({ className }: { className: string }) {
 
 /** A prize's type, with its icon. */
 function KindSelect({ value, onChange }: { value: RewardKind; onChange: (kind: RewardKind) => void }) {
-  const readOnly = useReadOnly();
   return (
     <Select
       aria-label="Prize type"
       value={value}
-      isDisabled={readOnly}
       onChange={(key) => key && onChange(key as RewardKind)}
       className="w-[7.5rem] shrink-0"
     >

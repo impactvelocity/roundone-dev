@@ -41,7 +41,6 @@ export function Winners({
   emailStatus: AnnounceStatus | null;
 }) {
   const final = results.state === "final";
-  const readOnly = useReadOnly();
   const hint =
     results.state === "final"
       ? `Final ranking from ${results.sourcePhase}.`
@@ -103,7 +102,7 @@ export function Winners({
                 </ButtonLink>
               </Panel>
             ) : (
-              <Ranking ranking={results.ranking} draggable={final && !readOnly} slug={slug} />
+              <Ranking ranking={results.ranking} draggable={final} slug={slug} />
             )}
           </section>
 
@@ -264,6 +263,7 @@ function Ranking({
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [error, setError] = useState<string>();
   const [pending, start] = useTransition();
+  const readOnly = useReadOnly();
   const dirty = rows.map((r) => r.id).join() !== ranking.map((r) => r.id).join();
   const shown = expanded ? rows : rows.slice(0, SHOWN);
 
@@ -285,13 +285,17 @@ function Ranking({
       <SaveError error={error} />
       {dirty && (
         <div className="mb-3 flex items-center gap-3 rounded-lg bg-accent-soft px-4 py-2 text-sm text-accent-soft-foreground">
-          <span className="flex-1">Order changed. Saving logs the new rank on each project that moved.</span>
+          <span className="flex-1">
+            {readOnly
+              ? "Order changed. This is a demo, so it isn't saved."
+              : "Order changed. Saving logs the new rank on each project that moved."}
+          </span>
           <Button size="sm" variant="tertiary" onPress={() => setRows(ranking)} isDisabled={pending}>
             Undo
           </Button>
           <Button
             size="sm"
-            isDisabled={pending}
+            isDisabled={readOnly || pending}
             onPress={() =>
               start(async () => {
                 setError(undefined);

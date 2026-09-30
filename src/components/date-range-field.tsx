@@ -4,15 +4,13 @@ import type { ComponentProps } from "react";
 import { DateField, DateRangePicker, Label, RangeCalendar } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import { fieldLabelClass } from "./controls";
-import { useReadOnly } from "./read-only";
 import { cn } from "./ui";
 
 type RangeChange = NonNullable<ComponentProps<typeof DateRangePicker>["onChange"]>;
 
 /**
  * Start/end date picker. Submits ISO dates (yyyy-mm-dd) under `startName` and
- * `endName`, so server actions read them like plain date inputs. Off in
- * read-only views (read-only.tsx).
+ * `endName`, so server actions read them like plain date inputs.
  */
 export function DateRangeField({
   label,
@@ -34,11 +32,9 @@ export function DateRangeField({
   const start = defaultStart ?? defaultEnd;
   const end = defaultEnd ?? defaultStart;
   const handleChange: RangeChange = (value) => onChange?.(value?.start.toString() ?? "", value?.end.toString() ?? "");
-  const readOnly = useReadOnly();
 
   return (
     <DateRangePicker
-      isDisabled={readOnly}
       className={cn("flex flex-col gap-1.5", className)}
       startName={startName}
       endName={endName}

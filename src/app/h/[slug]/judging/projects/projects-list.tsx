@@ -49,7 +49,6 @@ export function ProjectsList({
   const [adding, setAdding] = useState<ProjectDraft | null>(null);
   const [error, setError] = useState<string>();
   const [moving, startMove] = useTransition();
-  const readOnly = useReadOnly();
 
   const phaseName = (id: string | null) => phases.find((p) => p.id === id)?.name;
   const rows = projects.map((p) => ({ project: p, ...projectHeadline(p, blocks) }));
@@ -106,7 +105,7 @@ export function ProjectsList({
         actions={
           <>
             <IntakeButtons slug={slug} blocks={blocks} {...intake} />
-            <Button onPress={newProject} isDisabled={readOnly || blocks.length === 0}>
+            <Button onPress={newProject} isDisabled={blocks.length === 0}>
               <PixelIcon name="plus" size={12} />
               Add project
             </Button>
@@ -326,7 +325,6 @@ function Th({ children, className }: { children: ReactNode; className?: string }
 }
 
 function EmptyState({ onAdd, hasSchema, slug }: { onAdd: () => void; hasSchema: boolean; slug: string }) {
-  const readOnly = useReadOnly();
   return (
     <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-border px-6 py-16 text-center">
       <span className="grid size-14 place-items-center rounded-xl bg-accent-soft text-accent-soft-foreground">
@@ -342,7 +340,7 @@ function EmptyState({ onAdd, hasSchema, slug }: { onAdd: () => void; hasSchema: 
       </div>
       {hasSchema ? (
         <div className="flex flex-wrap items-center justify-center gap-2">
-          <Button isDisabled={readOnly} onPress={onAdd}>
+          <Button onPress={onAdd}>
             <PixelIcon name="plus" size={12} />
             Add your first project
           </Button>

@@ -6,7 +6,6 @@ import { FieldLabel, Segmented, Stepper, Toggle } from "@/components/controls";
 import { SaveError, UpdateButton } from "@/components/list-editor";
 import { LockedNote } from "@/components/locked-note";
 import { PixelIcon } from "@/components/pixel-icon";
-import { useReadOnly } from "@/components/read-only";
 import { Avatar, Eyebrow, ExplainerItem, PageHeader, Panel, TextLink, cn } from "@/components/ui";
 import type { DistributionSettings, JudgeGroup, JudgingPhase } from "@/lib/data";
 import { saveDistribution } from "@/lib/judging-actions";
@@ -55,7 +54,6 @@ export function DistributionEditor({
   const [error, setError] = useState<string>();
   const [justSaved, setJustSaved] = useState(false);
   const [pending, startSave] = useTransition();
-  const readOnly = useReadOnly();
 
   const set = (patch: Partial<DistributionSettings>) => {
     setSettings((s) => ({ ...s, ...patch }));
@@ -94,7 +92,7 @@ export function DistributionEditor({
         )}
 
         {/* Locked once judging starts: they decided the assignments already handed out. */}
-        <fieldset disabled={locked || readOnly} className="min-w-0 disabled:pointer-events-none disabled:opacity-60">
+        <fieldset disabled={locked} className="min-w-0 disabled:pointer-events-none disabled:opacity-60">
           <Panel className="divide-y divide-border">
             <Row label="Agent first" hint="The agent starts reviewing every project when judging starts. Judges don't wait for it">
               <Toggle checked={settings.agentFirst} onChange={(agentFirst) => set({ agentFirst })} />
@@ -107,7 +105,7 @@ export function DistributionEditor({
                 admin={admin}
                 judges={judges}
                 settings={settings}
-                isDisabled={locked || readOnly || !settings.agentFirst}
+                isDisabled={locked || !settings.agentFirst}
                 onChange={(failedInbox, inboxJudgeId) => set({ failedInbox, inboxJudgeId })}
               />
             </Row>

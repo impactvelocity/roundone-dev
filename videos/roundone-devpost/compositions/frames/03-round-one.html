@@ -1,0 +1,456 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    /* Ids and classes carry the frame prefix "f03-round-one-". A CSS identifier cannot start
+       with a digit, so every selector escapes the leading "0" as "\30 " (the space ends the
+       escape). Scripts look elements up with getElementById / getElementsByClassName. */
+
+    #root {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: block;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: "GeistSans", sans-serif;
+    }
+
+    /* ── Layer clips ─────────────────────────────────────────────── */
+    #f03-round-one-ground,
+    #f03-round-one-stage-clip {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+    }
+    #f03-round-one-ground {
+      background: #150C2E;
+    }
+    #f03-round-one-push,
+    #f03-round-one-scrim,
+    #f03-round-one-sparkles,
+    #f03-round-one-dither,
+    #f03-round-one-shake,
+    #f03-round-one-stage {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+    }
+
+    /* ── Ground: landing pixel sky + night scrim + sparkles + dither tiles ── */
+    /* Scaled 1.18× from the top so the art's white cloud floor sits low and the
+       lockup holds on night sky. */
+    #f03-round-one-art {
+      position: absolute;
+      left: -173px;
+      top: -24px;
+      width: 2266px;
+      height: 1275px;
+      object-fit: cover;
+      display: block;
+    }
+    /* The landing's night scrim (ends right where the white cloud floor begins, ~y 840), plus a
+       soft second pool behind the two-line line so the sunset text holds over the pink horizon;
+       it fades out above the pill and never tints the white floor. */
+    #f03-round-one-scrim {
+      background:
+        radial-gradient(ellipse 32% 16% at 50% 60%, rgba(24,8,48,0.45), transparent 100%),
+        radial-gradient(ellipse 54% 46% at 50% 40%, rgba(24,8,48,0.78), rgba(24,8,48,0.45) 55%, transparent 82%);
+    }
+    .f03-round-one-sparkle {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+    }
+    .f03-round-one-sparkle svg {
+      display: block;
+    }
+    #f03-round-one-dither {
+      display: block;
+    }
+
+    /* ── ROUND 1: fixed-advance letter cells, 6 extrusion layers + sunset face ── */
+    #f03-round-one-slam {
+      position: absolute;
+      left: 463px;
+      top: 315px;
+      width: 994px;
+      height: 230px;
+    }
+    #f03-round-one-slam-fade,
+    #f03-round-one-slam-in {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 994px;
+      height: 230px;
+    }
+    #f03-round-one-depth {
+      position: relative;
+      width: 994px;
+      height: 230px;
+      font-family: "GeistPixelSquare", sans-serif;
+      font-weight: 500;
+      font-size: 230px;
+      line-height: 1;
+    }
+    .f03-round-one-row {
+      display: flex;
+      width: 994px;
+      height: 230px;
+      white-space: nowrap;
+    }
+    .f03-round-one-front {
+      position: relative;
+    }
+    .f03-round-one-back {
+      position: absolute;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+    }
+    .f03-round-one-cell {
+      display: flex;
+      justify-content: center;
+      flex: none;
+      width: 142px;
+      height: 230px;
+    }
+    .f03-round-one-mid {
+      display: flex;
+      flex: none;
+      width: 710px;
+      height: 230px;
+    }
+    .f03-round-one-g {
+      display: block;
+      flex: none;
+      height: 230px;
+      line-height: 1;
+    }
+    .f03-round-one-gb::before {
+      content: attr(data-ch);
+    }
+    /* Sunset gradient faces: keep a real (mid-gradient) colour for audits/fallback and let the
+       fill go transparent so the kit's background-clip gradient shows — renders identically. */
+    .f03-round-one-front .f03-round-one-g.rk-sunset-text,
+    #f03-round-one-l2 .f03-round-one-glow.rk-sunset-text {
+      color: #FB923C;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Lockup, centred on x=960: R1 logo, wordmark, two-line line, pill ── */
+    /* Logo = the handoff to frame 4: centre (960, 300), 170×170, radius 38px. */
+    #f03-round-one-logo {
+      position: absolute;
+      left: 875px;
+      top: 215px;
+      width: 170px;
+      height: 170px;
+      border-radius: 38px;
+      display: block;
+    }
+    /* Wordmark text box top at y=410 (row 398 + 12px clip padding). */
+    #f03-round-one-word-row {
+      position: absolute;
+      left: 0;
+      top: 398px;
+      width: 1920px;
+      display: flex;
+      justify-content: center;
+    }
+    #f03-round-one-word-clip {
+      padding: 12px 16px;
+    }
+    #f03-round-one-word {
+      font-family: "GeistSans", sans-serif;
+      font-weight: 700;
+      font-size: 76px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: #F7F2FF;
+      white-space: nowrap;
+    }
+
+    .f03-round-one-line {
+      position: absolute;
+      left: 0;
+      width: 1920px;
+      text-align: center;
+      font-family: "GeistPixelSquare", sans-serif;
+      font-weight: 500;
+      font-size: 68px;
+      line-height: 1;
+      white-space: nowrap;
+      color: #F7F2FF;
+    }
+    #f03-round-one-l1 {
+      top: 540px;
+    }
+    #f03-round-one-l2 {
+      top: 620px;
+    }
+    .f03-round-one-glow {
+      display: inline-block;
+      filter: drop-shadow(0 2px 10px rgba(24,8,48,.85)) drop-shadow(0 0 2px rgba(24,8,48,.6));
+    }
+
+    /* Pill centred at y=790 (763 + 54.6px pill / 2). */
+    #f03-round-one-pill-row {
+      position: absolute;
+      left: 0;
+      top: 763px;
+      width: 1920px;
+      display: flex;
+      justify-content: center;
+    }
+    #f03-round-one-pill.rk-glass {
+      background: rgba(21,12,46,0.55);
+      font-size: 26px;
+    }
+    .f03-round-one-pill-icon {
+      color: #F0ABFC;
+    }
+  </style>
+
+  <div id="root" data-composition-id="03-round-one" data-width="1920" data-height="1080">
+    <!-- Track 0 — the ground: pixel sky (creeping push), night scrim, beat sparkles, dither tiles on top -->
+    <div id="f03-round-one-ground" class="clip" data-start="0" data-duration="5" data-track-index="0">
+      <div id="f03-round-one-push" data-layout-allow-overflow>
+        <img id="f03-round-one-art" src="assets/retro-hero.png" alt="" data-layout-allow-overflow />
+      </div>
+      <div id="f03-round-one-scrim"></div>
+      <div id="f03-round-one-sparkles" aria-hidden="true" data-layout-ignore></div>
+      <canvas id="f03-round-one-dither" width="1920" height="1080" aria-hidden="true" data-layout-allow-overflow></canvas>
+    </div>
+
+    <!-- Track 1 — the stage (everything that shakes), above the tiles -->
+    <div id="f03-round-one-stage-clip" class="clip" data-start="0" data-duration="5" data-track-index="1">
+      <div id="f03-round-one-shake">
+        <div id="f03-round-one-stage">
+          <!-- ROUND 1 slam: the front row is real text; the script clones it into 6 decorative extrusion layers behind it -->
+          <div id="f03-round-one-slam">
+            <div id="f03-round-one-slam-fade">
+              <div id="f03-round-one-slam-in">
+                <div id="f03-round-one-depth">
+                  <div class="f03-round-one-row f03-round-one-front" aria-label="ROUND 1"><span class="f03-round-one-cell f03-round-one-r"><span class="f03-round-one-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>R</span></span><span class="f03-round-one-mid"><span class="f03-round-one-cell"><span class="f03-round-one-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>O</span></span><span class="f03-round-one-cell"><span class="f03-round-one-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>U</span></span><span class="f03-round-one-cell"><span class="f03-round-one-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>N</span></span><span class="f03-round-one-cell"><span class="f03-round-one-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>D</span></span><span class="f03-round-one-cell"><span class="f03-round-one-g"> </span></span></span><span class="f03-round-one-cell f03-round-one-one"><span class="f03-round-one-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>1</span></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lockup (logo renders after the slam so the R1 text fades out under it) -->
+          <img id="f03-round-one-logo" src="assets/roundone-r1-logo.png" alt="RoundOne logo" />
+          <div id="f03-round-one-word-row"><div id="f03-round-one-word-clip"><div id="f03-round-one-word">RoundOne</div></div></div>
+
+          <!-- What it is -->
+          <div id="f03-round-one-l1" class="f03-round-one-line rk-display">Open-source hackathon</div>
+          <div id="f03-round-one-l2" class="f03-round-one-line rk-display"><span id="f03-round-one-l2-face" class="f03-round-one-glow rk-sunset-text">judging &amp; management</span></div>
+
+          <div id="f03-round-one-pill-row">
+            <div id="f03-round-one-pill" class="rk-glass"><span class="f03-round-one-pill-icon" data-rk-icon="spark" data-size="22"></span><span>The agent takes round one.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      /*
+       * 03-round-one — 5s at 120 BPM (beat = 0.5s). One onset table (T) drives every hit.
+       *  0.00  tiles begin clearing from the centre (to 0.40); ROUND 1 slams 1.7→1 in 4 hard steps (land 0.20)
+       *  0.20  stage shake (amp 16, 0.35s)
+       *  1.25  condense: O U N D ␠ crush (scaleX) while R / 1 slide in — steps on 1.25 / 1.375 / 1.5
+       *  1.50  R1 shrinks + flies to the logo spot, centre (960, 300) (power3.inOut, 0.25s)
+       *  1.75  logo pops over it (RK.pop, lands 1.91), R1 text fades out underneath
+       *  1.90  RoundOne wipes in left→right
+       *  2.20  "Open-source hackathon" rises in
+       *  2.35  "judging & management" rises in, flicks to its sunset gradient at 2.45
+       *  2.60  pill rises in — then a deliberate hold; only the sparkles blink on the beat.
+       *        The logo is static from 1.91 to the cut (handoff: centre 960,300 · 170px · scale 1 · opacity 1).
+       */
+      const DURATION = 5;
+      const T = {
+        slam: 0,
+        tilesDur: 0.4,
+        shake: 0.2,
+        condense: 1.25,
+        fly: 1.5,
+        pop: 1.75,
+        word: 1.9,
+        line1: 2.2,
+        line2: 2.35,
+        flick: 2.45,
+        pill: 2.6,
+      };
+      const tl = gsap.timeline({ paused: true });
+      const clock = RK.clock(tl, DURATION);
+      const byId = (id) => document.getElementById(id);
+      const byClass = (root, name) => Array.prototype.slice.call(root.getElementsByClassName(name));
+
+      RK.hydrate(byId("f03-round-one-stage"));
+
+      // ── Ground ──────────────────────────────────────────────────────────
+      tl.fromTo(byId("f03-round-one-push"), { scale: 1 }, { scale: 1.03, duration: DURATION, ease: "none" }, 0);
+
+      // Pixel sparkles (5×5 plus stars, 6px squares) in the upper sky, blinking on beats.
+      // Each blink: full plus for a quarter-beat, small plus for the next, then a faint core.
+      const SPARKS = [
+        { x: 452, y: 92, c: "#FFFFFF", on: [0.5, 1.5, 2.5, 3.5, 4.5] },
+        { x: 586, y: 262, c: "#FCD34D", on: [1.0, 2.0, 3.0, 4.0] },
+        { x: 858, y: 78, c: "#FFFFFF", on: [1.5, 3.0, 4.5] },
+        { x: 1318, y: 196, c: "#FCD34D", on: [0.5, 2.0, 3.5] },
+        { x: 1488, y: 70, c: "#FFFFFF", on: [1.0, 2.5, 4.0] },
+      ];
+      const sparkLayer = byId("f03-round-one-sparkles");
+      const cell = (cx, cy) => '<rect x="' + cx * 6 + '" y="' + cy * 6 + '" width="6" height="6"/>';
+      SPARKS.forEach((s) => {
+        const el = document.createElement("div");
+        el.className = "f03-round-one-sparkle";
+        el.style.left = s.x - 15 + "px";
+        el.style.top = s.y - 15 + "px";
+        el.innerHTML =
+          '<svg width="30" height="30" viewBox="0 0 30 30" fill="' + s.c + '" shape-rendering="crispEdges" aria-hidden="true">' +
+          '<g class="f03-round-one-tip">' + cell(2, 0) + cell(0, 2) + cell(4, 2) + cell(2, 4) + "</g>" +
+          '<g class="f03-round-one-arm">' + cell(2, 1) + cell(1, 2) + cell(3, 2) + cell(2, 3) + "</g>" +
+          '<g class="f03-round-one-core">' + cell(2, 2) + "</g></svg>";
+        sparkLayer.appendChild(el);
+        s.tip = el.getElementsByClassName("f03-round-one-tip")[0];
+        s.arm = el.getElementsByClassName("f03-round-one-arm")[0];
+        s.core = el.getElementsByClassName("f03-round-one-core")[0];
+      });
+      clock.add((t) => {
+        for (const s of SPARKS) {
+          let state = 0;
+          for (let j = s.on.length - 1; j >= 0; j--) {
+            const dt = t - s.on[j];
+            if (dt >= 0) {
+              state = dt < 0.125 ? 2 : dt < 0.25 ? 1 : 0;
+              break;
+            }
+          }
+          s.tip.style.opacity = state === 2 ? "1" : "0";
+          s.arm.style.opacity = state >= 1 ? "1" : "0";
+          s.core.style.opacity = state >= 1 ? "1" : "0.5";
+        }
+      });
+
+      // The frame opens fully tiled in night purple and the tiles clear from the centre out.
+      RK.dither(clock, byId("f03-round-one-dither"), { start: T.slam, dur: T.tilesDur, mode: "reveal", color: "#150C2E", angle: "center" });
+
+      // ── ROUND 1 depth stack (3d-text-depth-layers, colour-shift variant) ─
+      // Back layers are built back-to-front from the front row. Their glyphs come from
+      // ::before content so the decorative copies are not audited as text.
+      const depth = byId("f03-round-one-depth");
+      const front = byClass(depth, "f03-round-one-front")[0];
+      const LAYERS = 6;
+      const OFFSET = 5; // px right + down per layer (light from the upper left)
+      const RAMP = ["#E11D8F", "#7A1655", "#2E1658", "#150C2E"];
+      const mix = (a, b, p) => {
+        let out = "#";
+        for (let k = 1; k < 7; k += 2) {
+          const va = parseInt(a.slice(k, k + 2), 16);
+          const vb = parseInt(b.slice(k, k + 2), 16);
+          const v = Math.round(va + (vb - va) * p);
+          out += (v < 16 ? "0" : "") + v.toString(16);
+        }
+        return out;
+      };
+      const rampAt = (p) => {
+        const span = p * (RAMP.length - 1);
+        const seg = Math.min(RAMP.length - 2, Math.floor(span));
+        return mix(RAMP[seg], RAMP[seg + 1], span - seg);
+      };
+      const backs = [];
+      for (let i = LAYERS; i >= 1; i--) {
+        const row = front.cloneNode(true);
+        row.className = "f03-round-one-row f03-round-one-back";
+        row.removeAttribute("aria-label");
+        row.setAttribute("aria-hidden", "true");
+        row.setAttribute("data-layout-ignore", "");
+        row.style.color = rampAt((i - 1) / (LAYERS - 1));
+        byClass(row, "f03-round-one-g").forEach((g) => {
+          g.setAttribute("data-ch", g.textContent);
+          g.textContent = "";
+          g.className = "f03-round-one-g f03-round-one-gb";
+          g.removeAttribute("data-layout-allow-overflow");
+          g.removeAttribute("data-layout-allow-overlap");
+          g.setAttribute("data-layout-ignore", "");
+        });
+        depth.insertBefore(row, front); // deepest first; the front row stays on top
+        backs.push({ el: row, i: i });
+      }
+
+      // Slam + depth grow + condense, as pure functions of frame time.
+      //  • slam (kinetic-beat-slam): 4 hard steps on 0.05 / 0.10 / 0.15 / 0.20 — frame 0 is clean
+      //    tiles, the stack lands (scale 1, full depth) exactly as the shake hits at 0.20.
+      //  • condense: 16th-note steps on 1.25 / 1.375 / 1.5. The middle group crushes about its
+      //    centre while R and 1 each travel 2.5 advances, riding its edges until they meet as R1.
+      const slamIn = byId("f03-round-one-slam-in");
+      const mids = byClass(depth, "f03-round-one-mid");
+      const rs = byClass(depth, "f03-round-one-r");
+      const ones = byClass(depth, "f03-round-one-one");
+      const ADV = 142; // fixed per-letter advance (≈0.62em at 230px)
+      const SLIDE = ADV * 2.5;
+      clock.add((t) => {
+        const n = Math.min(4, Math.floor((t - T.slam) / 0.05 + 1e-6));
+        const p = Math.max(0, n) / 4;
+        slamIn.style.opacity = String(p);
+        slamIn.style.transform = "scale(" + (1.7 - 0.7 * p) + ")";
+        for (const b of backs) {
+          const o = b.i * OFFSET * p;
+          b.el.style.transform = "translate(" + o + "px," + o + "px)";
+        }
+        const c = t - T.condense;
+        const k = c < 0 ? 0 : c < 0.125 ? 1 / 3 : c < 0.25 ? 2 / 3 : 1;
+        for (let j = 0; j < mids.length; j++) {
+          mids[j].style.transform = k ? "scaleX(" + (1 - k) + ")" : "";
+          rs[j].style.transform = k ? "translateX(" + SLIDE * k + "px)" : "";
+          ones[j].style.transform = k ? "translateX(" + -SLIDE * k + "px)" : "";
+        }
+      });
+
+      RK.shake(clock, byId("f03-round-one-shake"), { t: T.shake, dur: 0.35, amp: 16 });
+
+      // ── R1 → logo handoff (card-morph-anchor: uniform scale + x/y in one tween) ─
+      // Same geometry as the launch film's measured morph, rescaled to the 170px slot:
+      // scale 0.5054 matches the R1 cap height to the logo's letters (85px), and this x/y
+      // lands the R1 face centre on them (slot 875,215 · 170px · centre 960,300).
+      tl.fromTo(byId("f03-round-one-slam"), { x: 0, y: 0, scale: 1 }, { x: 9.5, y: -132.8, scale: 0.5054, duration: 0.25, ease: "power3.inOut" }, T.fly);
+      RK.pop(tl, byId("f03-round-one-logo"), T.pop);
+      // The text fades out under the logo in the same two steps as the pop (1.79 / 1.83).
+      tl.fromTo(byId("f03-round-one-slam-fade"), { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.12, ease: "steps(2)" }, T.pop);
+
+      // Wordmark wipes in left→right under the logo.
+      tl.fromTo(byId("f03-round-one-word-clip"), { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.3, ease: "power3.out" }, T.word);
+      tl.fromTo(byId("f03-round-one-word"), { x: -24 }, { x: 0, duration: 0.3, ease: "power3.out" }, T.word);
+
+      // ── What it is ──────────────────────────────────────────────────────
+      tl.fromTo(byId("f03-round-one-l1"), { y: 36, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.6, ease: "power3.out" }, T.line1);
+      tl.fromTo(byId("f03-round-one-l2"), { y: 36, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.6, ease: "power3.out" }, T.line2);
+      // Line 2 rises in plain, then flicks to its sunset gradient like a sign lighting:
+      // on at 2.45, off at 2.50, on for good at 2.55.
+      const l2Face = byId("f03-round-one-l2-face");
+      clock.add((t) => {
+        const f = t - T.flick + 1e-6; // epsilon keeps the 2.50 / 2.55 edges exact under float math
+        l2Face.classList.toggle("rk-sunset-text", f >= 0.1 || (f >= 0 && f < 0.05));
+      });
+
+      tl.fromTo(byId("f03-round-one-pill"), { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, ease: "power3.out" }, T.pill);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["03-round-one"] = tl;
+    })();
+  </script>
+</template>

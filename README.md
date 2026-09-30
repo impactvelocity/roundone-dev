@@ -184,7 +184,7 @@ EMAIL_REDIRECT_TO=you@your-domain.com
 | Variable | What it's for | Without it |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL`<br>`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Sign-in, the database and images | Required |
-| `SUPABASE_SECRET_KEY` | The Intake API, the submission form, email sends and demo sign-ups | The Intake API returns `503` and no emails go out |
+| `SUPABASE_SECRET_KEY` | The Intake API, the submission form, email sends and the demo seed script | The Intake API returns `503` and no emails go out |
 | `SUPABASE_DB_PASSWORD` | The Supabase CLI, when you run migrations | The app itself doesn't use it |
 | `NEBIUS` | Agent reviews, chat, embeddings and sandboxes | The agent and the chat can't run |
 | `NEBIUS_PROJECT_ID` | Sandbox runs | Sandbox runs can't start |
@@ -218,7 +218,7 @@ The [quickstart](src/content/docs/quickstart.mdx) takes a hackathon from setup t
 pnpm demo:seed
 ```
 
-The seed script builds three demo hackathons with sample projects, judges, agent reviews and scores: one with results published, one partway through judging and one still in setup. It needs `SUPABASE_SECRET_KEY`, makes no AI calls and sends no email. Pass `--owner you@example.com` to own the demos yourself. With `DEMO_MODE=true`, anyone can create a read-only demo account at `/signup` to look around them.
+The seed script builds three demo hackathons with sample projects, judges, agent reviews and scores: one with results published, one partway through judging and one still in setup. It needs `SUPABASE_SECRET_KEY`, makes no AI calls and sends no email. Pass `--owner you@example.com` to own the demos yourself. It also creates a shared demo login (`demo@roundone.dev` / `try-roundone-demo` by default, or `DEMO_EMAIL` / `DEMO_PASSWORD`). With `DEMO_MODE=true`, the sign-in form comes filled in with it, so anyone can look around the demos. Nothing the demo account changes is saved.
 
 ### Optional: preview emails
 

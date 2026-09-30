@@ -58,7 +58,7 @@ export function UpdateButton({
   return (
     <>
       <span className="text-sm text-muted" aria-live="polite">
-        {pending ? "" : dirty ? "Unsaved changes" : justSaved ? "Saved" : ""}
+        {pending ? "" : dirty ? (readOnly ? "Demo: changes aren't saved" : "Unsaved changes") : justSaved ? "Saved" : ""}
       </span>
       <Button onPress={onPress} isDisabled={readOnly || !dirty || pending}>
         {pending ? "Updating…" : "Update"}

@@ -24,13 +24,13 @@ export function GetStarted({ small = false, className = "" }: { small?: boolean;
 }
 
 /**
- * The live demo: /signup makes a view-only demo account (lib/demo.ts). Renders nothing unless DEMO_MODE is on,
- * because /signup is otherwise the steps for adding an admin by hand.
+ * The live demo: with DEMO_MODE on, /login comes filled in with the shared demo login (lib/demo.ts), so it's one
+ * click to look around. Renders nothing otherwise.
  */
 export function TryDemo({ small = false, className = "" }: { small?: boolean; className?: string }) {
   if (!DEMO_MODE) return null;
   return (
-    <Link href="/signup" className={`btn-arcade btn-arcade--light ${small ? "btn-arcade--sm" : ""} ${className}`.trim()}>
+    <Link href="/login" className={`btn-arcade btn-arcade--light ${small ? "btn-arcade--sm" : ""} ${className}`.trim()}>
       Try the demo
     </Link>
   );

@@ -9,7 +9,6 @@ import { EditDrawer } from "@/components/edit-drawer";
 import { SaveError, UpdateButton, useListEditor } from "@/components/list-editor";
 import { LockedNote } from "@/components/locked-note";
 import { PixelIcon } from "@/components/pixel-icon";
-import { useReadOnly } from "@/components/read-only";
 import { SortableList } from "@/components/sortable-list";
 import { Badge, Eyebrow, ExplainerItem, PageHeader, TextLink, cn } from "@/components/ui";
 import { blockTypes, type BlockType, type SchemaBlock } from "@/lib/data";
@@ -41,7 +40,6 @@ export function SchemaEditor({
   );
   const [editing, setEditing] = useState<string | null>(null);
   const current = blocks.find((b) => b.id === editing);
-  const readOnly = useReadOnly();
 
   const update = (id: string, patch: Partial<SchemaBlock>) =>
     edit((bs) => bs.map((b) => (b.id === id ? { ...b, ...patch } : b)));
@@ -165,7 +163,7 @@ export function SchemaEditor({
               </Field>
               <TypeSelect
                 value={current.type}
-                isDisabled={locked || readOnly}
+                isDisabled={locked}
                 onChange={(type) => update(current.id, { type })}
               />
             </div>

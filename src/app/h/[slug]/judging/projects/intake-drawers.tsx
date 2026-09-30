@@ -8,6 +8,7 @@ import { Toggle, fieldLabelClass } from "@/components/controls";
 import { EditDrawer } from "@/components/edit-drawer";
 import { SaveError } from "@/components/list-editor";
 import { PixelIcon } from "@/components/pixel-icon";
+import { useReadOnly } from "@/components/read-only";
 import { cn } from "@/components/ui";
 import { brand } from "@/lib/branding";
 import type { SchemaBlock } from "@/lib/data";
@@ -152,6 +153,7 @@ function ApiPanel({
   const fields = intakeFields(blocks);
   const key = freshKey ?? `$${KEY_ENV}`;
   const prompt = agentPrompt({ hackathon: hackathonName, endpoint, key, fields });
+  const readOnly = useReadOnly();
 
   return (
     <>
@@ -159,6 +161,8 @@ function ApiPanel({
       {!settings.configured && <NotConfigured />}
       <Toggle
         checked={settings.apiEnabled}
+        // Flipping it saves straight away, so a demo can't.
+        disabled={readOnly}
         onChange={(on) => !pending && onToggle(on)}
         label="API access"
         description="Let scripts and coding agents create projects, e.g. to import a spreadsheet or another platform's export."
@@ -300,12 +304,14 @@ function FormPanel({
   onRegenerate: () => Promise<string | undefined>;
 }) {
   const { nameBlockId } = projectHeadline({ number: 0, values: {} }, blocks);
+  const readOnly = useReadOnly();
   return (
     <>
       <SaveError error={error} />
       {!settings.configured && <NotConfigured />}
       <Toggle
         checked={settings.formEnabled}
+        disabled={readOnly}
         onChange={(on) => !pending && onToggle(on)}
         label="Accept submissions"
         description="A public page where entrants submit their project. Each one shows up here straight away."

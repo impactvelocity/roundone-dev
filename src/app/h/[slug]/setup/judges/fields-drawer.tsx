@@ -83,7 +83,7 @@ export function FieldsDrawer({
         footer={
           <div className="flex w-full items-center gap-2">
             <span className="text-sm text-muted" aria-live="polite">
-              {dirty && !pending ? "Unsaved changes" : ""}
+              {dirty && !pending ? (readOnly ? "Demo: changes aren't saved" : "Unsaved changes") : ""}
             </span>
             <Button className="ml-auto" variant="tertiary" onPress={requestClose}>
               Cancel
@@ -141,7 +141,6 @@ export function FieldsDrawer({
                         value={o.label}
                         maxLength={80}
                         aria-label="Option"
-                        readOnly={readOnly}
                         onChange={(e) =>
                           update(f.id, (x) => ({
                             ...x,
@@ -191,7 +190,7 @@ export function FieldsDrawer({
           );
         })}
 
-        <AddTile disabled={readOnly} onClick={() => setDraft((fs) => [...fs, blankField()])}>
+        <AddTile onClick={() => setDraft((fs) => [...fs, blankField()])}>
           Add field
         </AddTile>
       </EditDrawer>

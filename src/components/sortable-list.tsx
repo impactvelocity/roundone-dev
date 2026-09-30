@@ -4,7 +4,6 @@ import { useState, type ReactNode } from "react";
 import { Dropdown, Label } from "@heroui/react";
 import type { IconName } from "@/lib/data";
 import { PixelIcon } from "./pixel-icon";
-import { useReadOnly } from "./read-only";
 import { AddTile, cn } from "./ui";
 
 /** `tone` puts the icon on a colored tile (bg + text classes), like the schema's block types. */
@@ -16,8 +15,7 @@ export type InsertOption = { id: string; label: string; icon: IconName; tone?: s
  *
  * With `insertOptions`, the + opens a menu and `onInsert` gets the picked id;
  * without, the + inserts straight away. `locked` fixes the list: no grip, no
- * inserting or adding, but cards can still be selected. Read-only views
- * (read-only.tsx) are always locked.
+ * inserting or adding, but cards can still be selected.
  */
 export function SortableList<T extends { id: string }>({
   items,
@@ -28,7 +26,7 @@ export function SortableList<T extends { id: string }>({
   onInsert,
   insertOptions,
   addLabel,
-  locked: lockedProp = false,
+  locked = false,
 }: {
   items: T[];
   onReorder: (next: T[]) => void;
@@ -42,8 +40,6 @@ export function SortableList<T extends { id: string }>({
 }) {
   const [dragId, setDragId] = useState<string | null>(null);
   const [overIdx, setOverIdx] = useState<number | null>(null);
-  const readOnly = useReadOnly();
-  const locked = lockedProp || readOnly;
 
   const drop = (at: number, e: React.DragEvent) => {
     e.preventDefault();
