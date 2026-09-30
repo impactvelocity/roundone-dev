@@ -1,0 +1,317 @@
+{
+  "typography": [
+    {
+      "role": "display",
+      "fontFamily": "GeistPixelSquare",
+      "fontSize": "60px",
+      "fontWeight": "500",
+      "lineHeight": "63px",
+      "letterSpacing": "normal",
+      "color": "#FFFFFF",
+      "sampleText": "Agents check the code.Humans judge the idea."
+    },
+    {
+      "role": "heading",
+      "fontFamily": "GeistSans",
+      "fontSize": "36px",
+      "fontWeight": "500",
+      "lineHeight": "45px",
+      "letterSpacing": "0.9px",
+      "color": "#1D1433",
+      "sampleText": "Ten times the pile, same three judges"
+    },
+    {
+      "role": "heading-3",
+      "fontFamily": "GeistPixelSquare",
+      "fontSize": "24px",
+      "fontWeight": "500",
+      "lineHeight": "32px",
+      "letterSpacing": "normal",
+      "color": "#1D1433",
+      "sampleText": "The agent checks"
+    },
+    {
+      "role": "body",
+      "fontFamily": "GeistSans",
+      "fontSize": "20px",
+      "fontWeight": "400",
+      "lineHeight": "32.5px",
+      "letterSpacing": "normal",
+      "color": "#FFFFFF",
+      "sampleText": "Coding agents turned 100 hand-coded submissions into 1,000. "
+    },
+    {
+      "role": "link",
+      "fontFamily": "GeistSans",
+      "fontSize": "18px",
+      "fontWeight": "700",
+      "lineHeight": "28px",
+      "letterSpacing": "normal",
+      "color": "#F7F2FF",
+      "sampleText": "RoundOne"
+    },
+    {
+      "role": "code",
+      "fontFamily": "GeistMono",
+      "fontSize": "10.88px",
+      "fontWeight": "400",
+      "lineHeight": "16.32px",
+      "letterSpacing": "normal",
+      "color": "#8A80A3",
+      "sampleText": "nemotron-3-super"
+    }
+  ],
+  "spacing": {
+    "observed": [
+      4,
+      6,
+      8,
+      9,
+      10,
+      12,
+      14,
+      16,
+      20,
+      24,
+      26,
+      28,
+      32,
+      40,
+      48
+    ],
+    "baseUnit": 8
+  },
+  "radius": [
+    "20px",
+    "24px",
+    "9999px"
+  ],
+  "shadows": [
+    {
+      "value": "rgba(46, 22, 88, 0.05) 0px 1px 2px 0px, rgba(76, 29, 149, 0.22) 0px 18px 48px -18px",
+      "count": 7
+    },
+    {
+      "value": "rgba(46, 22, 88, 0.06) 0px 1px 2px 0px",
+      "count": 4
+    },
+    {
+      "value": "rgba(29, 11, 36, 0.2) 0px 1px 2px 0px, rgba(232, 49, 143, 0.4) 0px 8px 26px 0px",
+      "count": 3
+    },
+    {
+      "value": "rgba(21, 12, 46, 0.2) 0px 1px 2px 0px",
+      "count": 2
+    },
+    {
+      "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(21, 12, 46, 0.35) 0px 10px 34px 0px",
+      "count": 1
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Get started",
+      "background": "transparent",
+      "backgroundImage": "linear-gradient(100deg, rgb(251, 191, 36) 0%, rgb(251, 122, 60) 45%, rgb(232, 49, 143) 100%)",
+      "backdropFilter": "",
+      "color": "#1D0B24",
+      "padding": "8px 16px",
+      "borderRadius": "9999px",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "boxShadow": "rgba(29, 11, 36, 0.2) 0px 1px 2px 0px, rgba(232, 49, 143, 0.4) 0px 8px 26px 0px",
+      "fontSize": "15.2px",
+      "fontWeight": "600",
+      "height": "39.7188px"
+    },
+    {
+      "label": "Read the docs",
+      "background": "#FFFFFF",
+      "backgroundImage": "",
+      "backdropFilter": "",
+      "color": "#1D1433",
+      "padding": "13.6px 25.6px",
+      "borderRadius": "9999px",
+      "border": "1px solid rgba(46, 22, 88, 0.1)",
+      "boxShadow": "rgba(46, 22, 88, 0.06) 0px 1px 2px 0px",
+      "fontSize": "15.2px",
+      "fontWeight": "500",
+      "height": "51.9844px"
+    },
+    {
+      "label": "Keep going",
+      "background": "#150C2E",
+      "backgroundImage": "",
+      "backdropFilter": "",
+      "color": "#F7F2FF",
+      "padding": "8px 20px",
+      "borderRadius": "9999px",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "boxShadow": "rgba(21, 12, 46, 0.2) 0px 1px 2px 0px",
+      "fontSize": "15.2px",
+      "fontWeight": "500",
+      "height": "39.7188px"
+    },
+    {
+      "label": "Quickstart",
+      "background": "#FFFFFF",
+      "backgroundImage": "",
+      "backdropFilter": "blur(8px)",
+      "color": "#F7F2FF",
+      "padding": "13.6px 25.6px",
+      "borderRadius": "9999px",
+      "border": "1px solid rgba(255, 255, 255, 0.28)",
+      "boxShadow": "none",
+      "fontSize": "15.2px",
+      "fontWeight": "500",
+      "height": "51.9844px"
+    }
+  ],
+  "cards": [
+    {
+      "label": "card",
+      "background": "#6D28D9",
+      "backgroundImage": "",
+      "backdropFilter": "",
+      "color": "#1D1433",
+      "padding": "0px",
+      "borderRadius": "24px",
+      "border": "0px solid lab(88.9281 0.591189 -2.18331)",
+      "boxShadow": "none",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "height": "596.75px"
+    },
+    {
+      "label": "card",
+      "background": "#FFFFFF",
+      "backgroundImage": "",
+      "backdropFilter": "blur(6px)",
+      "color": "#F7F2FF",
+      "padding": "28px",
+      "borderRadius": "20px",
+      "border": "1px solid rgba(255, 255, 255, 0.1)",
+      "boxShadow": "none",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "height": "483.688px"
+    }
+  ],
+  "nav": {
+    "label": "navigation",
+    "background": "transparent",
+    "backgroundImage": "",
+    "backdropFilter": "",
+    "color": "#1D1433",
+    "padding": "16px 16px 0px",
+    "borderRadius": "0px",
+    "border": "0px solid lab(88.9281 0.591189 -2.18331)",
+    "boxShadow": "none",
+    "fontSize": "16px",
+    "fontWeight": "400",
+    "height": "77.7188px"
+  },
+  "chips": [
+    {
+      "label": "Get started",
+      "background": "transparent",
+      "color": "#1D0B24",
+      "padding": "8px 16px",
+      "borderRadius": "9999px",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "boxShadow": "rgba(29, 11, 36, 0.2) 0px 1px 2px 0px, rgba(232, 49, 143, 0.4) 0px 8px 26px 0px",
+      "fontSize": "15.2px",
+      "fontWeight": "600",
+      "height": "39.7188px"
+    },
+    {
+      "label": "Read the docs",
+      "background": "#FFFFFF",
+      "color": "#1D1433",
+      "padding": "13.6px 25.6px",
+      "borderRadius": "9999px",
+      "border": "1px solid rgba(46, 22, 88, 0.1)",
+      "boxShadow": "rgba(46, 22, 88, 0.06) 0px 1px 2px 0px",
+      "fontSize": "15.2px",
+      "fontWeight": "500",
+      "height": "51.9844px"
+    },
+    {
+      "label": "Keep going",
+      "background": "#150C2E",
+      "color": "#F7F2FF",
+      "padding": "8px 20px",
+      "borderRadius": "9999px",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "boxShadow": "rgba(21, 12, 46, 0.2) 0px 1px 2px 0px",
+      "fontSize": "15.2px",
+      "fontWeight": "500",
+      "height": "39.7188px"
+    },
+    {
+      "label": "Quickstart",
+      "background": "#FFFFFF",
+      "color": "#F7F2FF",
+      "padding": "13.6px 25.6px",
+      "borderRadius": "9999px",
+      "border": "1px solid rgba(255, 255, 255, 0.28)",
+      "boxShadow": "none",
+      "fontSize": "15.2px",
+      "fontWeight": "500",
+      "height": "51.9844px"
+    }
+  ],
+  "statCells": [],
+  "tabs": [],
+  "backgrounds": [
+    {
+      "value": "radial-gradient(circle at 1px 1px, oklab(0.210299 0.00161309 -0.00566931 / 0.1) 1px, rgba(0, 0, 0, 0) 0px)",
+      "area": 23008320
+    },
+    {
+      "value": "radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.35) 1px, rgba(0, 0, 0, 0) 1.5px), radial-gradient(circle at 1px 1px, rgba(251, 191, 36, 0.25) 1px, rgba(0, 0, 0, 0) 1.5px)",
+      "area": 2107170
+    },
+    {
+      "value": "radial-gradient(70% 55% at 50% 118%, rgba(251, 122, 60, 0.42), rgba(0, 0, 0, 0) 70%), radial-gradient(90% 70% at 50% 110%, rgba(217, 70, 239, 0.3), rgba(0, 0, 0, 0) 72%), none",
+      "area": 2107170
+    },
+    {
+      "value": "radial-gradient(50% 42% at 50% 34%, rgba(24, 8, 48, 0.78), rgba(24, 8, 48, 0.45) 55%, rgba(0, 0, 0, 0) 82%)",
+      "area": 2073600
+    },
+    {
+      "value": "radial-gradient(55% 40% at 50% 58%, rgba(21, 12, 46, 0.55), rgba(0, 0, 0, 0) 75%)",
+      "area": 1318050
+    },
+    {
+      "value": "linear-gradient(95deg, rgb(124, 58, 237) 0%, rgb(217, 70, 239) 45%, rgb(251, 122, 60) 100%)",
+      "area": 145112
+    }
+  ],
+  "glass": [
+    {
+      "backdropFilter": "blur(6px)",
+      "background": "rgba(255, 255, 255, 0.043)",
+      "border": "1px solid rgba(255, 255, 255, 0.1)",
+      "borderRadius": "20px",
+      "boxShadow": "",
+      "area": 590412
+    },
+    {
+      "backdropFilter": "blur(12px)",
+      "background": "rgba(21, 12, 46, 0.88)",
+      "border": "1px solid oklab(0.999994 0.0000455678 0.0000200868 / 0.1)",
+      "borderRadius": "24px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(21, 12, 46, 0.35) 0px 10px 34px 0px",
+      "area": 63200
+    },
+    {
+      "backdropFilter": "blur(12px)",
+      "background": "rgba(21, 12, 46, 0.6)",
+      "border": "1px solid oklab(0.999994 0.0000455678 0.0000200868 / 0.15)",
+      "borderRadius": "24px",
+      "boxShadow": "",
+      "area": 40279
+    }
+  ]
+}

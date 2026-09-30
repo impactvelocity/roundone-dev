@@ -1,0 +1,413 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: block;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: "GeistSans", sans-serif;
+    }
+
+    /* ── Layer clips ─────────────────────────────────────────────── */
+    #f04-ground,
+    #f04-stage-clip {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+    }
+    #f04-ground {
+      background: #150C2E;
+    }
+    #f04-push,
+    #f04-scrim,
+    #f04-sparkles,
+    #f04-dither,
+    #f04-shake,
+    #f04-stage {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+    }
+
+    /* ── Ground: landing pixel sky + night scrim + sparkles + dither tiles ── */
+    /* Scaled 1.18× from the top so the art's white cloud floor sits low and the
+       promise holds on night sky (frame 1 keeps the full art for its scroll-out). */
+    #f04-art {
+      position: absolute;
+      left: -173px;
+      top: -24px;
+      width: 2266px;
+      height: 1275px;
+      object-fit: cover;
+      display: block;
+    }
+    #f04-scrim {
+      background: radial-gradient(ellipse 54% 46% at 50% 40%, rgba(24,8,48,0.78), rgba(24,8,48,0.45) 55%, transparent 82%);
+    }
+    .f04-spark {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+    }
+    .f04-spark svg {
+      display: block;
+    }
+    #f04-dither {
+      display: block;
+    }
+
+    /* ── ROUND 1: fixed-advance letter cells, 6 extrusion layers + sunset face ── */
+    #f04-slam {
+      position: absolute;
+      left: 463px;
+      top: 315px;
+      width: 994px;
+      height: 230px;
+    }
+    #f04-slam-in {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 994px;
+      height: 230px;
+    }
+    #f04-depth {
+      position: relative;
+      width: 994px;
+      height: 230px;
+      font-family: "GeistPixelSquare", sans-serif;
+      font-weight: 500;
+      font-size: 230px;
+      line-height: 1;
+    }
+    .f04-row {
+      display: flex;
+      width: 994px;
+      height: 230px;
+      white-space: nowrap;
+    }
+    .f04-front {
+      position: relative;
+    }
+    .f04-back {
+      position: absolute;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+    }
+    .f04-cell {
+      display: flex;
+      justify-content: center;
+      flex: none;
+      width: 142px;
+      height: 230px;
+    }
+    .f04-mid {
+      display: flex;
+      flex: none;
+      width: 710px;
+      height: 230px;
+    }
+    .f04-g {
+      display: block;
+      flex: none;
+      height: 230px;
+      line-height: 1;
+    }
+    .f04-gb::before {
+      content: attr(data-ch);
+    }
+    /* Sunset gradient faces: keep a real (mid-gradient) colour for audits/fallback and let the
+       fill go transparent so the kit's background-clip gradient shows — renders identically. */
+    .f04-front .f04-g.rk-sunset-text,
+    #f04-h2 .f04-glow.rk-sunset-text {
+      color: #FB923C;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Lockup: R1 logo + wordmark ── */
+    #f04-logo {
+      position: absolute;
+      left: 683px;
+      top: 150px;
+      width: 148px;
+      height: 148px;
+      border-radius: 32px;
+      display: block;
+    }
+    #f04-word-clip {
+      position: absolute;
+      left: 843px;
+      top: 174px;
+      padding: 12px 16px;
+    }
+    #f04-word {
+      font-family: "GeistSans", sans-serif;
+      font-weight: 700;
+      font-size: 76px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: #F7F2FF;
+      white-space: nowrap;
+    }
+
+    /* ── Headline ── */
+    .f04-line {
+      position: absolute;
+      left: 0;
+      width: 1920px;
+      text-align: center;
+      font-family: "GeistPixelSquare", sans-serif;
+      font-weight: 500;
+      font-size: 104px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    #f04-h1 {
+      top: 380px;
+      color: #F7F2FF;
+    }
+    #f04-h2 {
+      top: 500px;
+    }
+    .f04-glow {
+      display: inline-block;
+      filter: drop-shadow(0 2px 10px rgba(24,8,48,.85)) drop-shadow(0 0 2px rgba(24,8,48,.6));
+    }
+
+    /* ── Pill ── */
+    #f04-pill-row {
+      position: absolute;
+      left: 0;
+      top: 637px;
+      width: 1920px;
+      display: flex;
+      justify-content: center;
+    }
+    #f04-pill.rk-glass {
+      background: rgba(21,12,46,0.55);
+      font-size: 26px;
+    }
+    .f04-lock {
+      color: #F0ABFC;
+    }
+  </style>
+
+  <div id="root" data-composition-id="04-round-one" data-width="1920" data-height="1080">
+    <!-- Track 0 — the ground: pixel sky (creeping push), night scrim, beat sparkles, dither tiles on top -->
+    <div id="f04-ground" class="clip" data-start="0" data-duration="6" data-track-index="0">
+      <div id="f04-push" data-layout-allow-overflow>
+        <img id="f04-art" src="assets/retro-hero.png" alt="" data-layout-allow-overflow />
+      </div>
+      <div id="f04-scrim"></div>
+      <div id="f04-sparkles" aria-hidden="true" data-layout-ignore></div>
+      <canvas id="f04-dither" width="1920" height="1080" aria-hidden="true" data-layout-allow-overflow></canvas>
+    </div>
+
+    <!-- Track 1 — the stage (everything that shakes), above the tiles -->
+    <div id="f04-stage-clip" class="clip" data-start="0" data-duration="6" data-track-index="1">
+      <div id="f04-shake">
+        <div id="f04-stage">
+          <!-- ROUND 1 slam: the front row is real text; the script clones it into 6 decorative extrusion layers behind it -->
+          <div id="f04-slam">
+            <div id="f04-slam-in">
+              <div id="f04-depth">
+                <div class="f04-row f04-front" aria-label="ROUND 1"><span class="f04-cell f04-r"><span class="f04-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>R</span></span><span class="f04-mid"><span class="f04-cell"><span class="f04-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>O</span></span><span class="f04-cell"><span class="f04-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>U</span></span><span class="f04-cell"><span class="f04-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>N</span></span><span class="f04-cell"><span class="f04-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>D</span></span><span class="f04-cell"><span class="f04-g"> </span></span></span><span class="f04-cell f04-one"><span class="f04-g rk-sunset-text" data-layout-allow-overflow data-layout-allow-overlap>1</span></span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lockup (logo renders after the slam so the R1 text fades out under it) -->
+          <img id="f04-logo" src="assets/roundone-r1-logo.png" alt="RoundOne logo" />
+          <div id="f04-word-clip"><div id="f04-word">RoundOne</div></div>
+
+          <!-- The promise -->
+          <div id="f04-h1" class="f04-line rk-display">Agents check the code.</div>
+          <div id="f04-h2" class="f04-line rk-display"><span class="f04-glow rk-sunset-text">Humans judge the idea.</span></div>
+
+          <div id="f04-pill-row">
+            <div id="f04-pill" class="rk-glass"><span class="f04-lock" data-rk-icon="lock" data-size="22"></span><span>Open source · Self-hosted</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      /*
+       * 04-round-one — 6s at 120 BPM (beat = 0.5s).
+       *  0.00  tiles begin clearing from the centre (to 0.40); ROUND 1 slams 1.7→1 in 4 hard steps (land 0.20)
+       *  0.20  stage shake (amp 16, 0.35s)
+       *  1.50  condense: O U N D ␠ crush (scaleX) while R / 1 slide in — steps on 1.5 / 1.625 / 1.75
+       *  1.75  R1 shrinks + flies to the lockup slot (power3.inOut, 0.25s)
+       *  2.00  logo pops over it (RK.pop), R1 text fades out underneath; RoundOne wipes in left→right
+       *  2.50  "Agents check the code." rises in
+       *  3.00  "Humans judge the idea." rises in
+       *  3.50  pill rises in — then a deliberate hold; only the sparkles blink on the beat
+       */
+      const DURATION = 6;
+      const tl = gsap.timeline({ paused: true });
+      const clock = RK.clock(tl, DURATION);
+      const byId = (id) => document.getElementById(id);
+
+      RK.hydrate(byId("f04-stage"));
+
+      // ── Ground ──────────────────────────────────────────────────────────
+      tl.fromTo(byId("f04-push"), { scale: 1 }, { scale: 1.04, duration: DURATION, ease: "none" }, 0);
+
+      // Pixel sparkles (5×5 plus stars, 6px squares) in the upper sky, blinking on beats.
+      // Each blink: full plus for a quarter-beat, small plus for the next, then a faint core.
+      const SPARKS = [
+        { x: 452, y: 92, c: "#FFFFFF", on: [0.5, 1.5, 2.5, 3.5, 4.5, 5.5] },
+        { x: 586, y: 262, c: "#FCD34D", on: [1.0, 2.0, 3.0, 4.0, 5.0] },
+        { x: 858, y: 78, c: "#FFFFFF", on: [1.5, 3.0, 4.5] },
+        { x: 1318, y: 196, c: "#FCD34D", on: [0.5, 2.0, 3.5, 5.0] },
+        { x: 1488, y: 70, c: "#FFFFFF", on: [1.0, 2.5, 4.0, 5.5] },
+      ];
+      const sparkLayer = byId("f04-sparkles");
+      const cell = (cx, cy) => '<rect x="' + cx * 6 + '" y="' + cy * 6 + '" width="6" height="6"/>';
+      SPARKS.forEach((s) => {
+        const el = document.createElement("div");
+        el.className = "f04-spark";
+        el.style.left = s.x - 15 + "px";
+        el.style.top = s.y - 15 + "px";
+        el.innerHTML =
+          '<svg width="30" height="30" viewBox="0 0 30 30" fill="' + s.c + '" shape-rendering="crispEdges" aria-hidden="true">' +
+          '<g class="f04-tip">' + cell(2, 0) + cell(0, 2) + cell(4, 2) + cell(2, 4) + "</g>" +
+          '<g class="f04-arm">' + cell(2, 1) + cell(1, 2) + cell(3, 2) + cell(2, 3) + "</g>" +
+          '<g class="f04-core">' + cell(2, 2) + "</g></svg>";
+        sparkLayer.appendChild(el);
+        s.tip = el.querySelector(".f04-tip");
+        s.arm = el.querySelector(".f04-arm");
+        s.core = el.querySelector(".f04-core");
+      });
+      clock.add((t) => {
+        for (const s of SPARKS) {
+          let state = 0;
+          for (let j = s.on.length - 1; j >= 0; j--) {
+            const dt = t - s.on[j];
+            if (dt >= 0) {
+              state = dt < 0.125 ? 2 : dt < 0.25 ? 1 : 0;
+              break;
+            }
+          }
+          s.tip.style.opacity = state === 2 ? "1" : "0";
+          s.arm.style.opacity = state >= 1 ? "1" : "0";
+          s.core.style.opacity = state >= 1 ? "1" : "0.5";
+        }
+      });
+
+      // The frame opens fully tiled in night purple and the tiles clear from the centre out.
+      RK.dither(clock, byId("f04-dither"), { start: 0, dur: 0.4, mode: "reveal", color: "#150C2E", angle: "center" });
+
+      // ── ROUND 1 depth stack (3d-text-depth-layers, colour-shift variant) ─
+      // Back layers are built back-to-front from the front row. Their glyphs come from
+      // ::before content so the decorative copies are not audited as text.
+      const depth = byId("f04-depth");
+      const front = depth.querySelector(".f04-front");
+      const LAYERS = 6;
+      const OFFSET = 5; // px right + down per layer (light from the upper left)
+      const RAMP = ["#E11D8F", "#7A1655", "#2E1658", "#150C2E"];
+      const mix = (a, b, p) => {
+        let out = "#";
+        for (let k = 1; k < 7; k += 2) {
+          const va = parseInt(a.slice(k, k + 2), 16);
+          const vb = parseInt(b.slice(k, k + 2), 16);
+          const v = Math.round(va + (vb - va) * p);
+          out += (v < 16 ? "0" : "") + v.toString(16);
+        }
+        return out;
+      };
+      const rampAt = (p) => {
+        const span = p * (RAMP.length - 1);
+        const seg = Math.min(RAMP.length - 2, Math.floor(span));
+        return mix(RAMP[seg], RAMP[seg + 1], span - seg);
+      };
+      const backs = [];
+      for (let i = LAYERS; i >= 1; i--) {
+        const row = front.cloneNode(true);
+        row.className = "f04-row f04-back";
+        row.removeAttribute("aria-label");
+        row.setAttribute("aria-hidden", "true");
+        row.setAttribute("data-layout-ignore", "");
+        row.style.color = rampAt((i - 1) / (LAYERS - 1));
+        row.querySelectorAll(".f04-g").forEach((g) => {
+          g.setAttribute("data-ch", g.textContent);
+          g.textContent = "";
+          g.className = "f04-g f04-gb";
+          g.removeAttribute("data-layout-allow-overflow");
+          g.removeAttribute("data-layout-allow-overlap");
+          g.setAttribute("data-layout-ignore", "");
+        });
+        depth.insertBefore(row, front); // deepest first; the front row stays on top
+        backs.push({ el: row, i: i });
+      }
+
+      // Slam + depth grow + condense, as pure functions of frame time.
+      //  • slam: 4 hard steps on 0.05 / 0.10 / 0.15 / 0.20 — frame 0 is clean tiles, the stack
+      //    lands (scale 1, full depth) exactly as the shake hits at 0.20.
+      //  • condense: 16th-note steps on 1.5 / 1.625 / 1.75. The middle group crushes about its
+      //    centre while R and 1 each travel 2.5 advances, riding its edges until they meet as R1.
+      const slamIn = byId("f04-slam-in");
+      const mids = depth.querySelectorAll(".f04-mid");
+      const rs = depth.querySelectorAll(".f04-r");
+      const ones = depth.querySelectorAll(".f04-one");
+      const ADV = 142; // fixed per-letter advance (≈0.62em at 230px)
+      const SLIDE = ADV * 2.5;
+      clock.add((t) => {
+        const n = Math.min(4, Math.floor(t / 0.05 + 1e-6));
+        const p = n / 4;
+        slamIn.style.opacity = String(p);
+        slamIn.style.transform = "scale(" + (1.7 - 0.7 * p) + ")";
+        for (const b of backs) {
+          const o = b.i * OFFSET * p;
+          b.el.style.transform = "translate(" + o + "px," + o + "px)";
+        }
+        const k = t < 1.5 ? 0 : t < 1.625 ? 1 / 3 : t < 1.75 ? 2 / 3 : 1;
+        for (let j = 0; j < mids.length; j++) {
+          mids[j].style.transform = k ? "scaleX(" + (1 - k) + ")" : "";
+          rs[j].style.transform = k ? "translateX(" + SLIDE * k + "px)" : "";
+          ones[j].style.transform = k ? "translateX(" + -SLIDE * k + "px)" : "";
+        }
+      });
+
+      RK.shake(clock, byId("f04-shake"), { t: 0.2, dur: 0.35, amp: 16 });
+
+      // ── R1 → logo handoff (card-morph-anchor: uniform scale + x/y in one tween) ─
+      // Measured from the fonts / logo art: scale 0.44 matches the R1 cap height to the logo's
+      // letters (74px), and this x/y lands the R1 face centre on them (logo slot 683,150 · 148px).
+      const slam = byId("f04-slam");
+      tl.fromTo(slam, { x: 0, y: 0, scale: 1 }, { x: -194.7, y: -208.4, scale: 0.44, duration: 0.25, ease: "power3.inOut" }, 1.75);
+      RK.pop(tl, byId("f04-logo"), 2.0);
+      // The text fades out under the logo in the same two steps as the pop (2.04 / 2.08).
+      tl.fromTo(slam, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.12, ease: "steps(2)" }, 2.0);
+
+      // Wordmark wipes in to the logo's right.
+      tl.fromTo(byId("f04-word-clip"), { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.3, ease: "power3.out" }, 2.0);
+      tl.fromTo(byId("f04-word"), { x: -24 }, { x: 0, duration: 0.3, ease: "power3.out" }, 2.0);
+
+      // ── The promise ─────────────────────────────────────────────────────
+      tl.fromTo(byId("f04-h1"), { y: 36, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 2.5);
+      tl.fromTo(byId("f04-h2"), { y: 36, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.0);
+      tl.fromTo(byId("f04-pill"), { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, ease: "power3.out" }, 3.5);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["04-round-one"] = tl;
+    })();
+  </script>
+</template>

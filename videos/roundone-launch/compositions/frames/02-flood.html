@@ -1,0 +1,178 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+
+    /* Ground: paper + pixel dot grid (track 0) */
+    #f02-ground { position: absolute; inset: 0; background: #FAF8FF; }
+
+    /* Content stage (track 1) */
+    #f02-stage { position: absolute; inset: 0; }
+
+    /* Title band */
+    #f02-eyebrow { position: absolute; left: 120px; top: 104px; line-height: 1; white-space: nowrap; }
+    .f02-line { position: absolute; left: 120px; max-width: 1300px; font-size: 92px; line-height: 98px; color: #1D1433; white-space: nowrap; }
+    #f02-headA, #f02-headB1 { top: 140px; }
+    #f02-headB2 { top: 238px; }
+    .f02-w { display: inline-block; }
+    .f02-grad { display: inline-block; }
+
+    /* Small hand-coded grid (left column) */
+    #f02-small { position: absolute; left: 120px; top: 520px; width: 196px; height: 196px; display: block; }
+    #f02-small-count { position: absolute; left: 120px; top: 736px; font-size: 56px; line-height: 1; color: #1D1433; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    #f02-small-cap { position: absolute; left: 120px; top: 802px; max-width: 300px; font-family: "GeistSans", sans-serif; font-size: 22px; font-weight: 400; line-height: 1.35; color: #564B70; text-wrap: balance; }
+
+    /* The flood (focal) */
+    #f02-big { position: absolute; left: 420px; top: 400px; width: 716px; height: 446px; display: block; }
+
+    /* Counters: an invisible sizer fixes the box at the final width (no layout shift, stable gradient) */
+    .f02-sizer { grid-area: 1 / 1; visibility: hidden; }
+    .f02-live { grid-area: 1 / 1; justify-self: stretch; }
+
+    /* Right column */
+    #f02-big-count { position: absolute; left: 1180px; top: 390px; display: inline-grid; font-size: 72px; line-height: 1; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    #f02-big-cap { position: absolute; left: 1180px; top: 470px; max-width: 520px; font-family: "GeistSans", sans-serif; font-size: 22px; font-weight: 400; line-height: 1.35; color: #564B70; text-wrap: balance; }
+    #f02-math { position: absolute; left: 1180px; top: 604px; font-family: "GeistMono", monospace; font-size: 26px; font-weight: 400; line-height: 1.55; color: #564B70; white-space: nowrap; }
+    #f02-math2 { position: absolute; left: 1180px; top: 646px; font-family: "GeistMono", monospace; font-size: 22px; font-weight: 400; line-height: 1.55; color: #8A80A3; white-space: nowrap; }
+    #f02-hero { position: absolute; left: 1180px; top: 718px; display: flex; align-items: baseline; gap: 32px; white-space: nowrap; }
+    #f02-hero-box { display: inline-grid; font-size: 150px; line-height: 1; color: #1D1433; transform-origin: 0 128px; font-variant-numeric: tabular-nums; }
+    #f02-hero-unit { display: inline-block; font-family: "GeistSans", sans-serif; font-size: 27px; font-weight: 500; line-height: 1.3; color: #564B70; }
+  </style>
+
+  <div id="root" data-composition-id="02-flood" data-width="1920" data-height="1080" data-duration="6.5">
+    <div id="f02-ground" class="clip" data-start="0" data-duration="6.5" data-track-index="0">
+      <div class="rk-dotgrid"></div>
+    </div>
+
+    <div id="f02-stage" class="clip" data-start="0" data-duration="6.5" data-track-index="1">
+      <div id="f02-eyebrow" class="rk-eyebrow">THE NEW NORMAL</div>
+
+      <div id="f02-headA" class="f02-line rk-display"><span class="f02-w">AI</span> <span class="f02-w">lets</span> <span class="f02-w">everyone</span> <span class="f02-w">build.</span></div>
+      <div id="f02-headB1" class="f02-line rk-display">Building got cheap.</div>
+      <div id="f02-headB2" class="f02-line rk-display"><span class="f02-grad rk-dusk-text">Judging didn't.</span></div>
+
+      <svg id="f02-small" aria-hidden="true"></svg>
+      <div id="f02-small-count" class="rk-display">~0</div>
+      <div id="f02-small-cap">hand-coded, before coding agents</div>
+
+      <svg id="f02-big" aria-hidden="true"></svg>
+
+      <div id="f02-big-count" class="rk-display"><span class="f02-sizer">1,000+</span><span id="f02-big-num" class="f02-live rk-dusk-text">0+</span></div>
+      <div id="f02-big-cap">agent-assisted, now. Nearly all of them run.</div>
+
+      <div id="f02-math"></div>
+      <div id="f02-math2">before anyone clones a repo</div>
+
+      <div id="f02-hero">
+        <div id="f02-hero-box" class="rk-display"><span class="f02-sizer">400</span><span id="f02-hero-num" class="f02-live">0</span></div>
+        <span id="f02-hero-unit">judge-hours</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      const DURATION = 6;
+      const tl = gsap.timeline({ paused: true });
+      const clock = RK.clock(tl, DURATION);
+      const byId = (id) => document.getElementById(id);
+      const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+      const EPS = 1e-4; // step boundaries sit just before the beat, so a frame on the beat is already past them
+      const rise = (el, at, dy, dur) =>
+        tl.fromTo(el, { autoAlpha: 0, y: dy }, { autoAlpha: 1, y: 0, duration: dur, ease: "power3.out" }, at);
+
+      // ── Pixel fields ────────────────────────────────────────────────
+      const small = byId("f02-small");
+      const big = byId("f02-big");
+      RK.pixelField(small, { cols: 10, rows: 10, cell: 20, gap: 4, palette: ["#C4B5FD", "#A78BFA", "#8B5CF6", "#7C3AED"], seed: 5 });
+      RK.pixelField(big, { cols: 40, rows: 25, cell: 18, gap: 4, palette: ["#FCD34D", "#FB923C", "#F43F5E", "#E11D8F", "#A21CAF"], seed: 11 });
+
+      // ── Scene 1 (0.0–1.5): eyebrow, headline A word by word, small grid row by row ──
+      rise(byId("f02-eyebrow"), 0.25, 12, 0.4);
+
+      const wordsA = document.querySelectorAll("#f02-headA .f02-w");
+      for (let i = 0; i < wordsA.length; i++) {
+        tl.fromTo(wordsA[i], { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: "expo.out" }, 0.5 + i * 0.125);
+      }
+
+      // Rows top -> bottom: row 1 at 0.5, row 10 at 1.4 (stepped inset reveal, 10 steps).
+      const S_N = 10, S_T0 = 0.5 - EPS, S_INT = 0.1;
+      let lastRows = -1;
+      clock.add((t) => {
+        const k = t < S_T0 ? 0 : Math.min(S_N, Math.floor((t - S_T0) / S_INT) + 1);
+        if (k === lastRows) return;
+        lastRows = k;
+        small.style.clipPath = "inset(0px 0px " + Math.max(0, 196 - 20 * k) + "px 0px)";
+      });
+      // ~100 ticks +10 with each row (count boundaries == row boundaries).
+      RK.count(clock, byId("f02-small-count"), {
+        from: 0, to: 100, steps: 10, prefix: "~", ease: "linear",
+        start: S_T0 - S_INT + (0.5 * S_N * S_INT) / 10, dur: S_N * S_INT,
+      });
+      rise(byId("f02-small-count"), 0.5, 16, 0.3);
+      rise(byId("f02-small-cap"), 1.0, 14, 0.45);
+
+      // ── Scene 2 (1.5–3.0): the sunset flood, column by column (40 steps, 1.5 -> 2.6) ──
+      const B_N = 40, B_T0 = 1.5 - EPS, B_INT = 1.1 / 39;
+      let lastCols = -1;
+      clock.add((t) => {
+        const k = t < B_T0 ? 0 : Math.min(B_N, Math.floor((t - B_T0) / B_INT) + 1);
+        if (k === lastCols) return;
+        lastCols = k;
+        big.style.clipPath = "inset(0px " + Math.max(0, 716 - 18 * k) + "px 0px 0px)";
+      });
+      // 1,000+ ticks +50 every second column; lands with the 40th column at 2.6.
+      RK.count(clock, byId("f02-big-num"), {
+        from: 0, to: 1000, steps: 20, suffix: "+", ease: "linear",
+        start: B_T0 - B_INT + (0.5 * B_N * B_INT) / 20, dur: B_N * B_INT,
+      });
+      rise(byId("f02-big-count"), 1.5, 16, 0.3);
+      rise(byId("f02-big-cap"), 2.5, 14, 0.45);
+
+      // ── Scene 3 (3.0–4.5): headline swap, the math types in ─────────
+      // Velocity-matched swap: A lifts up and is gone by 3.125 while B1 is already rising;
+      // B1 fades in from 3.125 moving up at about the same speed (no double exposure).
+      const headA = byId("f02-headA");
+      const headB1 = byId("f02-headB1");
+      tl.fromTo(headA, { y: 0 }, { y: -48, duration: 0.25, ease: "none", immediateRender: false }, 3.0);
+      tl.fromTo(headA, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.125, ease: "none", immediateRender: false }, 3.0);
+      tl.fromTo(headB1, { y: 48 }, { y: 0, duration: 0.5, ease: "power3.out" }, 3.0);
+      tl.fromTo(headB1, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25, ease: "power1.out" }, 3.125);
+      tl.fromTo(byId("f02-headB2"), { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, 3.25);
+
+      // 33 chars at 66 cps: 3.5 -> 4.0; caret only while typing.
+      RK.type(clock, byId("f02-math"), "1,000 projects × 3 judges × 8 min", { start: 3.5, cps: 66, caret: true, caretHold: 0 });
+      rise(byId("f02-math2"), 4.0, 12, 0.45);
+
+      // ── Scene 4 (4.5–6.0): 400 judge-hours, value-scaled count, then hold ──
+      const H_START = 4.5, H_DUR = 0.5, H_STEPS = 16, H_S0 = 0.6, H_PEAK = 1.08;
+      tl.fromTo(byId("f02-hero"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.12, ease: "power2.out" }, H_START);
+      RK.count(clock, byId("f02-hero-num"), { from: 0, to: 400, start: H_START, dur: H_DUR, steps: H_STEPS, ease: "linear" });
+      // Scale grows with the displayed value (same quantization as the count), lands at 5.0, steps 1.08 -> 1.04 -> 1.
+      const heroBox = byId("f02-hero-box");
+      let lastScale = null;
+      clock.add((t) => {
+        let s;
+        if (t >= 5.1) s = 1;
+        else if (t >= 5.05) s = 1.04;
+        else if (t >= 5.0) s = H_PEAK;
+        else {
+          const j = Math.round(clamp01((t - H_START) / H_DUR) * H_STEPS);
+          s = H_S0 + ((H_PEAK - H_S0) * j) / H_STEPS;
+        }
+        if (s === lastScale) return;
+        lastScale = s;
+        heroBox.style.transform = s === 1 ? "none" : "scale(" + s.toFixed(4) + ")";
+      });
+      RK.pop(tl, byId("f02-hero-unit"), 5.0);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["02-flood"] = tl;
+    })();
+  </script>
+</template>

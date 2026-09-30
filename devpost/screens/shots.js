@@ -1,0 +1,456 @@
+// The screen graphics, in the order a hackathon moves through RoundOne.
+// Each one frames raw/<file> (captured at 1440×900, 2×) and rings its core
+// features. `box` is [x, y, w, h] in the screenshot's CSS pixels; `card` is the
+// callout's top-left on the 1500×1000 canvas; `to` pins the connector to a
+// point on the ring as [fx, fy] fractions of its size. `color` switches a
+// callout from violet (the agent and the organizer) to magenta (judges) or
+// orange (teams). Callouts are listed in reading order, top to bottom, since
+// that's how they're numbered.
+//
+// render.mjs names each file by its position here (03-criteria-agent.png), and
+// README.md links 03-criteria-agent.png and 09-agent-step.png, so keep those two
+// in place when adding or reordering shots.
+const APP = "roundone.dev/h/agent-hacks-2026";
+
+window.SHOTS = [
+  {
+    id: "schema",
+    file: "schema.png",
+    url: `${APP}/setup/schema`,
+    eyebrow: "Setup <b>›</b> Schema",
+    title: "Shape every submission.",
+    callouts: [
+      {
+        box: [1010, 271, 412, 100],
+        card: [590, 398],
+        color: "orange",
+        title: "Shown to entrants",
+        body: "The hint under this field on the submission form.",
+      },
+      {
+        box: [108, 714, 878, 82],
+        card: [560, 668],
+        title: "Typed blocks",
+        body: "Text, video, URL, repo or team, so each field goes to the right check.",
+      },
+      {
+        box: [1010, 412, 412, 100],
+        card: [1030, 680],
+        title: "Guides the agent too",
+        body: "What a good answer looks like. The agent checks each submission against it.",
+      },
+    ],
+  },
+  {
+    id: "criteria-inputs",
+    file: "criteria-inputs.png",
+    url: `${APP}/setup/criteria`,
+    eyebrow: "Setup <b>›</b> Criteria",
+    title: "Say how each criterion gets checked.",
+    callouts: [
+      {
+        box: [880, 318, 544, 220],
+        card: [560, 440],
+        title: "Reads the blocks you pick",
+        body: "This one reads the GitHub repo, and scores 0 if there isn't one.",
+      },
+      {
+        box: [880, 552, 544, 252],
+        card: [560, 690],
+        title: "Choose how it's checked",
+        body: "Build it in a Nebius sandbox, scrape the code or demo, watch the video, or leave it to judges.",
+      },
+    ],
+  },
+  {
+    id: "criteria-agent",
+    file: "criteria-agent.png",
+    url: `${APP}/setup/criteria`,
+    eyebrow: "Setup <b>›</b> Criteria <b>›</b> Agent",
+    title: "Pick the model. Run the code.",
+    callouts: [
+      {
+        box: [882, 229, 540, 112],
+        card: [560, 360],
+        title: "How much model",
+        body: "Quick, Balanced or In-depth: Nemotron 3.5 Lightning, Super 120B or Ultra 550B.",
+      },
+      {
+        box: [882, 493, 540, 172],
+        card: [560, 606],
+        title: "Runs the code for real",
+        body: "Your commands, in order, in a Nebius sandbox with the repo cloned.",
+      },
+      {
+        box: [882, 677, 540, 132],
+        card: [560, 800],
+        title: "A second opinion",
+        body: "Unsure verdicts go one model tier up. Disagreements go to a person.",
+      },
+    ],
+  },
+  {
+    id: "phases",
+    file: "phases.png",
+    url: `${APP}/setup/phases`,
+    eyebrow: "Setup <b>›</b> Phases",
+    title: "Rounds that narrow the field.",
+    callouts: [
+      {
+        box: [120, 296, 300, 258],
+        card: [232, 710],
+        color: "magenta",
+        title: "Who judges each round",
+        body: "All judges or a saved panel, and how many see each project.",
+      },
+      {
+        box: [902, 318, 92, 222],
+        card: [760, 710],
+        title: "Only the best move on",
+        body: "Each round sends its top projects on. The last one picks the winners.",
+      },
+    ],
+  },
+  {
+    id: "distribution",
+    file: "distribution.png",
+    url: `${APP}/setup/distribution`,
+    eyebrow: "Setup <b>›</b> Distribution",
+    title: "Hand out the work fairly.",
+    callouts: [
+      {
+        box: [118, 296, 886, 138],
+        card: [1040, 392],
+        title: "Agent first",
+        body: "Switch it on and the agent reviews every project as judging starts. Gate failures wait in an inbox.",
+      },
+      {
+        box: [118, 446, 886, 146],
+        card: [1040, 572],
+        color: "magenta",
+        title: "Fair queues",
+        body: "Even split or mixed pairings, all at once or in daily batches.",
+      },
+      {
+        box: [118, 604, 886, 64],
+        card: [1040, 722],
+        color: "magenta",
+        title: "Hidden until they score",
+        body: "Judges see the agent's score only after submitting their own.",
+      },
+    ],
+  },
+  {
+    id: "judge-portal",
+    file: "judge-portal.png",
+    url: `${APP}/setup/portal`,
+    eyebrow: "Setup <b>›</b> Judge portal",
+    title: "No accounts. Just a private link.",
+    callouts: [
+      {
+        box: [265, 262, 159, 52],
+        card: [572, 380],
+        color: "magenta",
+        title: "A private link each",
+        body: "Nothing to sign up for. A leaked link is replaced in one click.",
+      },
+      {
+        box: [757, 431, 539, 465],
+        card: [880, 380],
+        color: "magenta",
+        title: "Exactly what judges see",
+        body: "Their progress, the time it takes and the rubric, before they start.",
+      },
+      {
+        box: [128, 366, 556, 270],
+        card: [241, 830],
+        color: "magenta",
+        title: "Your welcome, your goals",
+        body: "What judges read when they open their link, and when they finish.",
+      },
+    ],
+  },
+  {
+    id: "projects",
+    file: "projects.png",
+    url: `${APP}/judging/projects`,
+    eyebrow: "Judging <b>›</b> Projects",
+    title: "Projects come in from anywhere.",
+    callouts: [
+      {
+        box: [888, 158, 94, 56],
+        card: [560, 288],
+        title: "Import with the API",
+        body: "Bring projects in from Devpost or a spreadsheet, 100 at a time.",
+      },
+      {
+        box: [1008, 56, 424, 198],
+        card: [650, 440],
+        color: "orange",
+        title: "Or share a public form",
+        body: "Each project lands in this table the moment it's submitted.",
+      },
+      {
+        box: [1008, 387, 424, 300],
+        card: [650, 626],
+        color: "orange",
+        title: "Shaped by your schema",
+        body: "Entrants fill in the same blocks your rubric reads.",
+      },
+    ],
+  },
+  {
+    id: "agent-review",
+    file: "agent-review.png",
+    url: "roundone.dev/h/the-webmcp-challenge/judging/projects/1",
+    eyebrow: "Judging <b>›</b> Agent review",
+    title: "The agent takes round one.",
+    callouts: [
+      {
+        box: [227, 141, 137, 32],
+        card: [590, 236],
+        width: 256,
+        color: "magenta",
+        title: "A person decides",
+        body: "Low confidence or a disagreement gets flagged.",
+      },
+      {
+        box: [124, 206, 844, 70],
+        card: [1030, 650],
+        to: [1, 0.5],
+        title: "Round one, done",
+        body: "Every criterion scored in 2m 20s, with the gates checked.",
+      },
+      {
+        box: [124, 556, 844, 184],
+        card: [1030, 800],
+        to: [1, 0.6],
+        color: "orange",
+        title: "Feedback for the team",
+        body: "What works, and what would make it better.",
+      },
+    ],
+  },
+  {
+    id: "agent-step",
+    file: "agent-step.png",
+    url: "roundone.dev/h/the-webmcp-challenge/judging/projects/1",
+    eyebrow: "Judging <b>›</b> Agent review <b>›</b> One step",
+    title: "Evidence behind every score.",
+    callouts: [
+      {
+        box: [124, 148, 846, 212],
+        card: [1030, 606],
+        to: [1, 0.85],
+        title: "Evidence, not vibes",
+        body: "The sandbox run, both live sites, the transcript at 1:02 and the exact file in the repo.",
+      },
+      {
+        box: [124, 476, 846, 96],
+        card: [1030, 728],
+        to: [1, 0.5],
+        title: "Steer a rerun",
+        body: "Give the agent guidance for this project and run the step again.",
+      },
+      {
+        box: [124, 586, 846, 310],
+        card: [1030, 836],
+        to: [1, 0.72],
+        title: "Every step on the record",
+        body: "Pages read, repo cloned in a Nebius sandbox, build and tests run.",
+      },
+    ],
+  },
+  {
+    id: "judge-view",
+    file: "judge-view.png",
+    url: `${APP}/judging/projects/4`,
+    eyebrow: "Judging <b>›</b> Scoring",
+    title: "Judges score the idea.",
+    callouts: [
+      {
+        box: [106, 489, 800, 395],
+        card: [560, 362],
+        to: [0.3, 0],
+        color: "magenta",
+        title: "Everything on one page",
+        body: "The pitch, video, live demo, repo and team, next to the rubric.",
+      },
+      {
+        box: [1240, 386, 74, 52],
+        card: [960, 362],
+        color: "magenta",
+        title: "A running total",
+        body: "Weighted as they go. The agent's score stays hidden until they submit.",
+      },
+      {
+        box: [962, 528, 354, 364],
+        card: [600, 478],
+        color: "magenta",
+        title: "Score what people should",
+        body: "1–10 per criterion, with what each one asks and how much it counts.",
+      },
+    ],
+  },
+  {
+    id: "project",
+    file: "project.png",
+    url: `${APP}/judging/projects/4`,
+    eyebrow: "Judging <b>›</b> Project page",
+    title: "Every project on one page.",
+    callouts: [
+      {
+        box: [110, 313, 1220, 266],
+        card: [480, 330],
+        title: "Where it landed",
+        body: "Final rank and every prize and award, the moment the last round closes.",
+      },
+      {
+        box: [1026, 612, 304, 284],
+        card: [690, 812],
+        color: "magenta",
+        title: "Every judge, averaged",
+        body: "The final panel's weighted average per criterion. The agent's score stays separate.",
+      },
+    ],
+  },
+  {
+    id: "progress",
+    file: "progress.png",
+    url: `${APP}/judging/progress`,
+    eyebrow: "Judging <b>›</b> Progress",
+    title: "See every round at a glance.",
+    callouts: [
+      {
+        box: [414, 242, 302, 104],
+        card: [520, 290],
+        to: [0.5, 0],
+        title: "Reviewed and advanced",
+        body: "How far each round got, and how many moved on.",
+      },
+      {
+        box: [1191, 158, 143, 56],
+        card: [840, 290],
+        title: "Run the agent any time",
+        body: "It reviews every project it hasn't seen yet.",
+      },
+      {
+        box: [110, 356, 1220, 238],
+        card: [300, 746],
+        title: "The whole funnel",
+        body: "From submitted to winners, each round drawn to scale.",
+      },
+    ],
+  },
+  {
+    id: "chat",
+    file: "chat.png",
+    url: `${APP}/judging/chat`,
+    eyebrow: "Judging <b>›</b> Chat",
+    title: "Ask across every project.",
+    callouts: [
+      {
+        box: [12, 208, 276, 410],
+        card: [420, 560],
+        title: "Scope the question",
+        body: "Everything, one phase, a judge's queue, a status or a hand-picked set.",
+      },
+      {
+        box: [502, 290, 720, 90],
+        card: [760, 560],
+        title: "Answers from your data",
+        body: "It searches submissions, scores and notes, and shows each tool it used.",
+      },
+      {
+        box: [1182, 135, 242, 32],
+        card: [1070, 560],
+        title: "Nemotron on Nebius",
+        body: "NVIDIA Nemotron through Nebius Token Factory, with Tavily for the live web.",
+      },
+    ],
+  },
+  {
+    id: "rewards",
+    file: "rewards.png",
+    url: `${APP}/judging/rewards`,
+    eyebrow: "Judging <b>›</b> Rewards",
+    title: "Set the prizes once.",
+    callouts: [
+      {
+        box: [1040, 344, 296, 204],
+        card: [700, 298],
+        color: "orange",
+        title: "Each winner's haul",
+        body: "Everything a team won, listed in its winner email.",
+      },
+      {
+        box: [106, 350, 908, 272],
+        card: [1040, 680],
+        title: "Prizes by final rank",
+        body: "Rank 1, ranks 2–3, top 5: each rank collects every tier it falls in.",
+      },
+      {
+        box: [106, 634, 908, 266],
+        card: [1040, 820],
+        title: "Awards you pick",
+        body: "Most creative, best demo, best technical build.",
+      },
+    ],
+  },
+  {
+    id: "results",
+    file: "results.png",
+    url: `${APP}/results`,
+    eyebrow: "Results <b>›</b> Winners",
+    title: "Rank, publish, tell everyone.",
+    callouts: [
+      {
+        box: [800, 204, 536, 60],
+        card: [520, 290],
+        title: "Publish when ready",
+        body: "One click puts the winners page live. Unpublish any time.",
+      },
+      {
+        box: [106, 318, 1228, 241],
+        card: [980, 690],
+        color: "orange",
+        title: "Everyone hears back",
+        body: "Winners get their prizes and how to claim them. Everyone else, a thank-you.",
+      },
+      {
+        box: [106, 603, 828, 297],
+        card: [980, 815],
+        title: "Ranked for you",
+        body: "Gate passes first, then the judges' average. The agent only breaks ties.",
+      },
+    ],
+  },
+  {
+    id: "winners",
+    file: "winners-page.png",
+    url: "roundone.dev/w/agent-hacks-2026",
+    eyebrow: "Results <b>›</b> Public winners page",
+    title: "Winners, announced.",
+    callouts: [
+      {
+        box: [486, 136, 468, 178],
+        card: [150, 318],
+        title: "Your event, your colors",
+        body: "The page takes on the hackathon's own color and logo.",
+      },
+      {
+        box: [1178, 10, 94, 44],
+        card: [1062, 262],
+        title: "Live when you publish",
+        body: "One public link to share. Unpublish any time.",
+      },
+      {
+        box: [538, 744, 300, 104],
+        card: [952, 628],
+        to: [1, 0.5],
+        title: "Every prize, listed",
+        body: "Final rank, plus every prize and award the team won.",
+      },
+    ],
+  },
+];

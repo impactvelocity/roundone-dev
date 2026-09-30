@@ -1,0 +1,182 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root{position:absolute;left:0;top:0;width:1920px;height:1080px;font-family:"GeistSans",sans-serif;color:#1D1433;}
+    #f09-ground{position:absolute;left:0;top:0;width:1920px;height:1080px;background:#FAF8FF;}
+    #f09-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;}
+
+    /* Title band: Geist Pixel 84px ink at (120, 120), one line */
+    .f09-head{position:absolute;left:120px;top:120px;margin:0;font-family:"GeistPixelSquare","GeistSans",sans-serif;font-weight:500;font-size:84px;line-height:1.06;color:#1D1433;white-space:nowrap;}
+
+    /* Cards (children are placed in each card's padding box, inside the 1px border) */
+    .f09-card{position:absolute;top:260px;height:600px;box-sizing:border-box;}
+    #f09-inbox{left:120px;width:780px;}
+    #f09-audit{left:980px;width:820px;}
+    .f09-row{position:absolute;left:35px;display:flex;align-items:center;box-sizing:border-box;}
+    .f09-div{position:absolute;left:35px;height:1px;background:rgba(46,22,88,0.1);}
+    .f09-htitle{font-size:27px;font-weight:600;line-height:34px;color:#1D1433;white-space:nowrap;}
+    .f09-hsub{font-size:22px;font-weight:400;line-height:30px;color:#564B70;white-space:nowrap;}
+    .f09-ico{color:#1D1433;}
+
+    /* Inbox card */
+    #f09-ihead{top:35px;width:708px;height:44px;gap:14px;}
+    #f09-gwrap{margin-left:auto;display:inline-flex;transform-origin:100% 50%;}
+    #f09-gcount{font-variant-numeric:tabular-nums;}
+    #f09-idiv1{top:107px;width:708px;}
+    #f09-iproj{top:136px;width:708px;height:64px;gap:20px;}
+    #f09-mark{width:56px;height:56px;font-size:22px;line-height:1;}
+    #f09-ptext{display:flex;flex-direction:column;}
+    .f09-pname{font-size:27px;font-weight:600;line-height:34px;color:#1D1433;white-space:nowrap;}
+    .f09-pfail{display:flex;align-items:center;gap:8px;font-size:22px;font-weight:400;line-height:30px;color:#C2410C;white-space:nowrap;}
+    #f09-evid{position:absolute;left:35px;top:232px;width:708px;height:188px;box-sizing:border-box;padding:24px;border-radius:16px;background:rgba(109,40,217,0.045);}
+    .f09-eline{font-size:22px;font-weight:400;line-height:30px;color:#564B70;white-space:nowrap;}
+    .f09-eline b{font-weight:700;color:#1D1433;}
+    #f09-emeta{display:flex;align-items:center;gap:10px;margin-top:20px;font-family:"GeistMono",monospace;font-size:24px;font-weight:400;line-height:30px;color:#8A80A3;white-space:nowrap;}
+    #f09-idiv2{top:459px;width:708px;}
+    #f09-ibtns,#f09-ipass{top:499px;width:708px;height:64px;justify-content:flex-end;gap:16px;}
+    #f09-inbox .rk-pill{box-sizing:border-box;font-size:24px;}
+    #f09-kio{width:236px;}
+    #f09-bip{width:296px;}
+    #f09-passtag{font-size:24px;padding:12px 22px;gap:10px;}
+    #f09-passtag svg{width:18px;height:18px;}
+
+    /* Audit trail card: rule at x+48, 16px square dots on it, entries 110px apart */
+    #f09-ahead{top:35px;width:746px;height:44px;gap:14px;align-items:baseline;padding-top:5px;}
+    #f09-adiv{top:107px;width:746px;}
+    #f09-rule{position:absolute;left:46px;top:153px;width:2px;height:330px;background:rgba(46,22,88,0.1);transform-origin:50% 0;}
+    .f09-dot{position:absolute;left:39px;display:block;width:16px;height:16px;box-sizing:border-box;border:2px solid #7C3AED;border-radius:3px;background:#FFFFFF;}
+    .f09-dot--pass{border-color:#0F9D6B;background:#0F9D6B;}
+    .f09-dot--flag{border-color:#E8318F;background:#E8318F;}
+    #f09-dot1{top:145px;} #f09-dot2{top:255px;} #f09-dot3{top:365px;} #f09-dot4{top:475px;}
+    .f09-entry{position:absolute;left:85px;width:698px;height:64px;}
+    #f09-en1{top:136px;} #f09-en2{top:246px;} #f09-en3{top:356px;} #f09-en4{top:466px;}
+    .f09-etitle{font-size:27px;font-weight:600;line-height:34px;color:#1D1433;white-space:nowrap;}
+    .f09-edetail{font-size:22px;font-weight:400;line-height:30px;color:#564B70;white-space:nowrap;}
+    .f09-etime{position:absolute;right:0;top:0;font-family:"GeistMono",monospace;font-size:24px;font-weight:400;line-height:34px;color:#8A80A3;white-space:nowrap;}
+
+    #f09-curlayer{position:absolute;left:0;top:0;width:1920px;height:1080px;z-index:60;pointer-events:none;}
+  </style>
+
+  <div id="root" data-composition-id="09-on-the-record" data-width="1920" data-height="1080" data-duration="6.4">
+    <div id="f09-ground" class="clip" data-start="0" data-duration="6.4" data-track-index="0">
+      <div class="rk-dotgrid"></div>
+    </div>
+
+    <div id="f09-stage" class="clip" data-start="0" data-duration="6.4" data-track-index="1">
+      <div id="f09-headA" class="f09-head">Nothing goes unreviewed.</div>
+      <div id="f09-headB" class="f09-head">Every call is <span class="rk-dusk-text">on the record.</span></div>
+
+      <section id="f09-inbox" class="rk-mock f09-card">
+        <div id="f09-ihead" class="f09-row">
+          <span class="f09-ico" data-rk-icon="inbox" data-size="30"></span>
+          <span class="f09-htitle">Inbox</span>
+          <span id="f09-gwrap"><span class="rk-tag rk-tag--gate"><span data-rk-icon="lock" data-size="14"></span><span id="f09-gcount">2 to decide</span></span></span>
+        </div>
+        <div id="f09-idiv1" class="f09-div"></div>
+        <div id="f09-iproj" class="f09-row">
+          <span id="f09-mark" class="rk-mark">PP</span>
+          <div id="f09-ptext">
+            <div class="f09-pname">#033 Pantry Pilot</div>
+            <div class="f09-pfail"><span data-rk-icon="lock" data-size="18"></span><span>Failed a gate: Uses an NVIDIA open model</span></div>
+          </div>
+        </div>
+        <div id="f09-evid">
+          <div id="f09-el1" class="f09-eline"><b>Agent:</b> No NVIDIA model found in the repo.</div>
+          <div id="f09-el2" class="f09-eline">The README says inference runs through a hosted API,</div>
+          <div id="f09-el3" class="f09-eline">but no model id is set in the code.</div>
+          <div id="f09-emeta"><span data-rk-icon="search" data-size="22"></span><span>Code scraper · confidence: low</span></div>
+        </div>
+        <div id="f09-idiv2" class="f09-div"></div>
+        <div id="f09-ibtns" class="f09-row">
+          <span id="f09-kio" class="rk-pill rk-pill--ghost"><span data-rk-icon="lock" data-size="20"></span>Keep it out</span>
+          <span id="f09-bip" class="rk-pill rk-pill--dark"><span data-rk-icon="refresh" data-size="20"></span>Back in the pool</span>
+        </div>
+        <div id="f09-ipass" class="f09-row">
+          <span id="f09-passtag" class="rk-tag rk-tag--pass"><span data-rk-icon="refresh" data-size="18"></span>Back in the pool</span>
+        </div>
+      </section>
+
+      <section id="f09-audit" class="rk-mock f09-card">
+        <div id="f09-ahead" class="f09-row"><span class="f09-htitle">Audit trail</span><span class="f09-hsub">newest first</span></div>
+        <div id="f09-adiv" class="f09-div"></div>
+        <div id="f09-rule"></div>
+        <span id="f09-dot1" class="f09-dot f09-dot--pass"></span>
+        <span id="f09-dot2" class="f09-dot f09-dot--flag"></span>
+        <span id="f09-dot3" class="f09-dot"></span>
+        <span id="f09-dot4" class="f09-dot"></span>
+        <div id="f09-en1" class="f09-entry"><div class="f09-etitle">Back in the pool</div><div class="f09-edetail">by the organizer</div><span class="f09-etime">2:14 PM</span></div>
+        <div id="f09-en2" class="f09-entry"><div class="f09-etitle">Agent failed a gate</div><div class="f09-edetail">Uses an NVIDIA open model · confidence low</div><span class="f09-etime">1:58 PM</span></div>
+        <div id="f09-en3" class="f09-entry"><div class="f09-etitle">Agent review done</div><div class="f09-edetail">5 steps · nemotron-3-super</div><span class="f09-etime">1:57 PM</span></div>
+        <div id="f09-en4" class="f09-entry"><div class="f09-etitle">Submitted</div><div class="f09-edetail">via the submission form</div><span class="f09-etime">9:03 AM</span></div>
+      </section>
+
+      <div id="f09-curlayer"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      var byId = function (id) { return document.getElementById(id); };
+      var stage = byId("f09-stage");
+      RK.hydrate(stage);
+
+      var tl = gsap.timeline({ paused: true });
+      var clock = RK.clock(tl, DURATION);
+
+      // Scene 1 (0-2s): headline A, then the inbox card builds on the beat.
+      tl.fromTo("#f09-headA", { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 0.25);
+      tl.fromTo("#f09-inbox", { y: 48, opacity: 0 }, { y: 0, opacity: 1, duration: 0.75, ease: "power3.out" }, 0.5);
+      RK.pop(tl, byId("f09-mark"), 0.75);
+      tl.fromTo("#f09-ptext", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 0.75);
+      tl.fromTo("#f09-evid", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: "power3.out" }, 1.0);
+      tl.fromTo("#f09-el1", { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" }, 1.0);
+      tl.fromTo("#f09-el2", { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" }, 1.15);
+      tl.fromTo("#f09-el3", { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" }, 1.3);
+      tl.fromTo("#f09-emeta", { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, 1.5);
+      tl.fromTo("#f09-ibtns", { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 1.5);
+
+      // The pixel cursor glides in from the bottom (1.0s) and settles on "Back in the pool" by 1.9s.
+      var BTN_X = 716, BTN_Y = 792; // button center in stage px: card 120/260 + 1px border + padding-box 595/531
+      var cur = RK.cursor({ x: 1500, y: 980 });
+      byId("f09-curlayer").appendChild(cur);
+      tl.fromTo("#f09-curlayer", { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "none" }, 1.0);
+      tl.fromTo(cur, { x: 1500, y: 980 }, { x: BTN_X, y: BTN_Y, duration: 0.9, ease: "power3.inOut" }, 1.0);
+
+      // Scene 2 (2-3s): click, press, and the row becomes the result.
+      RK.click(clock, cur, stage, { t: 2.0, x: BTN_X, y: BTN_Y, color: "#7C3AED" });
+      tl.to("#f09-bip", { scale: 0.96, duration: 0.05, ease: "power2.in" }, 2.0);
+      tl.to("#f09-bip", { scale: 1, duration: 0.05, ease: "power2.out" }, 2.05);
+      tl.fromTo(cur, { x: BTN_X, y: BTN_Y }, { x: 820, y: 828, duration: 0.7, ease: "power3.out", immediateRender: false }, 2.1);
+      tl.set("#f09-ibtns", { autoAlpha: 0 }, 2.25);
+      RK.pop(tl, byId("f09-passtag"), 2.25);
+      RK.states(clock, byId("f09-gcount"), [{ t: 0, text: "2 to decide" }, { t: 2.25, text: "1 to decide" }]);
+      tl.fromTo("#f09-gwrap", { scale: 1.14 }, { scale: 1, duration: 0.16, ease: "steps(2)", immediateRender: false }, 2.25);
+
+      // Scene 3 (3-6s): headline swap, the audit trail slides in and stamps newest-first.
+      tl.fromTo("#f09-headA", { y: 0, autoAlpha: 1 }, { y: -30, autoAlpha: 0, duration: 0.25, ease: "power2.in", immediateRender: false }, 3.0);
+      tl.fromTo("#f09-headB", { y: 36, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.0);
+      tl.fromTo("#f09-audit", { x: 100, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 3.0);
+
+      var STAMPS = [3.5, 3.75, 4.0, 4.25];
+      var rule = byId("f09-rule");
+      clock.add(function (t) {
+        var k = 0;
+        for (var i = 1; i < STAMPS.length; i++) if (t >= STAMPS[i]) k = i;
+        rule.style.transform = "scaleY(" + k / (STAMPS.length - 1) + ")";
+      });
+      STAMPS.forEach(function (t, i) {
+        RK.pop(tl, byId("f09-dot" + (i + 1)), t);
+        tl.fromTo("#f09-en" + (i + 1), { y: 8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, t);
+      });
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["09-on-the-record"] = tl;
+    })();
+  </script>
+</template>

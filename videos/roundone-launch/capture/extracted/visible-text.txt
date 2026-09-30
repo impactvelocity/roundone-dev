@@ -1,0 +1,366 @@
+[a] RoundOne
+[a] Humans in the loop
+[a] Open stack
+[a] Features
+[a] Sign in
+[a] Get started
+[span] Nebius × NVIDIA
+[span] Global AI
+[span] Hackathon entry ↗
+[h1] Agents check the code.
+[span] Humans judge the idea.
+[p] Coding agents turned 100 hand-coded submissions into 1,000.
+[p] RoundOne
+[p] ’s judging agent, NVIDIA Nemotron on Nebius, builds every repo, watches every demo and visits every live site. Your judges get their attention back for the part that matters.
+[a] Get started
+[a] Read the docs
+[div] Repo Whisperer
+[div] Project #042 · Coding and Agentic Engineering
+[span] Agent review done
+[span] The agent checks
+[span] nemotron-3-super
+[span] Builds from the README
+[span] gate
+[span] Sandbox run
+[span] Pass
+[span] Runs on Nebius Token Factory
+[span] gate
+[span] Code scraper
+[span] Pass
+[span] Uses an NVIDIA open model
+[span] gate
+[span] Code scraper · Nemotron found
+[span] Pass
+[span] Demo video, 3 min or less
+[span] gate
+[span] Video reviewer · 2:41
+[span] Pass
+[span] Technological implementation
+[span] Sandbox run · 42 of 42 tests pass
+[span] 8.5
+[span] Judges decide
+[span] Quality of the idea
+[span] Is it new, and is it worth doing?
+[span] Potential impact
+[span] Who is it for, and how much would it help?
+[span] Design
+[span] Taste, clarity, craft
+[span] Screenshots from the graphic reviewer
+[p] Judges see the agent’s scores only after they submit their own.
+[div] Every verdict
+[div] Nemotron
+[div] Inference and sandboxes
+[div] Token Factory
+[div] The live web
+[div] Tavily
+[p] The new normal
+[h2] Building got cheap. Judging didn't.
+[p] When a weekend team can ship a working app with a coding agent, “does it run?” stops separating the field. What separates projects now is what a person brought: the problem they picked, the insight, the taste.
+[h3] Ten times the pile, same three judges
+[div] Submissions multiplied. The panel didn’t. At a careful eight minutes a look, 1,000 projects is 400 judge-hours, and in practice nobody runs the code. The projects at the bottom of the pile get the tired judges.
+[div] ~100
+[div] hand-coded, before coding agents
+[div] 1,000+
+[div] agent-assisted, now. Nearly all of them run.
+[div] 1,000 projects × 3 judges × 8 min
+[span] before anyone clones a repo
+[div] 400
+[div] judge-hours
+[p] The split
+[h2] Let the machine check the machine.
+[p] Save people for what people made. The agent takes every criterion a machine can verify, and the ones only people can score stay with your judges.
+[h3] The agent checks
+[li] Does it build and pass its tests?
+[li] Does it use the sponsor tech?
+[li] Does the demo match the claims?
+[li] Did it follow the rules?
+[h3] Humans judge
+[li] Is the idea new?
+[li] Would it matter to anyone?
+[li] Is it made with taste?
+[li] Would you use it?
+[h3] RoundOne
+[h3] can judge the hackathon it’s entered in
+[p] Every submission rule on the
+[a] Nebius × NVIDIA Devpost page
+[p] can run as a must-pass gate: the repo builds, it calls Token Factory, it uses an NVIDIA open model, and the demo runs three minutes or less.
+[p] That leaves Quality of the Idea and Potential Impact to people.
+[span] Setup ›
+[span] Criteria
+[span] Nebius × NVIDIA Global AI Hackathon
+[span] Technological implementation
+[span] 25%
+[span] Agent
+[span] Sandbox run
+[span] Code scraper
+[span] Runs on Nebius Token Factory or AI Cloud
+[span] must pass
+[span] Agent
+[span] Code scraper
+[span] Uses an NVIDIA open model
+[span] must pass
+[span] Agent
+[span] Code scraper
+[span] Open-source repo with a README
+[span] must pass
+[span] Agent
+[span] Sandbox run
+[span] Demo video, 3 minutes or less
+[span] must pass
+[span] Agent
+[span] Video reviewer
+[span] Design
+[span] 25%
+[span] Agent + judges
+[span] Graphic reviewer
+[span] Quality of the idea
+[span] 25%
+[span] Judges
+[span] Human only
+[span] Potential impact
+[span] 25%
+[span] Judges
+[span] Human only
+[p] Judge fatigue
+[h2] A queue a person can actually finish
+[p] Built for the judge on project forty, not project one. Batch the work, screen out the noise and keep every score a person's own.
+[h3] One link. Today's batch. A time estimate.
+[div] Each judge gets a private page with today's projects, what they'll score and about how long it'll take. Then it walks them through one project at a time.
+[span] Global AI Hackathon
+[span] 4/12
+[p] Round 1 · Day 2 of 5
+[p] Welcome, Grace
+[b] 4 of 12
+[p] done today, 8 to go. 36 more open over the coming days.
+[span] Keep going
+[span] About 32 minutes · each score saves when you submit it
+[p] Your projects today
+[span] #118
+[span] Tidewatch
+[span] 7.5
+[span] #042
+[span] Repo Whisperer
+[span] 8.0
+[span] #207
+[span] Quiet Hours
+[span] 6.5
+[span] #033
+[span] Pantry Pilot
+[span] 7.0
+[span] #251
+[span] Signal Garden
+[span] next
+[span] #096
+[span] Loom Lens
+[h3] Gates go first
+[p] The agent screens every project against your must-pass rules before a judge opens one.
+[h3] Daily batches
+[p] Release a queue over several days instead of one wall of 200. Judges can start the next batch early.
+[h3] A different order for each judge
+[p] No project always lands at the tired end of the pile.
+[h3] One private link, no account
+[p] Judges open their link and start. It shows their queue, what they'll score and roughly how long it takes.
+[h3] Your score first
+[p] The agent's score stays hidden until a judge submits their own, so it can't anchor them.
+[h3] Nobody sees anyone else's
+[p] Judges never see each other's scores, so the loudest voice on the panel doesn't set the bar.
+[p] Humans in the loop
+[h2] The agent does the homework. People make the call.
+[p] Judges' average scores set the ranking. The agent's score only breaks ties, and it never picks a winner.
+[h3] Setup
+[span] You
+[p] Write the rubric and the agent's guidance in your own words. Keep any criterion human only.
+[span] Agent
+[p] Learns what to look for, criterion by criterion.
+[h3] Screening
+[span] You
+[p] Rule on the projects the agent fails on a gate.
+[span] Agent
+[p] Checks every project against your gates and shows its evidence.
+[h3] Judging
+[span] You
+[p] Score first, then compare. Gaps of 2 points or more get flagged.
+[span] Agent
+[p] Scores what it can check, with its reasoning.
+[h3] Advancing
+[span] You
+[p] Decide how many projects move on, and close each round.
+[span] Agent
+[p] Breaks ties in the ranking. Nothing more.
+[h3] Results
+[span] You
+[p] Pick the award winners, email them and publish the winners page.
+[span] Agent
+[p] Stays out of it.
+[h3] Score first, then compare
+[p] After submitting, a judge sees the agent's verdict beside each of their scores, with big gaps flagged. They can change a score once.
+[span] Your scores
+[span] #251 Signal Garden
+[span] Technological implementation
+[span] 8.0
+[span] You
+[span] 8.5
+[span] Agent
+[span] Quality of the idea
+[span] 9.0
+[span] You
+[span] Human only
+[span] Design
+[span] 2+ apart
+[span] 5.0
+[span] You
+[span] 7.5
+[span] Agent
+[span] You can change your score once.
+[span] Next project
+[h3] Gate failures wait for a person
+[p] When the agent fails a project on a gate, it can land in your inbox with the agent's evidence. Keep it out, or put it back in the pool.
+[span] Inbox
+[span] 2 to decide
+[div] #033 Pantry Pilot
+[div] Failed a gate: Uses an NVIDIA open model
+[span] Agent:
+[p] No NVIDIA model found in the repo. The README says inference runs through a hosted API, but no model id is set in the code.
+[span] Code scraper · confidence: low
+[span] Keep it out
+[span] Back in the pool
+[p] Open stack
+[h2] Open models, on infrastructure
+[span] you own
+[p] The judging agent runs on open models and open infrastructure, from the first build check to the last prior-art search.
+[div] Every verdict
+[h3] Nemotron
+[p] Pick how much model each criterion gets. Every tier is Nemotron.
+[span] Quick
+[span] Nemotron 3.5 Lightning
+[span] One fast pass over what the mechanisms found
+[span] Balanced
+[span] Nemotron 3 Super 120B
+[span] Checks a few things itself with tools. Also runs the chat
+[span] In-depth
+[span] Nemotron 3 Ultra 550B
+[span] The largest model, with room to dig
+[span] Double check:
+[p] when the agent is unsure, a larger Nemotron takes a second look.
+[div] Inference and sandboxes
+[h3] Token Factory
+[p] Token Factory serves every model call and the embeddings behind chat search. Each repo builds in a Nebius Sandbox: VM-isolated, with every review step on its own fork of the image.
+[div] The live web
+[h3] Tavily
+[span] Extract
+[li] reads a project's pages
+[span] Crawl
+[li] walks the live demo, following your instructions
+[span] Search
+[li] looks for prior art: does this idea already exist?
+[p] Tavily is how
+[p] RoundOne
+[p] checks originality, which is the whole point.
+[span] Own it
+[span] Open source and self-hosted. Your brand, your database, and any model swapped with one environment variable.
+[p] Everything else
+[h2] One place from setup to winners
+[p] Describe what teams submit and how each criterion gets checked, run the rounds, then announce the winners.
+[h3] Setup
+[p] Describe what teams submit, what projects are scored on and how each criterion is checked. Add judges and plan the rounds.
+[span] Schema
+[span] Criteria
+[span] Judges
+[span] Phases
+[h3] Judging
+[p] The agent reviews every project. Judges work through private queues. You watch each round fill in and close it when it's done.
+[span] Projects
+[span] Progress
+[span] Inbox
+[span] Chat
+[h3] Results
+[p] Review the final ranking, pick award winners, email them what they won and publish the winners page.
+[span] Winners
+[span] Rewards
+[span] Emails
+[h3] Pick how each criterion gets checked
+[p] Each criterion runs on one or more mechanisms, and the agent runs them on every project. Or keep a criterion human only.
+[a] Read the docs →
+[span] Agent judge
+[span] LLM reads inputs, scores against the rubric
+[span] Sandbox run
+[span] Clones and builds the repo, runs tests
+[span] Video reviewer
+[span] Transcript, scene check, length check
+[span] Graphic reviewer
+[span] Screenshots and visual design review
+[span] Code scraper
+[span] Greps the repo for imports and call sites
+[span] Web scraper
+[span] Visits the live demo, captures pages
+[span] Human only
+[span] No agent score — judges only
+[span] Double check
+[span] A larger model re-checks the verdict: off, when unsure or always.
+[h3] Rounds that run themselves
+[p] Split judging into phases. Set the gates a project must pass, how many advance and how batches go out to judges.
+[a] Read the docs →
+[span] Submitted
+[span] 186
+[span] all projects
+[span] Screening
+[span] 142
+[span] passed the gates
+[span] Round 1
+[span] live
+[span] 64% reviewed
+[span] Finals
+[span] top 12 planned
+[h3] Ask across every project
+[a] Docs →
+[div] Chat searches the submissions and the repos and demos they link to, reads the scores and notes, and can check the live web.
+[span] Which projects are most similar to each other?
+[span] Who scored furthest from the agent, and why?
+[span] Check if the top project's idea already exists on the web
+[h3] Projects in, from anywhere
+[a] Docs →
+[div] Share a submission form built from your schema, or send projects in from another system with one request to the intake API.
+[h3] Winners, announced
+[a] Docs →
+[div] Attach prizes, email each winner what they won and publish a public winners page in the hackathon’s colors.
+[p] Self-hosted
+[h2] Run it on your own stack
+[p] RoundOne
+[p] is a Next.js app on Supabase. Deploy it for your org, choose the models the agent runs on and put your name, color and logo on every page from one config file.
+[li] Your brand on the app, the judge portal and the winners page
+[li] Submissions and scores stay in your own database
+[li] Documented end to end, down to every page and API
+[a] Deployment guide
+[span] // branding.config.js
+[span] const
+[code] branding = {
+  name:
+[span] "Acme Hacks"
+[code] ,
+  badge:
+[span] "AH"
+[code] ,
+  logo:
+[span] "/logo.svg"
+[code] ,
+  color:
+[span] "#ff5a1f"
+[code] ,
+};
+[span] // .env.local: swap the model behind any tier
+[code] NEBIUS_QUICK_MODEL=
+[span] "nvidia/Nemotron-3_5-Lightning"
+[code] NEBIUS_CHAT_MODEL=
+[span] "nvidia/nemotron-3-super-120b-a12b"
+[code] NEBIUS_DEEP_MODEL=
+[span] "nvidia/Nemotron-3-Ultra-550b-a55b"
+[h2] Give your judges their
+[span] attention back
+[p] Let the agent run the checks on every project. Your judges spend their time on the ideas.
+[a] Get started
+[a] Quickstart
+[p] RoundOne
+[p] · Built for the
+[a] Nebius × NVIDIA Global AI Hackathon
+[p] · Created by
+[a] Dylan Jones

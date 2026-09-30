@@ -1,0 +1,297 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; overflow: hidden; }
+
+    /* ── ground (track 0) ── */
+    #f05-ground { position: absolute; inset: 0; background: #FAF8FF; }
+
+    /* ── stage (track 1) ── */
+    #f05-stage { position: absolute; inset: 0; }
+
+    /* title band */
+    #f05-eyebrow { position: absolute; left: 120px; top: 104px; height: 20px; line-height: 20px; white-space: nowrap; }
+    #f05-head { position: absolute; left: 120px; top: 140px; width: 1000px; font-size: 84px; line-height: 1.06; color: #1D1433; }
+    .f05-hline { display: block; white-space: nowrap; }
+
+    /* cards */
+    #f05-schema { position: absolute; left: 120px; top: 380px; width: 620px; padding-bottom: 8px; box-sizing: border-box; }
+    #f05-criteria { position: absolute; left: 1000px; top: 380px; width: 800px; padding-bottom: 8px; box-sizing: border-box; }
+    .f05-chead { display: flex; align-items: center; justify-content: space-between; height: 80px; padding: 0 28px; box-sizing: border-box; }
+    .f05-ctitle { font-family: "GeistSans", sans-serif; font-size: 27px; font-weight: 600; line-height: 1.3; color: #1D1433; white-space: nowrap; }
+    .f05-crumb { color: #564B70; }
+    .f05-sep { color: #8A80A3; }
+    .f05-ctags { display: flex; align-items: center; gap: 10px; }
+    .f05-slot { border-top: 1px solid rgba(46,22,88,0.1); box-sizing: border-box; }
+    .f05-sslot { height: 66px; }
+    .f05-cslot { height: 104px; }
+
+    /* schema rows — Notion-style blocks */
+    .f05-srow { display: flex; align-items: center; height: 100%; padding: 0 24px 0 14px; box-sizing: border-box; }
+    .f05-grip { color: #8A80A3; flex: none; margin-right: 6px; }
+    #f05-schema .f05-tile { width: 44px; height: 44px; border-radius: 12px; margin-right: 18px; }
+    .f05-sname { font-family: "GeistSans", sans-serif; font-size: 27px; font-weight: 500; line-height: 1.3; color: #1D1433; white-space: nowrap; }
+    .f05-type { margin-left: auto; }
+
+    /* criteria rows */
+    .f05-crow { display: flex; align-items: center; gap: 18px; height: 100%; padding: 0 28px; box-sizing: border-box; }
+    .f05-crow--human { background: #FFF5FA; }
+    .f05-cmain { display: flex; flex-direction: column; gap: 10px; flex: 1 1 auto; min-width: 0; }
+    .f05-cline { display: flex; align-items: center; gap: 12px; }
+    .f05-cname { font-family: "GeistSans", sans-serif; font-size: 27px; font-weight: 600; line-height: 1.3; color: #1D1433; white-space: nowrap; }
+    .f05-weight { font-family: "GeistPixelSquare", "GeistSans", sans-serif; font-size: 24px; font-weight: 500; line-height: 1; color: #8A80A3; white-space: nowrap; }
+    .f05-chips { display: flex; align-items: center; gap: 10px; }
+    #f05-criteria .f05-chip { padding: 6px 13px; gap: 6px; }
+    .f05-side { flex: none; }
+
+    /* connectors: field (schema right edge x=740) → criterion (criteria left edge x=1000) */
+    #f05-wires { position: absolute; left: 740px; top: 380px; width: 260px; height: 480px; overflow: visible; }
+    .f05-node { position: absolute; width: 10px; height: 10px; box-shadow: 0 0 0 2px #FFFFFF; }
+    .f05-node--from { background: #7C3AED; }
+    .f05-node--to { background: #FB7A3C; }
+    #f05-n1s { left: 735px; top: 555px; }
+    #f05-n1e { left: 995px; top: 508px; }
+    #f05-n23s { left: 735px; top: 621px; }
+    #f05-n2e { left: 995px; top: 612px; }
+    #f05-n3e { left: 995px; top: 716px; }
+    #f05-n4s { left: 735px; top: 687px; }
+    #f05-n4e { left: 995px; top: 820px; }
+
+    /* night-purple dither tiles, on top of everything */
+    #f05-dither { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 20; pointer-events: none; }
+  </style>
+
+  <div id="root" data-composition-id="05-intake" data-width="1920" data-height="1080" data-duration="6.4">
+    <div id="f05-ground" class="clip" data-start="0" data-duration="6.4" data-track-index="0"><div class="rk-dotgrid"></div></div>
+
+    <div id="f05-stage" class="clip" data-start="0" data-duration="6.4" data-track-index="1">
+      <div id="f05-eyebrow" class="rk-eyebrow">SETUP</div>
+      <div id="f05-head" class="rk-display">
+        <div id="f05-h1" class="f05-hline">Projects come in</div>
+        <div id="f05-h2" class="f05-hline">shaped to <span class="rk-dusk-text">your rubric.</span></div>
+      </div>
+
+      <!-- Setup › Schema -->
+      <div id="f05-schema" class="rk-mock">
+        <div class="f05-chead">
+          <div class="f05-ctitle"><span class="f05-crumb">Setup</span><span class="f05-sep"> &#8250; </span>Schema</div>
+          <div class="f05-ctags">
+            <span id="f05-tag-form" class="rk-tag rk-tag--neutral">Form</span>
+            <span id="f05-tag-api" class="rk-tag rk-tag--neutral">Intake API</span>
+          </div>
+        </div>
+        <div class="f05-slot f05-sslot">
+          <div id="f05-s0" class="f05-srow">
+            <span class="f05-grip" data-rk-icon="grip" data-size="24"></span>
+            <span class="rk-tile f05-tile"><span data-rk-icon="text" data-size="24"></span></span>
+            <span class="f05-sname">Project name</span>
+            <span class="rk-tag rk-tag--neutral f05-type">Text</span>
+          </div>
+        </div>
+        <div class="f05-slot f05-sslot">
+          <div id="f05-s1" class="f05-srow">
+            <span class="f05-grip" data-rk-icon="grip" data-size="24"></span>
+            <span class="rk-tile f05-tile"><span data-rk-icon="paragraph" data-size="24"></span></span>
+            <span class="f05-sname">Pitch</span>
+            <span class="rk-tag rk-tag--neutral f05-type">Long text</span>
+          </div>
+        </div>
+        <div class="f05-slot f05-sslot">
+          <div id="f05-s2" class="f05-srow">
+            <span class="f05-grip" data-rk-icon="grip" data-size="24"></span>
+            <span class="rk-tile f05-tile"><span data-rk-icon="branch" data-size="24"></span></span>
+            <span class="f05-sname">Repo</span>
+            <span class="rk-tag rk-tag--neutral f05-type">Repo</span>
+          </div>
+        </div>
+        <div class="f05-slot f05-sslot">
+          <div id="f05-s3" class="f05-srow">
+            <span class="f05-grip" data-rk-icon="grip" data-size="24"></span>
+            <span class="rk-tile f05-tile"><span data-rk-icon="play" data-size="24"></span></span>
+            <span class="f05-sname">Demo video</span>
+            <span class="rk-tag rk-tag--neutral f05-type">Video</span>
+          </div>
+        </div>
+        <div class="f05-slot f05-sslot">
+          <div id="f05-s4" class="f05-srow">
+            <span class="f05-grip" data-rk-icon="grip" data-size="24"></span>
+            <span class="rk-tile f05-tile"><span data-rk-icon="link" data-size="24"></span></span>
+            <span class="f05-sname">Live demo</span>
+            <span class="rk-tag rk-tag--neutral f05-type">URL</span>
+          </div>
+        </div>
+        <div class="f05-slot f05-sslot">
+          <div id="f05-s5" class="f05-srow">
+            <span class="f05-grip" data-rk-icon="grip" data-size="24"></span>
+            <span class="rk-tile f05-tile"><span data-rk-icon="users" data-size="24"></span></span>
+            <span class="f05-sname">Team</span>
+            <span class="rk-tag rk-tag--neutral f05-type">Team</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Setup › Criteria -->
+      <div id="f05-criteria" class="rk-mock">
+        <div class="f05-chead">
+          <div class="f05-ctitle"><span class="f05-crumb">Setup</span><span class="f05-sep"> &#8250; </span>Criteria</div>
+        </div>
+        <div class="f05-slot f05-cslot">
+          <div id="f05-c0" class="f05-crow f05-crow--human">
+            <div class="f05-cmain">
+              <div class="f05-cline"><span class="f05-cname">Quality of the idea</span><span class="f05-weight">25%</span></div>
+              <div class="f05-chips">
+                <span class="rk-tag rk-tag--neutral f05-chip"><span data-rk-icon="user" data-size="14"></span>Human only</span>
+              </div>
+            </div>
+            <span id="f05-side0" class="rk-tag rk-tag--flag f05-side"><span data-rk-icon="user" data-size="14"></span>Judges</span>
+          </div>
+        </div>
+        <div class="f05-slot f05-cslot">
+          <div id="f05-c1" class="f05-crow">
+            <div class="f05-cmain">
+              <div class="f05-cline"><span class="f05-cname">Technological implementation</span><span class="f05-weight">25%</span></div>
+              <div class="f05-chips">
+                <span class="rk-tag rk-tag--neutral f05-chip"><span data-rk-icon="gear" data-size="14"></span>Sandbox run</span>
+                <span class="rk-tag rk-tag--neutral f05-chip"><span data-rk-icon="search" data-size="14"></span>Code scraper</span>
+              </div>
+            </div>
+            <span id="f05-side1" class="rk-tag rk-tag--agent f05-side"><span data-rk-icon="spark" data-size="14"></span>Agent</span>
+          </div>
+        </div>
+        <div class="f05-slot f05-cslot">
+          <div id="f05-c2" class="f05-crow">
+            <div class="f05-cmain">
+              <div class="f05-cline"><span class="f05-cname">Uses an NVIDIA open model</span><span class="rk-tag rk-tag--gate">must pass</span></div>
+              <div class="f05-chips">
+                <span class="rk-tag rk-tag--neutral f05-chip"><span data-rk-icon="search" data-size="14"></span>Code scraper</span>
+              </div>
+            </div>
+            <span id="f05-side2" class="rk-tag rk-tag--agent f05-side"><span data-rk-icon="spark" data-size="14"></span>Agent</span>
+          </div>
+        </div>
+        <div class="f05-slot f05-cslot">
+          <div id="f05-c3" class="f05-crow">
+            <div class="f05-cmain">
+              <div class="f05-cline"><span class="f05-cname">Demo video, 3 minutes or less</span><span class="rk-tag rk-tag--gate">must pass</span></div>
+              <div class="f05-chips">
+                <span class="rk-tag rk-tag--neutral f05-chip"><span data-rk-icon="play" data-size="14"></span>Video reviewer</span>
+              </div>
+            </div>
+            <span id="f05-side3" class="rk-tag rk-tag--agent f05-side"><span data-rk-icon="spark" data-size="14"></span>Agent</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- dusk connectors in the gap between the cards (local coords = stage − (740, 380)) -->
+      <svg id="f05-wires" viewBox="0 0 260 480" width="260" height="480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="f05-dusk" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="260" y2="0">
+            <stop offset="0" stop-color="#7C3AED" />
+            <stop offset="0.45" stop-color="#D946EF" />
+            <stop offset="1" stop-color="#FB7A3C" />
+          </linearGradient>
+        </defs>
+        <!-- Pitch (y 560) → Quality of the idea (y 513) -->
+        <path id="f05-w1" d="M0 180 C130 180 130 133 260 133" fill="none" stroke="url(#f05-dusk)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        <!-- Repo (y 626) → Technological implementation (y 617) -->
+        <path id="f05-w2" d="M0 246 C130 246 130 237 260 237" fill="none" stroke="url(#f05-dusk)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        <!-- Repo (y 626) → Uses an NVIDIA open model (y 721) -->
+        <path id="f05-w3" d="M0 246 C130 246 130 341 260 341" fill="none" stroke="url(#f05-dusk)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        <!-- Demo video (y 692) → Demo video, 3 minutes or less (y 825) -->
+        <path id="f05-w4" d="M0 312 C130 312 130 445 260 445" fill="none" stroke="url(#f05-dusk)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+
+      <!-- pixel nodes: violet at the field, orange at the criterion -->
+      <div id="f05-n1s" class="f05-node f05-node--from"></div>
+      <div id="f05-n1e" class="f05-node f05-node--to"></div>
+      <div id="f05-n23s" class="f05-node f05-node--from"></div>
+      <div id="f05-n2e" class="f05-node f05-node--to"></div>
+      <div id="f05-n3e" class="f05-node f05-node--to"></div>
+      <div id="f05-n4s" class="f05-node f05-node--from"></div>
+      <div id="f05-n4e" class="f05-node f05-node--to"></div>
+
+      <canvas id="f05-dither" width="1920" height="1080"></canvas>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      const DURATION = 6;
+      const tl = gsap.timeline({ paused: true });
+      const clock = RK.clock(tl, DURATION);
+      const $ = (id) => document.getElementById(id);
+      const stage = $("f05-stage");
+      RK.hydrate(stage);
+
+      // ── Scene 1 (0.0–1.0s): night tiles clear, title band, empty schema card ──
+      RK.dither(clock, $("f05-dither"), { start: 0, dur: 0.4, mode: "reveal", color: "#150C2E", angle: "diagonal" });
+      RK.type(clock, $("f05-eyebrow"), "SETUP", { start: 0.25, cps: 20 });
+      tl.fromTo($("f05-schema"), { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 0.48);
+      tl.fromTo($("f05-h1"), { y: 32, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.5);
+      tl.fromTo($("f05-h2"), { y: 32, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.75);
+
+      // ── Scene 2 (1.0–2.5s): header tags pop, schema rows land one per eighth ──
+      RK.pop(tl, $("f05-tag-form"), 1.0);
+      RK.pop(tl, $("f05-tag-api"), 1.0);
+      ["f05-s0", "f05-s1", "f05-s2", "f05-s3", "f05-s4", "f05-s5"].forEach(function (id, i) {
+        tl.fromTo($(id), { y: -12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.09, ease: "steps(2)" }, 1.0 + i * 0.25);
+      });
+
+      // ── Scene 3 (2.5–4.0s): criteria card slides in from the right, rows cascade ──
+      tl.fromTo($("f05-criteria"), { x: 100, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 2.5);
+      ["f05-c0", "f05-c1", "f05-c2", "f05-c3"].forEach(function (id, i) {
+        tl.fromTo($(id), { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 2.75 + i * 0.25);
+      });
+
+      // ── Scene 4 (4.0–6.0s): connectors draw field → criterion, nodes pop at both ends ──
+      function sampledLength(p) {
+        const n = (p.getAttribute("d").match(/-?\d+(\.\d+)?/g) || []).map(Number);
+        if (n.length < 8) return 400;
+        let len = 0, px = n[0], py = n[1];
+        for (let k = 1; k <= 64; k++) {
+          const t = k / 64, u = 1 - t;
+          const x = u * u * u * n[0] + 3 * u * u * t * n[2] + 3 * u * t * t * n[4] + t * t * t * n[6];
+          const y = u * u * u * n[1] + 3 * u * u * t * n[3] + 3 * u * t * t * n[5] + t * t * t * n[7];
+          len += Math.hypot(x - px, y - py);
+          px = x; py = y;
+        }
+        return len;
+      }
+      function measure(p) {
+        let len = 0;
+        try { len = p.getTotalLength(); } catch (e) { len = 0; }
+        if (!(len > 0)) len = sampledLength(p);
+        return Math.ceil(len) + 2;
+      }
+      const WIRE_DRAW = 0.3;
+      const wires = [
+        { path: "f05-w1", start: 4.0, from: "f05-n1s", to: "f05-n1e" },
+        { path: "f05-w2", start: 4.25, from: "f05-n23s", to: "f05-n2e" },
+        { path: "f05-w3", start: 4.5, from: null, to: "f05-n3e" }, // shares the Repo node
+        { path: "f05-w4", start: 4.75, from: "f05-n4s", to: "f05-n4e" },
+      ];
+      wires.forEach(function (w) {
+        const p = $(w.path);
+        const len = measure(p);
+        p.setAttribute("stroke-dasharray", len + " " + (len + 40));
+        tl.fromTo(p, { strokeDashoffset: len }, { strokeDashoffset: 0, duration: WIRE_DRAW, ease: "power2.out" }, w.start);
+        if (w.from) RK.pop(tl, $(w.from), w.start);
+        RK.pop(tl, $(w.to), w.start + 0.25); // the stroke is ~99% drawn here — the line arrives
+      });
+
+      // side tags: Agent ×3 on 5.0, Judges on 5.25 — then hold
+      RK.pop(tl, $("f05-side1"), 5.0);
+      RK.pop(tl, $("f05-side2"), 5.0);
+      RK.pop(tl, $("f05-side3"), 5.0);
+      RK.pop(tl, $("f05-side0"), 5.25);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["05-intake"] = tl;
+    })();
+  </script>
+</template>

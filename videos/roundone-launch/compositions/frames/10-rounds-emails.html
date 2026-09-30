@@ -1,0 +1,471 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root {
+      position: relative;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+    }
+
+    /* Ground: paper + pixel dot grid (its own full-duration clip, track 0) */
+    #f10-ground {
+      position: absolute;
+      inset: 0;
+      background: #FAF8FF;
+      overflow: hidden;
+    }
+
+    /* Content stage (full-duration clip, track 1) */
+    #f10-stage {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* Title band — one line, Geist Pixel 84px at (120, 120); the mask rolls A out / B in */
+    #f10-headmask {
+      position: absolute;
+      left: 120px;
+      top: 100px;
+      width: 1680px;
+      height: 129px;
+      overflow: hidden;
+    }
+    #f10-headstrip {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .f10-head {
+      position: absolute;
+      left: 0;
+      margin: 0;
+      font-family: "GeistPixelSquare", sans-serif;
+      font-weight: 500;
+      font-size: 84px;
+      line-height: 1.06;
+      color: #1D1433;
+      white-space: nowrap;
+    }
+    #f10-headA { top: 20px; }
+    #f10-headB { top: 149px; }
+
+    /* Funnel card — Judging › Progress */
+    #f10-card {
+      position: absolute;
+      left: 120px;
+      top: 250px;
+      width: 1060px;
+      height: 620px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    #f10-card-head {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      height: 84px;
+      box-sizing: border-box;
+      padding: 0 31px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid rgba(46,22,88,0.1);
+      font-family: "GeistSans", sans-serif;
+      font-size: 27px;
+      font-weight: 600;
+      line-height: 1;
+      color: #1D1433;
+      white-space: nowrap;
+    }
+    .f10-crumb { white-space: nowrap; }
+    .f10-crumb-a { color: #564B70; }
+    .f10-crumb-sep { color: #8A80A3; padding: 0 4px; }
+    #f10-cols {
+      position: absolute;
+      left: -1px;
+      top: 84px;
+      bottom: -1px;
+      width: 1060px;
+      display: grid;
+      grid-template-columns: repeat(4, 265px);
+    }
+    .f10-col {
+      position: relative;
+      box-sizing: border-box;
+    }
+    .f10-col + .f10-col {
+      border-left: 1px solid rgba(46,22,88,0.1);
+    }
+    .f10-col-body {
+      box-sizing: border-box;
+      padding: 28px 30px 0 32px;
+    }
+    .f10-col-name {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      height: 30px;
+      font-family: "GeistSans", sans-serif;
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 30px;
+      color: #564B70;
+      white-space: nowrap;
+    }
+    .f10-chip {
+      display: block;
+      flex: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+    .f10-chip--1 { background: #7c3aed; }
+    .f10-chip--2 { background: #c026d3; }
+    .f10-chip--3 { background: #f43f5e; }
+    .f10-chip--4 { background: #fb923c; opacity: 0.4; }
+    .f10-trophy { color: #8A80A3; opacity: 0.75; }
+    .f10-col-count {
+      display: flex;
+      align-items: center;
+      height: 64px;
+      margin-top: 10px;
+    }
+    .f10-count {
+      font-family: "GeistPixelSquare", sans-serif;
+      font-weight: 500;
+      font-size: 64px;
+      line-height: 1;
+      color: #1D1433;
+      white-space: nowrap;
+    }
+    .f10-count--faint { color: #8A80A3; }
+    .f10-live { margin-left: auto; }
+    .f10-live-dot {
+      display: block;
+      flex: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #7C3AED;
+    }
+    .f10-col-note {
+      margin-top: 8px;
+      font-family: "GeistSans", sans-serif;
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 30px;
+      color: #564B70;
+      white-space: nowrap;
+    }
+    #f10-funnel-svg {
+      position: absolute;
+      left: -1px;
+      bottom: -1px;
+      width: 1060px;
+      height: 320px;
+      display: block;
+      overflow: hidden;
+    }
+
+    /* Email cards. Text column = 560 - 2x24 - 52 - 18 = 442px. Measured in Geist: the longest
+       subject is 456px at 25px and the longest second line 452px at 22px, so they are set at
+       23px / 20px to fit on one line. Label + button sit at the 19px legibility floor in muted,
+       since faint (3.68:1 on white) fails WCAG AA at that size. */
+    #f10-stage .f10-mail {
+      position: absolute;
+      left: 1240px;
+      width: 560px;
+      height: 150px;
+      box-sizing: border-box;
+      padding: 24px;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      overflow: hidden;
+    }
+    #f10-mail1 { top: 260px; }
+    #f10-mail2 { top: 440px; }
+    #f10-mail3 { top: 620px; }
+    .f10-tile {
+      display: grid;
+      place-items: center;
+      flex: none;
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+    }
+    .f10-tile--violet { background: #EDE5FF; color: #7C3AED; }
+    .f10-tile--sunset { background: linear-gradient(180deg, #FCD34D 0%, #FB923C 38%, #F43F5E 70%, #E11D8F 100%); color: #1D1433; }
+    .f10-tile--magenta { background: #FFE4F1; color: #E8318F; }
+    .f10-mail-body {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .f10-mail-label {
+      font-family: "GeistMono", monospace;
+      font-size: 19px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      line-height: 1.15;
+      color: #564B70;
+      white-space: nowrap;
+    }
+    .f10-mail-subject {
+      margin-top: 5px;
+      font-family: "GeistSans", sans-serif;
+      font-size: 23px;
+      font-weight: 600;
+      line-height: 1.25;
+      color: #1D1433;
+      white-space: nowrap;
+    }
+    .f10-mail-line {
+      margin-top: 4px;
+      font-family: "GeistSans", sans-serif;
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1.3;
+      color: #564B70;
+      white-space: nowrap;
+    }
+    #f10-stage .f10-mail-btn {
+      margin-top: 9px;
+      padding: 7px 18px;
+      gap: 8px;
+      font-size: 19px;
+    }
+  </style>
+
+  <div id="root" data-composition-id="10-rounds-emails" data-width="1920" data-height="1080" data-duration="6.5">
+    <div id="f10-ground" class="clip" data-start="0" data-duration="6.5" data-track-index="0">
+      <div class="rk-dotgrid"></div>
+    </div>
+
+    <div id="f10-stage" class="clip" data-start="0" data-duration="6.5" data-track-index="1">
+      <div id="f10-headmask">
+        <div id="f10-headstrip">
+          <h1 id="f10-headA" class="f10-head">Rounds that run themselves.</h1>
+          <h1 id="f10-headB" class="f10-head">Every entrant hears back.</h1>
+        </div>
+      </div>
+
+      <div id="f10-card" class="rk-mock">
+        <div id="f10-card-head"><span class="f10-crumb"><span class="f10-crumb-a">Judging</span> <span class="f10-crumb-sep">›</span> Progress</span></div>
+        <div id="f10-cols">
+          <div class="f10-col">
+            <div id="f10-col1" class="f10-col-body">
+              <div class="f10-col-name"><i class="f10-chip f10-chip--1"></i>Submitted</div>
+              <div class="f10-col-count"><span id="f10-count1" class="f10-count">186</span></div>
+              <div class="f10-col-note">all projects</div>
+            </div>
+          </div>
+          <div class="f10-col">
+            <div id="f10-col2" class="f10-col-body">
+              <div class="f10-col-name"><i class="f10-chip f10-chip--2"></i>Screening</div>
+              <div class="f10-col-count"><span id="f10-count2" class="f10-count">142</span></div>
+              <div class="f10-col-note">passed the gates</div>
+            </div>
+          </div>
+          <div class="f10-col">
+            <div id="f10-col3" class="f10-col-body">
+              <div class="f10-col-name"><i class="f10-chip f10-chip--3"></i>Round 1</div>
+              <div class="f10-col-count"><span id="f10-count3" class="f10-count">40</span><span id="f10-live" class="rk-tag rk-tag--agent f10-live"><i id="f10-live-dot" class="f10-live-dot"></i>live</span></div>
+              <div class="f10-col-note">64% reviewed</div>
+            </div>
+          </div>
+          <div class="f10-col">
+            <div id="f10-col4" class="f10-col-body">
+              <div class="f10-col-name"><i class="f10-chip f10-chip--4"></i>Finals<span class="f10-trophy" data-rk-icon="trophy" data-size="24"></span></div>
+              <div class="f10-col-count"><span id="f10-count4" class="f10-count f10-count--faint">12</span></div>
+              <div class="f10-col-note">top 12 planned</div>
+            </div>
+          </div>
+        </div>
+        <svg id="f10-funnel-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+      </div>
+
+      <div id="f10-mail1" class="rk-mock f10-mail">
+        <div class="f10-tile f10-tile--violet"><span data-rk-icon="mail" data-size="24"></span></div>
+        <div class="f10-mail-body">
+          <div class="f10-mail-label">Judge batch</div>
+          <div class="f10-mail-subject">Today's batch is open: 8 new projects</div>
+          <span class="rk-pill rk-pill--dark f10-mail-btn">Open today's batch →</span>
+        </div>
+      </div>
+
+      <div id="f10-mail2" class="rk-mock f10-mail">
+        <div class="f10-tile f10-tile--sunset"><span data-rk-icon="trophy" data-size="24"></span></div>
+        <div class="f10-mail-body">
+          <div class="f10-mail-label">Winner</div>
+          <div class="f10-mail-subject">Repo Whisperer won 1st place</div>
+          <div class="f10-mail-line">Here's what you won</div>
+        </div>
+      </div>
+
+      <div id="f10-mail3" class="rk-mock f10-mail">
+        <div class="f10-tile f10-tile--magenta"><span data-rk-icon="gift" data-size="24"></span></div>
+        <div class="f10-mail-body">
+          <div class="f10-mail-label">Thank you</div>
+          <div class="f10-mail-subject">Thanks for building Signal Garden</div>
+          <div class="f10-mail-line">Reached round 2 of 2 · reviewed by 3 judges</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      var tl = gsap.timeline({ paused: true });
+      var clock = RK.clock(tl, DURATION);
+
+      function byId(id) {
+        return document.getElementById(id);
+      }
+
+      var stage = byId("f10-stage");
+      RK.hydrate(stage);
+
+      // ── Scene 1 (0.0–2.5s) ─────────────────────────────────────────────
+      // Headline A rises in on the 0.25s pickup; the funnel card is present from 0.25s.
+      tl.fromTo(byId("f10-headA"), { y: 32, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.25);
+      tl.fromTo(byId("f10-card"), { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.25);
+
+      // The app's pixel funnel (Judging › Progress), bottom of the card.
+      var CELL = 16;
+      var FW = 1060;
+      var FH = 320;
+      var svg = byId("f10-funnel-svg");
+      var bandGroups = RK.funnel(svg, {
+        width: FW,
+        height: FH,
+        cell: CELL,
+        bands: [
+          { color: "#7c3aed", count: 186 },
+          { color: "#c026d3", count: 142 },
+          { color: "#f43f5e", count: 40, live: true },
+          { color: "#fb923c", count: 12, faded: true },
+        ],
+      });
+
+      // Stage columns land on beats 0.5 / 1.0 / 1.5 / 2.0: text rises in, count steps up,
+      // and the funnel sweeps left→right to that stage's edge in the same 8 steps.
+      var BEATS = [0.5, 1.0, 1.5, 2.0];
+      var COUNTS = [186, 142, 40, 12];
+      var SWEEP = 0.35;
+      var STEPS = 8;
+      // Whole funnel cells per stage band (a cell belongs to the column its center falls in).
+      var BAND_END_CELLS = [17, 33, 50, 67];
+
+      for (var i = 0; i < 4; i++) {
+        tl.fromTo(
+          byId("f10-col" + (i + 1)),
+          { y: 24, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" },
+          BEATS[i],
+        );
+        RK.count(clock, byId("f10-count" + (i + 1)), { from: 0, to: COUNTS[i], start: BEATS[i], dur: SWEEP, steps: STEPS });
+      }
+
+      // Same curve + quantization as RK.count's default, so the pixel front and the score move together.
+      function sweepEase(p) {
+        return 1 - Math.pow(1 - p, 3);
+      }
+      clock.add(function (t) {
+        var cells = 0;
+        for (var k = 0; k < BEATS.length; k++) {
+          if (t < BEATS[k]) break;
+          var p = Math.min(1, (t - BEATS[k]) / SWEEP);
+          p = Math.round(sweepEase(p) * STEPS) / STEPS;
+          var from = k === 0 ? 0 : BAND_END_CELLS[k - 1];
+          cells = from + Math.round(p * (BAND_END_CELLS[k] - from));
+        }
+        var px = Math.min(FW, cells * CELL);
+        svg.style.clipPath = "inset(0 " + ((1 - px / FW) * 100).toFixed(4) + "% 0 0)";
+      });
+
+      // Round 1 is live: the badge pops in on 1.5s and its violet dot steps on/off every beat.
+      RK.pop(tl, byId("f10-live"), 1.5);
+      var liveDot = byId("f10-live-dot");
+      clock.add(function (t) {
+        var tt = Math.min(t, DURATION - 0.01);
+        var on = tt < 1.5 || Math.floor((tt - 1.5) / 0.5) % 2 === 0;
+        liveDot.style.opacity = on ? "1" : "0.25";
+      });
+
+      // As in the app, a few core pixels of the live band twinkle — stepped on eighths.
+      var MID = Math.round(FH / 2 / CELL) * CELL;
+      var twinkles = [];
+      var liveRects = bandGroups[2] ? bandGroups[2].querySelectorAll("rect") : [];
+      for (var j = 0; j < liveRects.length; j++) {
+        var rect = liveRects[j];
+        var base = parseFloat(rect.getAttribute("opacity"));
+        if (!(base >= 0.6)) continue;
+        var xi = Math.round(parseFloat(rect.getAttribute("x")) / CELL);
+        var ry = parseFloat(rect.getAttribute("y"));
+        var yi = ry < MID ? 2 * ((MID - ry) / CELL - 1) : 2 * ((ry - MID) / CELL) + 1;
+        if (RK.noise(xi, yi, 97) >= 0.25) continue;
+        // Phase by pick order (left → right) so the dimmed cells spread evenly across the beat.
+        twinkles.push({ el: rect, base: base, dim: Math.round(base * 30) / 100, ph: twinkles.length % 4 });
+      }
+      clock.add(function (t) {
+        var tt = Math.min(t, DURATION - 0.01);
+        var slot = tt < 2 ? -1 : Math.floor((tt - 2) / 0.25);
+        for (var m = 0; m < twinkles.length; m++) {
+          var c = twinkles[m];
+          var isDim = slot >= 0 && (slot + c.ph) % 4 === 0;
+          c.el.setAttribute("opacity", String(isDim ? c.dim : c.base));
+        }
+      });
+
+      // ── Scene 2 (2.5–6.0s) ─────────────────────────────────────────────
+      // Emails fly out of the funnel: each starts small (scale 0.6) on the Round 1 column's
+      // pixel river and travels right into its slot on the beat (2.5 / 3.0 / 3.5).
+      var LAUNCH_X = 782;
+      var LAUNCH_Y = 710;
+      var SLOT_CX = 1520;
+      var MAILS = [
+        { id: "f10-mail1", t: 2.5, cy: 335 },
+        { id: "f10-mail2", t: 3.0, cy: 515 },
+        { id: "f10-mail3", t: 3.5, cy: 695 },
+      ];
+      for (var n = 0; n < MAILS.length; n++) {
+        var mail = MAILS[n];
+        var el = byId(mail.id);
+        tl.fromTo(
+          el,
+          { x: LAUNCH_X - SLOT_CX, y: LAUNCH_Y - mail.cy, scale: 0.6 },
+          { x: 0, y: 0, scale: 1, duration: 0.5, ease: "power3.out" },
+          mail.t,
+        );
+        tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power1.out" }, mail.t);
+        // A stepped pixel ping where each email leaves the river.
+        RK.click(clock, null, stage, { t: mail.t, x: LAUNCH_X, y: LAUNCH_Y, color: "#F43F5E", size: 76 });
+      }
+
+      // On 3.0s headline A lifts out and B rises in from below — one velocity-matched roll
+      // through the title mask (a within-frame seam, not an exit).
+      tl.fromTo(byId("f10-headstrip"), { y: 0 }, { y: -129, duration: 0.5, ease: "power3.out", immediateRender: false }, 3.0);
+      tl.fromTo(byId("f10-headA"), { opacity: 1 }, { opacity: 0.2, duration: 0.25, ease: "none", immediateRender: false }, 3.0);
+      tl.fromTo(byId("f10-headB"), { opacity: 0.4 }, { opacity: 1, duration: 0.3, ease: "power1.out" }, 3.0);
+
+      // Hold from 4.0s: settled and readable; only the live dot and live pixels keep stepping.
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["10-rounds-emails"] = tl;
+    })();
+  </script>
+</template>

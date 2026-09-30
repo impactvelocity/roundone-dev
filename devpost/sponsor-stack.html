@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RoundOne sponsor stack</title>
+<!--
+  Source for devpost/sponsor-stack.png (3:2): each NVIDIA, Nebius and Tavily
+  tool, and where RoundOne uses it. The background is the landing page's night
+  band (landing.css .night + .stars). Render from the repo root:
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new \
+    --allow-file-access-from-files --hide-scrollbars --force-device-scale-factor=2 \
+    --virtual-time-budget=3000 --window-size=1500,1000 --screenshot=devpost/sponsor-stack.png \
+    "file://$PWD/devpost/sponsor-stack.html"
+-->
+<style>
+  @font-face { font-family: "Geist"; src: url("../node_modules/geist/dist/fonts/geist-sans/Geist-Regular.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Geist"; src: url("../node_modules/geist/dist/fonts/geist-sans/Geist-Medium.woff2") format("woff2"); font-weight: 500; }
+  @font-face { font-family: "Geist"; src: url("../node_modules/geist/dist/fonts/geist-sans/Geist-SemiBold.woff2") format("woff2"); font-weight: 600; }
+  @font-face { font-family: "Geist Mono"; src: url("../node_modules/geist/dist/fonts/geist-mono/GeistMono-Regular.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Geist Mono"; src: url("../node_modules/geist/dist/fonts/geist-mono/GeistMono-Medium.woff2") format("woff2"); font-weight: 500; }
+  @font-face { font-family: "Geist Pixel"; src: url("../node_modules/geist/dist/fonts/geist-pixel/GeistPixel-Square.woff2") format("woff2"); }
+
+  :root {
+    --screen-deep: #150c2e;
+    --on-dark: #f7f2ff;
+    --on-dark-muted: #b9abd9;
+    --faint: #8d7fb5;
+    --sunset: linear-gradient(180deg, #fcd34d 0%, #fb923c 38%, #f43f5e 70%, #e11d8f 100%);
+    /* Where a tool is used: the agent's reviews in violet, the chat in pink. */
+    --agent: #a78bfa;
+    --agent-ink: #e4dcff;
+    --chat: #f472b6;
+    --chat-ink: #ffd8ee;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1500px; height: 1000px; overflow: hidden; }
+
+  /* The landing page's night band: deep purple, sunset glow rising from the bottom edge. */
+  body {
+    position: relative;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 118%, rgba(251, 122, 60, 0.42), transparent 70%),
+      radial-gradient(ellipse 90% 70% at 50% 110%, rgba(217, 70, 239, 0.3), transparent 72%),
+      var(--screen-deep);
+    color: var(--on-dark);
+    font: 400 16px/1.45 "Geist", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Its faint pixel stars, drawn with two offset dot grids. */
+  .stars {
+    position: absolute; inset: 0; opacity: .6;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.35) 1px, transparent 1.5px),
+      radial-gradient(circle at 1px 1px, rgba(251, 191, 36, 0.25) 1px, transparent 1.5px);
+    background-size: 97px 89px, 151px 137px;
+    background-position: 13px 21px, 71px 43px;
+  }
+
+  main { position: relative; height: 100%; padding: 42px 60px 46px; display: flex; flex-direction: column; }
+  .mono, code { font-family: "Geist Mono", ui-monospace, monospace; }
+
+  /* ── Header ── */
+  .top { display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 12px; font: 400 24px/1 "Geist Pixel", sans-serif; }
+  .brand img { width: 42px; height: 42px; filter: drop-shadow(0 8px 18px rgba(124, 58, 237, .5)); }
+  .legend { display: flex; align-items: center; gap: 10px; }
+  .legend-label { font: 500 12.5px/1 "Geist Mono", monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); margin-right: 4px; }
+  .key {
+    display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px 0 12px;
+    border-radius: 10px; font-size: 15px; font-weight: 500;
+    background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .12);
+  }
+  .key svg { width: 16px; height: 16px; }
+  .key.agent { color: var(--agent-ink); background: rgba(167, 139, 250, .19); border-color: rgba(167, 139, 250, .5); }
+  .key.agent svg { color: var(--agent); }
+  .key.chat { color: var(--chat-ink); background: rgba(244, 114, 182, .17); border-color: rgba(244, 114, 182, .5); }
+  .key.chat svg { color: var(--chat); }
+
+  h1 {
+    margin-top: 22px;
+    font: 400 50px/1.05 "Geist Pixel", "Geist", sans-serif;
+    letter-spacing: .01em;
+    color: #fff;
+    text-shadow: 0 4px 18px rgba(24, 8, 48, .7);
+  }
+  .sunset {
+    background: var(--sunset);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 2px 10px rgba(24, 8, 48, .85));
+  }
+
+  /* ── Sponsor panels (the landing's night cards) ── */
+  .panels { flex: 1; min-height: 0; margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .panel {
+    display: flex; flex-direction: column; min-height: 0;
+    padding: 22px 22px 22px;
+    background: rgba(255, 255, 255, .045);
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 20px;
+    backdrop-filter: blur(6px);
+  }
+  .logo-row { display: flex; align-items: center; gap: 12px; height: 42px; padding-left: 2px; }
+  .logo-row .product { font: 400 27px/1 "Geist Pixel", sans-serif; color: var(--on-dark); }
+  .nvidia-logo { height: 31px; width: auto; color: #fff; }
+  .nebius-logo { height: 31px; width: auto; }
+  .tavily-logo { height: 43px; width: auto; }
+  .role { margin-top: 10px; min-height: 2.8em; font-size: 16px; line-height: 1.4; color: var(--on-dark-muted); padding-left: 2px; }
+  .role b { color: var(--on-dark); font-weight: 600; }
+
+  .tools { list-style: none; flex: 1; min-height: 0; margin-top: 16px; display: grid; grid-template-rows: repeat(3, 1fr); gap: 12px; }
+  .tool {
+    display: flex; flex-direction: column; min-height: 0;
+    padding: 15px 16px 16px;
+    background: rgba(255, 255, 255, .05);
+    border-radius: 13px;
+  }
+  .tool h3 { font-size: 19px; font-weight: 600; line-height: 1.2; letter-spacing: -.005em; color: var(--on-dark); }
+  .tool .id { display: block; margin-top: 5px; font-size: 12.5px; line-height: 1.2; color: var(--faint); }
+  .tool p { margin-top: 9px; font-size: 14.5px; line-height: 1.42; color: var(--on-dark-muted); }
+
+  /* Where it's used: chips pinned to the foot of each tool. */
+  .chips { margin-top: auto; padding-top: 12px; display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 11px 0 9px;
+    border-radius: 8px; font-size: 13.5px; font-weight: 500; white-space: nowrap;
+  }
+  .chip svg { width: 13px; height: 13px; flex: none; }
+  .chip code { font-size: 13px; font-weight: 500; }
+  .chip.agent { color: var(--agent-ink); background: rgba(167, 139, 250, .19); border: 1px solid rgba(167, 139, 250, .5); }
+  .chip.agent svg { color: var(--agent); }
+  .chip.chat { color: var(--chat-ink); background: rgba(244, 114, 182, .17); border: 1px solid rgba(244, 114, 182, .5); }
+  .chip.chat svg { color: var(--chat); }
+</style>
+</head>
+<body>
+  <!-- Pixel icons from the app (components/pixel-icon.tsx): sparkles for the agent, a speech bubble for chat. -->
+  <svg width="0" height="0" style="position:absolute">
+    <symbol id="i-agent" viewBox="0 0 24 24"><polygon points="23 5 23 6 21 6 21 7 20 7 20 9 19 9 19 7 18 7 18 6 16 6 16 5 18 5 18 4 19 4 19 2 20 2 20 4 21 4 21 5 23 5"/><polygon points="23 18 23 19 21 19 21 20 20 20 20 22 19 22 19 20 18 20 18 19 16 19 16 18 18 18 18 17 19 17 19 15 20 15 20 17 21 17 21 18 23 18"/><path d="M15,11V10H13V9H12V8H11V6H10V4H8V6H7V8H6V9H5v1H3v1H1v2H3v1H5v1H6v1H7v2H8v2h2V18h1V16h1V15h1V14h2V13h2V11Zm-3,2v1H11v1H10v2H8V15H7V14H6V13H4V11H6V10H7V9H8V7h2V9h1v1h1v1h2v2Z"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><polygon points="19 10 19 12 18 12 18 13 16 13 16 12 15 12 15 10 16 10 16 9 18 9 18 10 19 10"/><polygon points="14 10 14 12 13 12 13 13 11 13 11 12 10 12 10 10 11 10 11 9 13 9 13 10 14 10"/><polygon points="9 10 9 12 8 12 8 13 6 13 6 12 5 12 5 10 6 10 6 9 8 9 8 10 9 10"/><path d="m22,8v-2h-1v-1h-1v-1h-2v-1h-3v-1h-6v1h-3v1h-2v1h-1v1h-1v2h-1v6h1v2h1v2h-1v1h-1v2h5v-1h1v-1h2v1h6v-1h3v-1h2v-1h1v-1h1v-2h1v-6h-1Zm-1,6h-1v2h-2v1h-3v1h-6v-1h-2v1h-1v1h-2v-1h1v-2h-1v-2h-1v-6h1v-2h2v-1h3v-1h6v1h3v1h2v2h1v6Z"/></symbol>
+  </svg>
+
+  <div class="stars"></div>
+
+  <main>
+    <header>
+      <div class="top">
+        <div class="brand"><img src="../public/landing/logo.png" alt="">RoundOne</div>
+        <div class="legend">
+          <span class="legend-label">Where it's used</span>
+          <span class="key agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Agent review</span>
+          <span class="key chat"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-chat"/></svg>Chat</span>
+        </div>
+      </div>
+      <h1>Where NVIDIA, Nebius and Tavily <span class="sunset">do the work</span></h1>
+    </header>
+
+    <div class="panels">
+      <!-- NVIDIA -->
+      <section class="panel">
+        <div class="logo-row">
+          <svg class="nvidia-logo" viewBox="0 11 110 22" fill="none" role="img" aria-label="NVIDIA">
+            <path d="M66.4201 15.476V29.238H70.2437V15.476H66.4201ZM36.3477 15.4573V29.238H40.2045V18.5408L43.2134 18.5513C44.2026 18.5513 44.8877 18.7928 45.3639 19.3097C45.9686 19.9653 46.2154 21.0212 46.2154 22.9532V29.238H49.9518V21.6243C49.9518 16.19 46.5447 15.4573 43.2122 15.4573H36.3477ZM72.5755 15.476V29.2368H78.7757C82.0795 29.2368 83.157 28.678 84.3241 27.4262C85.148 26.5465 85.6804 24.6168 85.6804 22.5075C85.6804 20.5732 85.2295 18.8477 84.4434 17.7732C83.0273 15.8517 80.987 15.476 77.9403 15.476H72.5755ZM76.367 18.472H78.0103C80.3949 18.472 81.9372 19.5605 81.9372 22.385C81.9372 25.2095 80.3949 26.2992 78.0103 26.2992H76.367V18.472ZM60.9085 15.476L57.7183 26.382L54.6613 15.476H50.5347L54.9011 29.2368H60.4104L64.8113 15.476H60.9096H60.9085ZM87.4591 29.2368H91.2827V15.476H87.458V29.2368H87.4591ZM98.176 15.4807L92.8377 29.2322H96.6073L97.4519 26.802H103.769L104.569 29.2322H108.661L103.283 15.4795H98.176V15.4807ZM100.657 17.9902L102.973 24.4325H98.2678L100.657 17.9902Z" fill="currentColor"/>
+            <path d="M11.6925 17.7697V15.8762C11.8738 15.8633 12.0563 15.8528 12.2422 15.847C17.3372 15.6837 20.68 20.2978 20.68 20.2978C20.68 20.2978 17.0699 25.3962 13.1992 25.3962C12.6415 25.3962 12.1423 25.3052 11.6925 25.1511V19.4077C13.6766 19.6515 14.0748 20.5417 15.2671 22.5623L17.919 20.2885C17.919 20.2885 15.9831 17.7067 12.7195 17.7067C12.3649 17.7067 12.0253 17.7323 11.6913 17.7685L11.6925 17.7697ZM11.6913 11.5128V14.342C11.8738 14.3268 12.0574 14.3152 12.241 14.3082C19.3259 14.0655 23.9425 20.2162 23.9425 20.2162C23.9425 20.2162 18.6408 26.7705 13.1166 26.7705C12.6105 26.7705 12.1366 26.7227 11.6913 26.6433V28.3922C12.0723 28.4412 12.4671 28.4703 12.8779 28.4703C18.0177 28.4703 21.7358 25.8021 25.3356 22.6428C25.9323 23.1281 28.3754 24.31 28.8781 24.828C25.4549 27.7412 17.4795 30.0885 12.9571 30.0885C12.521 30.0885 12.1022 30.0617 11.6913 30.022V32.479H31.2282V11.514H11.6925L11.6913 11.5128ZM11.6913 25.15V26.6433C6.93708 25.7812 5.6174 20.7575 5.6174 20.7575C5.6174 20.7575 7.89986 18.1862 11.6913 17.7697V19.4077C11.6913 19.4077 11.6867 19.4077 11.6845 19.4077C9.69462 19.165 8.14085 21.055 8.14085 21.055C8.14085 21.055 9.01183 24.2365 11.6925 25.1523L11.6913 25.15ZM3.24888 20.5417C3.24888 20.5417 6.06609 16.3148 11.6925 15.8773V14.3443C5.46134 14.853 0.0644531 20.2185 0.0644531 20.2185C0.0644531 20.2185 3.12036 29.2018 11.6925 30.0243V28.3945C5.40167 27.5895 3.24888 20.5417 3.24888 20.5417Z" fill="#76B900"/>
+          </svg>
+          <span class="product">Nemotron</span>
+        </div>
+        <p class="role"><b>Makes every judging call.</b> The organizer picks the size for each criterion.</p>
+        <ul class="tools">
+          <li class="tool">
+            <h3>Nemotron 3.5 Lightning</h3>
+            <code class="id">nvidia/Nemotron-3_5-Lightning</code>
+            <p>One quick pass over the evidence, with no tool calls and thinking off.</p>
+            <div class="chips">
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Quick tier</span>
+              <span class="chip chat"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-chat"/></svg>Fast mode</span>
+            </div>
+          </li>
+          <li class="tool">
+            <h3>Nemotron 3 Super 120B</h3>
+            <code class="id">nvidia/nemotron-3-super-120b-a12b</code>
+            <p>The default. Checks claims with up to 6 tool calls.</p>
+            <div class="chips">
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Balanced tier</span>
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Double-checks Quick</span>
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Project summaries</span>
+              <span class="chip chat"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-chat"/></svg>Smart mode</span>
+            </div>
+          </li>
+          <li class="tool">
+            <h3>Nemotron 3 Ultra 550B</h3>
+            <code class="id">nvidia/Nemotron-3-Ultra-550b-a55b</code>
+            <p>The largest model, with up to 10 tool calls.</p>
+            <div class="chips">
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>In-depth tier</span>
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Double-checks Balanced and In-depth</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Nebius -->
+      <section class="panel">
+        <div class="logo-row">
+          <svg class="nebius-logo" viewBox="0 0 131 36" fill="none" role="img" aria-label="Nebius">
+            <path d="M121.519 0H8.98085C4.02167 0 0 4.06364 0 9.07661V26.9234C0 31.9364 4.02167 36 8.98085 36H121.519C126.48 36 130.5 31.9364 130.5 26.9234V9.07661C130.5 4.06364 126.478 0 121.519 0Z" fill="#E0FF4F"/>
+            <path d="M16.1411 9.55438C17.7334 9.55438 18.8563 10.4347 19.5442 12.0049L23.7455 21.7049C24.8103 24.1575 26.8178 23.8787 26.8178 23.8787C26.8178 25.2604 25.7328 26.5519 24.1385 26.5519C22.5443 26.5519 21.4233 25.6696 20.7355 24.0994L16.5322 14.4014C15.4714 11.9508 13.4619 12.2276 13.4619 12.2276V26.3073H10.125V16.2644C10.125 12.4403 13.4436 12.2284 13.4619 12.2276C13.4619 10.8459 14.5489 9.55438 16.1411 9.55438ZM84.6687 18.5786C84.6687 21.6448 86.5899 23.4596 89.8968 23.4596C93.2036 23.4596 95.1507 21.6468 95.1507 18.5786V9.78899H98.4837V18.5245C98.4836 23.3774 95.0706 26.5518 89.8968 26.5519C84.7229 26.5519 81.3358 23.3514 81.3358 18.5245V9.78899H84.6687V18.5786ZM110.53 9.54224C114.204 9.58635 119.931 10.2522 120.264 14.8786H116.588C116.263 12.5364 111.071 12.4581 108.418 12.7248C108.4 12.7255 105.22 12.8559 105.22 14.4395C105.218 14.4509 105.004 15.8764 108.157 16.168C108.506 16.2021 113.134 16.5872 113.464 16.6133L113.708 16.6374C116.396 16.9142 117.803 17.0585 119.444 18.378H119.44L119.432 18.3819C121.122 19.8499 121.393 23.1207 118.822 24.8052C116.492 26.2992 113.574 26.4857 110.883 26.5519C106.932 26.5519 101.273 25.7798 101.279 20.8025H104.913C105.029 21.9716 105.715 22.6735 106.912 23.0164C108.328 23.4115 109.698 23.4617 111.041 23.4718C114.109 23.4718 117.097 22.9703 116.905 21.2337C116.728 19.6595 114.635 19.499 113.644 19.4228C113.614 19.4208 113.584 19.4188 113.554 19.4167C112.92 19.3667 109.973 19.1871 109.958 19.1862C108.103 19.0539 106.754 18.8514 105.927 18.701C104.135 18.3661 103.258 17.6781 102.683 17.1748C101.203 15.7831 100.972 12.6787 103.333 11.1205C105.44 9.74885 108.095 9.6024 110.53 9.54224ZM63.9131 9.78899C66.7828 9.80704 70.4648 10.4568 70.4648 14.295C70.4648 15.9795 69.7186 17.1186 68.8182 17.7122L68.8163 17.7143C69.7127 17.9831 71.4955 19.2484 71.4955 21.6348C71.4955 24.4162 69.8791 26.3134 64.9218 26.3134V26.3073H54.1751V9.78899H63.9131ZM50.7399 12.9134H36.9488V16.4729H49.2459V19.5973H36.9488V23.1829H50.7399V26.3073H33.5879V9.78899H50.7399V12.9134ZM77.8984 26.3073H74.5375V9.78899H77.8984V26.3073ZM30.1568 19.8419C30.1568 23.676 26.8217 23.8785 26.8178 23.8787V9.79898H30.1568V19.8419ZM57.5401 23.1829H64.97V23.1809C66.5262 23.1789 68.0241 22.9302 68.0241 21.354C68.0241 19.7778 66.3717 19.479 64.9238 19.479V19.471H57.5401V23.1829ZM57.538 16.543H64.9681C65.8785 16.535 67.2361 16.2422 67.2361 14.8465C67.236 13.4508 66.0529 12.9095 64.5088 12.9095H57.538V16.543Z" fill="#052B42"/>
+          </svg>
+        </div>
+        <p class="role"><b>Serves every model and runs every repo,</b> all on one Nebius API key.</p>
+        <ul class="tools">
+          <li class="tool">
+            <h3>Token Factory</h3>
+            <code class="id">api.tokenfactory.nebius.com/v1</code>
+            <p>Every model, behind one OpenAI-compatible API.</p>
+            <div class="chips">
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Every model call</span>
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Strict JSON verdicts</span>
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Video frames</span>
+              <span class="chip chat"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-chat"/></svg>Every answer</span>
+            </div>
+          </li>
+          <li class="tool">
+            <h3>Sandboxes</h3>
+            <code class="id">api.tokenfactory.nebius.com/sandboxes/v1</code>
+            <p>Each repo is cloned once into a VM-isolated sandbox to install, build and test. Every step forks it.</p>
+            <div class="chips">
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Sandbox run</span>
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg><code>runCommand</code></span>
+            </div>
+          </li>
+          <li class="tool">
+            <h3>Qwen3 Embedding 8B</h3>
+            <code class="id">Qwen/Qwen3-Embedding-8B · on Token Factory</code>
+            <p>Embeds each project and up to 3 pages it links to, stored in pgvector.</p>
+            <div class="chips">
+              <span class="chip chat"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-chat"/></svg>Project index</span>
+              <span class="chip chat"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-chat"/></svg>Search across projects</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Tavily -->
+      <section class="panel">
+        <div class="logo-row">
+          <img class="tavily-logo" src="../public/landing/tavily.png" alt="Tavily">
+        </div>
+        <p class="role"><b>Reads the live web.</b> Demo sites, linked pages and search, for the agent and the chat.</p>
+        <ul class="tools">
+          <li class="tool">
+            <h3>Extract</h3>
+            <code class="id">tavily.extract()</code>
+            <p>Reads pages as markdown, focused on the criterion.</p>
+            <div class="chips">
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Web scraper</span>
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg><code>readWebPage</code></span>
+              <span class="chip chat"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-chat"/></svg>Indexes linked pages</span>
+              <span class="chip chat"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-chat"/></svg><code>readWebPage</code></span>
+            </div>
+          </li>
+          <li class="tool">
+            <h3>Crawl</h3>
+            <code class="id">tavily.crawl()</code>
+            <p>Follows a live demo two levels deep, steered by the organizer's guidance.</p>
+            <div class="chips">
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg>Web scraper on In-depth</span>
+            </div>
+          </li>
+          <li class="tool">
+            <h3>Search</h3>
+            <code class="id">tavily.search()</code>
+            <p>Checks a team's claims, and whether the idea already exists on the web.</p>
+            <div class="chips">
+              <span class="chip agent"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-agent"/></svg><code>searchWeb</code></span>
+              <span class="chip chat"><svg fill="currentColor" shape-rendering="crispEdges"><use href="#i-chat"/></svg><code>webSearch</code></span>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; }
+
+    /* Ground (track 0): night glow + pixel stars + the dither canvas that clears 0.0–0.4s */
+    #f07-ground {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 118%, rgba(251,122,60,0.42), transparent 70%),
+        radial-gradient(ellipse 90% 70% at 50% 110%, rgba(217,70,239,0.3), transparent 72%),
+        #150C2E;
+    }
+    #f07-dither { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; display: block; }
+
+    /* Stage (track 1) */
+    #f07-stage { position: absolute; inset: 0; }
+    #f07-stage * { box-sizing: border-box; }
+
+    /* Title band */
+    #f07-eyebrow { position: absolute; left: 120px; top: 104px; line-height: 1; white-space: nowrap; }
+    #f07-headline { position: absolute; left: 120px; top: 140px; width: 960px; font-size: 80px; line-height: 1.06; color: #F7F2FF; }
+    .f07-line { display: block; white-space: nowrap; }
+
+    /* Cards */
+    .f07-card { position: absolute; }
+    #f07-nemo { left: 120px; top: 380px; width: 860px; height: 500px; padding: 36px; display: flex; flex-direction: column; }
+    #f07-nebius { left: 1040px; top: 380px; width: 760px; height: 290px; padding: 36px; }
+    #f07-tavily { left: 1040px; top: 690px; width: 760px; height: 190px; padding: 28px 36px; }
+
+    .f07-role { height: 22px; font-family: "GeistMono", monospace; font-size: 18px; font-weight: 500; line-height: 22px; letter-spacing: 0.18em; color: #B9ABD9; white-space: nowrap; }
+    .f07-titlerow { display: flex; align-items: center; }
+    .f07-title { font-family: "GeistPixelSquare", "GeistSans", sans-serif; font-weight: 500; line-height: 1; color: #F7F2FF; white-space: nowrap; }
+
+    /* Nemotron card (focal) */
+    #f07-nemo .f07-titlerow { margin-top: 8px; height: 52px; gap: 18px; }
+    #f07-nv { display: block; flex: none; width: 170px; height: 34px; }
+    #f07-nemo .f07-title { font-size: 52px; }
+    #f07-glow {
+      position: absolute; z-index: 0; left: 12px; top: 300px; width: 834px; height: 146px; pointer-events: none;
+      background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(251,122,60,0.35) 0%, rgba(251,122,60,0.2) 45%, rgba(251,122,60,0) 100%);
+    }
+    #f07-tiers { position: relative; z-index: 1; margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .f07-tier { display: flex; align-items: center; height: 86px; padding: 0 24px; border-radius: 16px; background: rgba(255,255,255,0.05); }
+    .f07-tier-label { flex: 0 0 180px; font-family: "GeistMono", monospace; font-size: 18px; font-weight: 600; line-height: 1; letter-spacing: 0.12em; color: #F0ABFC; white-space: nowrap; }
+    .f07-tier-name { flex: 1 1 auto; min-width: 0; font-family: "GeistSans", sans-serif; font-size: 27px; font-weight: 600; line-height: 1.3; color: #F7F2FF; white-space: nowrap; }
+    #f07-stage .f07-meter { flex: 0 0 220px; width: 220px; height: 16px; gap: 5px; margin-left: 16px; }
+    #f07-stage .f07-meter i { border-radius: 3px; background: rgba(255,255,255,0.1); }
+    #f07-stage .f07-meter i.on { background: var(--rk-seg, #FCD34D); }
+    #f07-foot { position: relative; z-index: 1; margin-top: 12px; height: 30px; display: flex; align-items: center; gap: 12px; font-family: "GeistSans", sans-serif; font-size: 22px; font-weight: 400; line-height: 1.35; color: #B9ABD9; white-space: nowrap; }
+    #f07-foot-icon { color: #F0ABFC; }
+
+    /* Nebius card */
+    #f07-nebius .f07-titlerow { margin-top: 14px; height: 46px; gap: 16px; }
+    #f07-nb { display: block; flex: none; width: 145.6px; height: 40px; }
+    #f07-nebius .f07-title, #f07-tavily .f07-title { font-size: 46px; }
+    #f07-nb-body { margin-top: 20px; width: 520px; max-width: 600px; font-family: "GeistSans", sans-serif; font-size: 22px; font-weight: 400; line-height: 1.35; color: #B9ABD9; }
+    .f07-bl { display: block; white-space: nowrap; }
+
+    /* Pixel fork diagram: image square -> three forks (bottom-right of the Nebius card) */
+    #f07-fork { position: absolute; right: 36px; bottom: 36px; width: 160px; height: 104px; }
+    .f07-px { position: absolute; }
+    .f07-sq { background: linear-gradient(180deg, #FCD34D 0%, #FB923C 38%, #F43F5E 70%, #E11D8F 100%); }
+    .f07-ln { background: rgba(247,242,255,0.55); }
+    .f07-flabel { position: absolute; height: 16px; font-family: "GeistMono", monospace; font-size: 16px; font-weight: 500; line-height: 16px; color: #B9ABD9; white-space: nowrap; }
+    #f07-img { left: 65px; top: 0; width: 26px; height: 26px; }
+    #f07-img-label { left: 101px; top: 5px; width: 52px; }
+    #f07-trunk { left: 76px; top: 26px; width: 4px; height: 18px; }
+    #f07-bus-l { left: 18px; top: 44px; width: 62px; height: 4px; }
+    #f07-bus-r { left: 76px; top: 44px; width: 62px; height: 4px; }
+    #f07-drop-1 { left: 18px; top: 48px; width: 4px; height: 12px; }
+    #f07-drop-2 { left: 76px; top: 48px; width: 4px; height: 12px; }
+    #f07-drop-3 { left: 134px; top: 48px; width: 4px; height: 12px; }
+    #f07-fk-1 { left: 10px; top: 60px; width: 20px; height: 20px; }
+    #f07-fk-2 { left: 68px; top: 60px; width: 20px; height: 20px; }
+    #f07-fk-3 { left: 126px; top: 60px; width: 20px; height: 20px; }
+    #f07-fl-1, #f07-fl-2, #f07-fl-3 { top: 88px; width: 40px; text-align: center; }
+    #f07-fl-1 { left: 0; }
+    #f07-fl-2 { left: 58px; }
+    #f07-fl-3 { left: 116px; }
+
+    /* Tavily card */
+    #f07-tavily .f07-title { margin-top: 6px; height: 46px; }
+    #f07-chips { margin-top: 14px; display: flex; gap: 12px; }
+    #f07-stage .f07-chip { font-size: 20px; padding: 8px 18px 8px 14px; gap: 10px; }
+    #f07-stage .f07-chip [data-rk-icon] { color: #F0ABFC; }
+  </style>
+
+  <div id="root" data-composition-id="07-open-stack" data-width="1920" data-height="1080">
+    <div id="f07-ground" class="clip" data-start="0" data-duration="6" data-track-index="0">
+      <div class="rk-stars"></div>
+      <canvas id="f07-dither" width="1920" height="1080"></canvas>
+    </div>
+
+    <div id="f07-stage" class="clip" data-start="0" data-duration="6" data-track-index="1">
+      <div id="f07-eyebrow" class="rk-eyebrow rk-eyebrow--dark">OPEN STACK</div>
+      <div id="f07-headline" class="rk-display">
+        <div id="f07-line-1" class="f07-line">Open models, on</div>
+        <div id="f07-line-2" class="f07-line">infrastructure <span id="f07-own">you own.</span></div>
+      </div>
+
+      <div id="f07-nemo" class="rk-night-card f07-card">
+        <div id="f07-glow"></div>
+        <div class="f07-role">EVERY VERDICT</div>
+        <div class="f07-titlerow">
+          <img id="f07-nv" src="assets/nvidia-logo-white.svg" alt="NVIDIA" />
+          <div class="rk-display f07-title">Nemotron</div>
+        </div>
+        <div id="f07-tiers">
+          <div id="f07-tier-1" class="f07-tier">
+            <div class="f07-tier-label">QUICK</div>
+            <div class="f07-tier-name">Nemotron 3.5 Lightning</div>
+            <div id="f07-meter-1" class="rk-meter f07-meter"></div>
+          </div>
+          <div id="f07-tier-2" class="f07-tier">
+            <div class="f07-tier-label">BALANCED</div>
+            <div class="f07-tier-name">Nemotron 3 Super 120B</div>
+            <div id="f07-meter-2" class="rk-meter f07-meter"></div>
+          </div>
+          <div id="f07-tier-3" class="f07-tier">
+            <div class="f07-tier-label">IN-DEPTH</div>
+            <div class="f07-tier-name">Nemotron 3 Ultra 550B</div>
+            <div id="f07-meter-3" class="rk-meter f07-meter"></div>
+          </div>
+        </div>
+        <div id="f07-foot">
+          <span id="f07-foot-icon" data-rk-icon="refresh" data-size="24"></span>
+          <span id="f07-foot-text"></span>
+        </div>
+      </div>
+
+      <div id="f07-nebius" class="rk-night-card f07-card">
+        <div class="f07-role">INFERENCE AND SANDBOXES</div>
+        <div class="f07-titlerow">
+          <img id="f07-nb" src="assets/nebius-logo.svg" alt="Nebius" />
+          <div class="rk-display f07-title">Token Factory</div>
+        </div>
+        <div id="f07-nb-body">
+          <span class="f07-bl">Every model call.</span>
+          <span class="f07-bl">Every repo built in a VM-isolated Nebius Sandbox.</span>
+        </div>
+        <div id="f07-fork">
+          <div id="f07-trunk" class="f07-px f07-ln"></div>
+          <div id="f07-bus-l" class="f07-px f07-ln"></div>
+          <div id="f07-bus-r" class="f07-px f07-ln"></div>
+          <div id="f07-drop-1" class="f07-px f07-ln"></div>
+          <div id="f07-drop-2" class="f07-px f07-ln"></div>
+          <div id="f07-drop-3" class="f07-px f07-ln"></div>
+          <div id="f07-img" class="f07-px f07-sq"></div>
+          <div id="f07-img-label" class="f07-flabel">image</div>
+          <div id="f07-fk-1" class="f07-px f07-sq"></div>
+          <div id="f07-fk-2" class="f07-px f07-sq"></div>
+          <div id="f07-fk-3" class="f07-px f07-sq"></div>
+          <div id="f07-fl-1" class="f07-flabel">fork</div>
+          <div id="f07-fl-2" class="f07-flabel">fork</div>
+          <div id="f07-fl-3" class="f07-flabel">fork</div>
+        </div>
+      </div>
+
+      <div id="f07-tavily" class="rk-night-card f07-card">
+        <div class="f07-role">THE LIVE WEB</div>
+        <div class="rk-display f07-title">Tavily</div>
+        <div id="f07-chips">
+          <span id="f07-chip-1" class="rk-pill rk-pill--glass f07-chip"><span data-rk-icon="search" data-size="24"></span>Extract</span>
+          <span id="f07-chip-2" class="rk-pill rk-pill--glass f07-chip"><span data-rk-icon="globe" data-size="24"></span>Crawl</span>
+          <span id="f07-chip-3" class="rk-pill rk-pill--glass f07-chip"><span data-rk-icon="search" data-size="24"></span>Search prior art</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      const DURATION = 6;
+      const tl = gsap.timeline({ paused: true });
+      const clock = RK.clock(tl, DURATION);
+      var root = document.querySelector('[data-composition-id="07-open-stack"]');
+      var q = function (sel) { return root.querySelector(sel); };
+      RK.hydrate(root);
+
+      // ── Scene 1 (0.0–1.0s): tiles clear, title band lands on the downbeat ──
+      RK.dither(clock, q("#f07-dither"), { start: 0, dur: 0.4, mode: "reveal", color: "#150C2E", angle: "center" });
+      tl.fromTo(q("#f07-eyebrow"), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 0);
+      tl.fromTo(q("#f07-line-1"), { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 0);
+      tl.fromTo(q("#f07-line-2"), { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.42, ease: "power3.out" }, 0.08);
+
+      // "you own." flicks to the sunset gradient on the 0.5s beat (one arcade blink, then holds).
+      var own = q("#f07-own");
+      var ownOn = null;
+      clock.add(function (t) {
+        var on = t >= 0.5 && !(t >= 0.56 && t < 0.6);
+        if (on === ownOn) return;
+        ownOn = on;
+        if (on) own.classList.add("rk-sunset-text");
+        else own.classList.remove("rk-sunset-text");
+      });
+
+      // ── Scene 2 (1.0–3.0s): Nemotron card rises; tier rows land; power meters fill in steps ──
+      tl.fromTo(q("#f07-nemo"), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 1.0);
+
+      var tiers = [
+        { row: "#f07-tier-1", meter: "#f07-meter-1", land: 1.25, to: 3 },
+        { row: "#f07-tier-2", meter: "#f07-meter-2", land: 1.75, to: 6 },
+        { row: "#f07-tier-3", meter: "#f07-meter-3", land: 2.25, to: 10 },
+      ];
+      tiers.forEach(function (tier) {
+        var m = q(tier.meter);
+        RK.meter(m, 10, { colors: ["#FCD34D", "#E11D8F"] });
+        tl.fromTo(q(tier.row), { opacity: 0, x: -28 }, { opacity: 1, x: 0, duration: 0.45, ease: "power3.out" }, tier.land);
+        RK.fillMeter(clock, m, { to: tier.to, start: tier.land + 0.05, dur: 0.3 });
+      });
+
+      // IN-DEPTH maxes out at ~2.59s: the sunset glow blooms in behind it at 2.6s (single fade, no pulse).
+      tl.fromTo(q("#f07-glow"), { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 2.6);
+
+      // Footer: refresh icon pops, line types in from 2.75s (done 3.75s).
+      RK.pop(tl, q("#f07-foot-icon"), 2.75);
+      RK.type(clock, q("#f07-foot-text"), "Unsure? A bigger Nemotron double-checks.", { start: 2.75, cps: 40 });
+
+      // ── Scene 3 (3.0–5.0s): Nebius card + stepped fork diagram; Tavily card + chip pops ──
+      tl.fromTo(q("#f07-nebius"), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 3.0);
+
+      var draw = function (sel, axis, origin, t, dur, steps) {
+        var from = { transformOrigin: origin };
+        var to = { duration: dur, ease: "steps(" + steps + ")" };
+        from[axis] = 0;
+        to[axis] = 1;
+        tl.fromTo(q(sel), from, to, t);
+      };
+      var blink = function (sel, t) {
+        tl.fromTo(q(sel), { opacity: 0 }, { opacity: 1, duration: 0.08, ease: "steps(2)" }, t);
+      };
+
+      // image square on 3.5, then one fork per step: 3.625 / 3.75 / 3.875 (all drawn by 4.0).
+      RK.pop(tl, q("#f07-img"), 3.5);
+      blink("#f07-img-label", 3.5);
+      draw("#f07-trunk", "scaleY", "50% 0%", 3.54, 0.06, 2);
+
+      draw("#f07-bus-l", "scaleX", "100% 50%", 3.58, 0.03, 2);
+      draw("#f07-drop-1", "scaleY", "50% 0%", 3.6, 0.02, 1);
+      RK.pop(tl, q("#f07-fk-1"), 3.625);
+      blink("#f07-fl-1", 3.625);
+
+      draw("#f07-drop-2", "scaleY", "50% 0%", 3.7, 0.05, 2);
+      RK.pop(tl, q("#f07-fk-2"), 3.75);
+      blink("#f07-fl-2", 3.75);
+
+      draw("#f07-bus-r", "scaleX", "0% 50%", 3.8, 0.03, 2);
+      draw("#f07-drop-3", "scaleY", "50% 0%", 3.83, 0.04, 1);
+      RK.pop(tl, q("#f07-fk-3"), 3.875);
+      blink("#f07-fl-3", 3.875);
+
+      tl.fromTo(q("#f07-tavily"), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 4.0);
+      RK.pop(tl, q("#f07-chip-1"), 4.25);
+      RK.pop(tl, q("#f07-chip-2"), 4.5);
+      RK.pop(tl, q("#f07-chip-3"), 4.75);
+
+      // ── Scene 4 (5.0–6.0s): hold, still. ──
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["07-open-stack"] = tl;
+    })();
+  </script>
+</template>

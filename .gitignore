@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+/.swc
+
+# workflow sdk (local runs)
+/.workflow-data
+
+# local agent skills (third-party code under its own licenses, e.g. GSAP)
+/.agents/
+
+# local Claude Code config and skill links
+/.claude/

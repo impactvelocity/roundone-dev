@@ -1,0 +1,355 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; font-family: "GeistSans"; color: #1D1433; }
+
+    /* Layers */
+    #f06-ground { position: absolute; inset: 0; background: #FAF8FF; }
+    #f06-stage { position: absolute; inset: 0; }
+
+    /* Title band */
+    #f06-eyebrow { position: absolute; left: 120px; top: 104px; line-height: 24px; white-space: nowrap; }
+    #f06-headline { position: absolute; left: 120px; top: 140px; font-family: "GeistPixelSquare"; font-weight: 500; font-size: 84px; line-height: 1.06; color: #1D1433; white-space: nowrap; }
+    #f06-headline .f06-slot { display: inline-grid; vertical-align: baseline; }
+    #f06-headline .f06-slot > span { grid-area: 1 / 1; }
+    #f06-verb { justify-items: end; }
+    #f06-obj { justify-items: start; }
+    #f06-verb > span + span, #f06-obj > span + span { display: none; }
+
+    /* Card */
+    #f06-card { position: absolute; left: 120px; top: 250px; width: 1680px; height: 630px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; }
+    #f06-head { flex: none; height: 96px; box-sizing: border-box; display: flex; align-items: center; gap: 18px; padding: 0 28px; border-bottom: 1px solid rgba(46,22,88,0.1); }
+    #f06-head .rk-mark { width: 56px; height: 56px; font-size: 19px; }
+    #f06-titles { min-width: 0; display: flex; flex-direction: column; }
+    #f06-title { font-size: 36px; font-weight: 600; line-height: 1.15; color: #1D1433; white-space: nowrap; }
+    #f06-sub { margin-top: 2px; font-size: 22px; font-weight: 400; line-height: 1.3; color: #564B70; white-space: nowrap; }
+    #f06-status { position: relative; flex: none; margin-left: auto; width: 260px; height: 33px; }
+    #f06-status .rk-tag { position: absolute; right: 0; top: 0; }
+
+    #f06-body { flex: 1 1 auto; min-height: 0; display: flex; }
+
+    /* Checklist column */
+    #f06-list { flex: none; width: 1000px; }
+    #f06-list-head { height: 64px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 0 28px; }
+    #f06-list-head .f06-lh-icon { color: #7C3AED; }
+    #f06-list-head .f06-lh-label { font-size: 27px; font-weight: 600; line-height: 1.2; color: #1D1433; white-space: nowrap; }
+    #f06-list-head .f06-lh-model { margin-left: auto; font-family: "GeistMono"; font-size: 22px; font-weight: 400; color: #6F6689; white-space: nowrap; }
+    #f06-list .f06-row { height: 76px; box-sizing: border-box; padding: 0 28px; gap: 18px; }
+    #f06-list .f06-tile { width: 48px; height: 48px; border-radius: 12px; }
+    #f06-list .f06-txt { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+    #f06-list .f06-ttl { display: flex; align-items: center; gap: 12px; }
+    #f06-list .f06-name { font-size: 27px; font-weight: 500; line-height: 1.15; color: #1D1433; white-space: nowrap; }
+    #f06-list .f06-via { margin-top: 1px; font-size: 22px; font-weight: 400; line-height: 1.25; color: #564B70; white-space: nowrap; }
+    #f06-list .f06-res { flex: none; position: relative; width: 190px; height: 100%; }
+    #f06-list .f06-res-l { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; }
+    #f06-list .f06-spin { display: block; color: #7C3AED; }
+    #f06-list .f06-spin svg { display: block; }
+    #f06-score { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    #f06-score-num { font-family: "GeistPixelSquare"; font-weight: 500; font-size: 40px; line-height: 1; color: #1D1433; white-space: nowrap; }
+    #f06-meter { width: 160px; }
+
+    /* Trace column */
+    #f06-side { flex: 1 1 auto; position: relative; background: rgba(109,40,217,0.045); border-left: 1px solid rgba(46,22,88,0.1); }
+    #f06-trace { position: absolute; left: 30px; right: 30px; top: 30px; bottom: 30px; box-sizing: border-box; padding: 28px; border-radius: 20px; background: #150C2E; font-family: "GeistMono"; font-size: 21px; font-weight: 400; color: #B9ABD9; }
+    #f06-trace-chrome { display: flex; gap: 8px; height: 10px; margin-bottom: 22px; }
+    #f06-trace-chrome i { display: block; width: 10px; height: 10px; opacity: 0.85; }
+    #f06-lines .f06-ln { height: 36px; line-height: 36px; white-space: pre; opacity: 0; }
+    #f06-lines .f06-p { color: #F0ABFC; }
+    #f06-lines .f06-c { color: #F7F2FF; }
+    #f06-lines .f06-ok { display: inline-flex; width: 2ch; justify-content: center; vertical-align: middle; color: #FCD34D; }
+    #f06-lines .f06-tri { display: inline-block; width: 6px; height: 10px; margin: 0 3.3px; vertical-align: middle; background: currentColor; clip-path: polygon(0 0, 2px 0, 2px 2px, 4px 2px, 4px 4px, 6px 4px, 6px 6px, 4px 6px, 4px 8px, 2px 8px, 2px 10px, 0 10px); }
+    #f06-lines .f06-caret { margin-left: 0.35em; color: #F7F2FF; opacity: 0; }
+  </style>
+
+  <div id="root" data-composition-id="06-agent-review" data-width="1920" data-height="1080">
+    <div id="f06-ground" class="clip" data-start="0" data-duration="6" data-track-index="0"><div class="rk-dotgrid"></div></div>
+
+    <div id="f06-stage" class="clip" data-start="0" data-duration="6" data-track-index="1">
+      <div id="f06-eyebrow" class="rk-eyebrow">ROUND ONE &middot; THE AGENT</div>
+
+      <div id="f06-headline"><span id="f06-verb" class="f06-slot"><span>Builds</span><span>Watches</span><span>Visits</span></span> every <span id="f06-obj" class="f06-slot"><span>repo.</span><span>demo.</span><span>live site.</span></span></div>
+
+      <div id="f06-card" class="rk-mock">
+        <div id="f06-head">
+          <span class="rk-mark">RW</span>
+          <div id="f06-titles">
+            <div id="f06-title">Repo Whisperer</div>
+            <div id="f06-sub">Project #042 &middot; Coding and Agentic Engineering</div>
+          </div>
+          <div id="f06-status">
+            <span id="f06-st-a" class="rk-tag rk-tag--agent">Agent reviewing</span>
+            <span id="f06-st-b" class="rk-tag rk-tag--agent"><span data-rk-icon="spark" data-size="14"></span>Agent review done</span>
+          </div>
+        </div>
+
+        <div id="f06-body">
+          <div id="f06-list">
+            <div id="f06-list-head">
+              <span class="f06-lh-icon" data-rk-icon="spark" data-size="24"></span>
+              <span class="f06-lh-label">The agent checks</span>
+              <span class="f06-lh-model">nemotron-3-super</span>
+            </div>
+
+            <div id="f06-r1" class="rk-row f06-row">
+              <span class="rk-tile f06-tile"><span data-rk-icon="gear" data-size="24"></span></span>
+              <div class="f06-txt">
+                <div class="f06-ttl"><span class="f06-name">Builds from the README</span><span class="rk-tag rk-tag--gate">gate</span></div>
+                <div class="f06-via">Sandbox run</div>
+              </div>
+              <div class="f06-res">
+                <div class="f06-res-l"><span class="f06-spin"></span></div>
+                <div class="f06-res-l"><span class="rk-tag rk-tag--pass f06-pass"><span data-rk-icon="check" data-size="14"></span>Pass</span></div>
+              </div>
+            </div>
+
+            <div id="f06-r2" class="rk-row f06-row">
+              <span class="rk-tile f06-tile"><span data-rk-icon="search" data-size="24"></span></span>
+              <div class="f06-txt">
+                <div class="f06-ttl"><span class="f06-name">Runs on Nebius Token Factory</span><span class="rk-tag rk-tag--gate">gate</span></div>
+                <div class="f06-via">Code scraper</div>
+              </div>
+              <div class="f06-res">
+                <div class="f06-res-l"><span class="f06-spin"></span></div>
+                <div class="f06-res-l"><span class="rk-tag rk-tag--pass f06-pass"><span data-rk-icon="check" data-size="14"></span>Pass</span></div>
+              </div>
+            </div>
+
+            <div id="f06-r3" class="rk-row f06-row">
+              <span class="rk-tile f06-tile"><span data-rk-icon="search" data-size="24"></span></span>
+              <div class="f06-txt">
+                <div class="f06-ttl"><span class="f06-name">Uses an NVIDIA open model</span><span class="rk-tag rk-tag--gate">gate</span></div>
+                <div class="f06-via">Code scraper &middot; Nemotron found</div>
+              </div>
+              <div class="f06-res">
+                <div class="f06-res-l"><span class="f06-spin"></span></div>
+                <div class="f06-res-l"><span class="rk-tag rk-tag--pass f06-pass"><span data-rk-icon="check" data-size="14"></span>Pass</span></div>
+              </div>
+            </div>
+
+            <div id="f06-r4" class="rk-row f06-row">
+              <span class="rk-tile f06-tile"><span data-rk-icon="play" data-size="24"></span></span>
+              <div class="f06-txt">
+                <div class="f06-ttl"><span class="f06-name">Demo video, 3 min or less</span><span class="rk-tag rk-tag--gate">gate</span></div>
+                <div class="f06-via">Video reviewer &middot; 2:41</div>
+              </div>
+              <div class="f06-res">
+                <div class="f06-res-l"><span class="f06-spin"></span></div>
+                <div class="f06-res-l"><span class="rk-tag rk-tag--pass f06-pass"><span data-rk-icon="check" data-size="14"></span>Pass</span></div>
+              </div>
+            </div>
+
+            <div id="f06-r5" class="rk-row f06-row">
+              <span class="rk-tile f06-tile"><span data-rk-icon="globe" data-size="24"></span></span>
+              <div class="f06-txt">
+                <div class="f06-ttl"><span class="f06-name">Live demo visited</span></div>
+                <div class="f06-via">Web scraper &middot; 5 pages</div>
+              </div>
+              <div class="f06-res">
+                <div class="f06-res-l"><span class="f06-spin"></span></div>
+                <div class="f06-res-l"><span class="rk-tag rk-tag--pass f06-pass"><span data-rk-icon="check" data-size="14"></span>Pass</span></div>
+              </div>
+            </div>
+
+            <div id="f06-r6" class="rk-row f06-row">
+              <span class="rk-tile f06-tile"><span data-rk-icon="gear" data-size="24"></span></span>
+              <div class="f06-txt">
+                <div class="f06-ttl"><span class="f06-name">Technological implementation</span></div>
+                <div class="f06-via">Sandbox run &middot; 42 of 42 tests pass</div>
+              </div>
+              <div class="f06-res">
+                <div class="f06-res-l"><span class="f06-spin"></span></div>
+                <div class="f06-res-l"><div id="f06-score"><div id="f06-score-num">0.0</div><div id="f06-meter" class="rk-meter"></div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="f06-side">
+            <div id="f06-trace">
+              <div id="f06-trace-chrome"><i style="background:#F0ABFC"></i><i style="background:#FCD34D"></i><i style="background:#B9ABD9"></i></div>
+              <div id="f06-lines">
+                <div class="f06-ln"><span class="f06-p"><i class="f06-tri"></i> sandbox</span>  nebius &middot; fork of image<span class="rk-caret f06-caret"></span></div>
+                <div class="f06-ln">$ <span class="f06-c">git clone repo-whisperer</span><span class="rk-caret f06-caret"></span></div>
+                <div class="f06-ln">$ <span class="f06-c">pnpm install</span><span class="rk-caret f06-caret"></span></div>
+                <div class="f06-ln">$ <span class="f06-c">pnpm build</span>  <span class="f06-ok" data-rk-icon="check" data-size="24"></span><span class="rk-caret f06-caret"></span></div>
+                <div class="f06-ln"><span class="f06-p"><i class="f06-tri"></i> code</span>  <span class="f06-c">grep tokenfactory.nebius.com</span>  <span class="f06-ok" data-rk-icon="check" data-size="24"></span><span class="rk-caret f06-caret"></span></div>
+                <div class="f06-ln"><span class="f06-p"><i class="f06-tri"></i> code</span>  <span class="f06-c">grep nemotron</span>  <span class="f06-ok" data-rk-icon="check" data-size="24"></span> found<span class="rk-caret f06-caret"></span></div>
+                <div class="f06-ln"><span class="f06-p"><i class="f06-tri"></i> video</span>  2:41 &middot; transcript read  <span class="f06-ok" data-rk-icon="check" data-size="24"></span><span class="rk-caret f06-caret"></span></div>
+                <div class="f06-ln"><span class="f06-p"><i class="f06-tri"></i> web</span>  crawl live demo &middot; 5 pages  <span class="f06-ok" data-rk-icon="check" data-size="24"></span><span class="rk-caret f06-caret"></span></div>
+                <div class="f06-ln">$ <span class="f06-c">pnpm test</span>  <span class="f06-ok" data-rk-icon="check" data-size="24"></span> 42 passed<span class="rk-caret f06-caret"></span></div>
+                <div class="f06-ln"><span class="f06-p"><i class="f06-tri"></i> nemotron-3-super</span> &middot; score 8.5<span class="rk-caret f06-caret"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 6;
+      var tl = gsap.timeline({ paused: true });
+      var clock = RK.clock(tl, DURATION);
+      var root = document.querySelector('[data-composition-id="06-agent-review"]');
+      var $ = function (sel) { return root.querySelector(sel); };
+      var $$ = function (sel) { return Array.prototype.slice.call(root.querySelectorAll(sel)); };
+
+      // Frame-local beat times (120 BPM, beat = 0.5s).
+      var EPS = 1e-4;
+      var at = function (t, T) { return t >= T - EPS; };
+      // RK.pop's steps(2) shows its first frame a third of the way into its 0.12s tween, so start it 0.05s early to show that frame on the beat.
+      var POP_LEAD = 0.05;
+      var SWAPS = [2.0, 4.0];
+      var DONE = 5.5;
+      var ROWS = [
+        { arrive: 0.5, pass: 1.0 },
+        { arrive: 1.1, pass: 1.5 },
+        { arrive: 2.1, pass: 2.5 },
+        { arrive: 2.6, pass: 3.0 },
+        { arrive: 4.1, pass: 4.5 },
+        { arrive: 4.6, score: 4.75 }
+      ];
+      var TRACE_T = [0.4, 0.6, 0.8, 0.95, 1.3, 2.3, 2.8, 4.3, 4.7, 5.0];
+
+      // ── 3×3 pixel spinners: the lit cell steps clockwise around the ring every 0.125s ──
+      var RING = [[0, 0], [1, 0], [2, 0], [2, 1], [2, 2], [1, 2], [0, 2], [0, 1]];
+      var spinners = [];
+      function spinner(host, cell, gap) {
+        var s = 3 * cell + 2 * gap;
+        var r = "";
+        for (var i = 0; i < RING.length; i++) {
+          r += '<rect x="' + RING[i][0] * (cell + gap) + '" y="' + RING[i][1] * (cell + gap) + '" width="' + cell + '" height="' + cell + '"/>';
+        }
+        host.insertAdjacentHTML("afterbegin",
+          '<svg width="' + s + '" height="' + s + '" viewBox="0 0 ' + s + " " + s + '" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true">' + r + "</svg>");
+        var rects = Array.prototype.slice.call(host.firstChild.querySelectorAll("rect"));
+        spinners.push(rects);
+        return rects;
+      }
+
+      var tagA = $("#f06-st-a");
+      var tagB = $("#f06-st-b");
+      spinner(tagA, 4, 1); // 14px, the kit's tag-icon size
+      var rowEls = ROWS.map(function (_, i) { return $("#f06-r" + (i + 1)); });
+      var rowSpins = rowEls.map(function (row) {
+        var host = row.querySelector(".f06-spin");
+        spinner(host, 8, 2); // 28px, 8px cells
+        return host;
+      });
+
+      RK.hydrate(root);
+
+      var meterEl = $("#f06-meter");
+      RK.meter(meterEl, 10);
+
+      // Visible for t in [t0, t1), a pure function of t.
+      function visibleBetween(el, t0, t1) {
+        var last = null;
+        clock.add(function (t) {
+          var v = at(t, t0) && !at(t, t1);
+          if (v === last) return;
+          last = v;
+          el.style.opacity = v ? "1" : "0";
+        });
+      }
+
+      // Spinner phase, shared so every spinner steps together on the 16th-note grid.
+      var lastK = -1;
+      clock.add(function (t) {
+        var k = Math.floor(t / 0.125 + EPS) % 8;
+        if (k === lastK) return;
+        lastK = k;
+        for (var s = 0; s < spinners.length; s++) {
+          for (var i = 0; i < 8; i++) {
+            var d = (k - i + 8) % 8;
+            spinners[s][i].setAttribute("opacity", d === 0 ? "1" : d === 1 ? "0.45" : "0.16");
+          }
+        }
+      });
+
+      // ── Scene 1: eyebrow and headline arrive; the card is already in place ──
+      tl.fromTo($("#f06-eyebrow"), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.1);
+      tl.fromTo($("#f06-headline"), { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.25);
+
+      // Headline: verb and object hard-cut in place with a stepped 1 → 0.3 → 1 flicker. Only the live token
+      // takes space, so the line stays flush with the eyebrow at x=120.
+      var verbSlot = $("#f06-verb");
+      var objSlot = $("#f06-obj");
+      var verbToks = $$("#f06-verb > span");
+      var objToks = $$("#f06-obj > span");
+      var lastState = -1;
+      var lastDim = null;
+      clock.add(function (t) {
+        var s = at(t, SWAPS[1]) ? 2 : at(t, SWAPS[0]) ? 1 : 0;
+        if (s !== lastState) {
+          lastState = s;
+          for (var i = 0; i < 3; i++) {
+            var v = i === s ? "block" : "none";
+            verbToks[i].style.display = v;
+            objToks[i].style.display = v;
+          }
+        }
+        var dim = false;
+        for (var j = 0; j < SWAPS.length; j++) {
+          if (at(t, SWAPS[j] - 0.05) && !at(t, SWAPS[j] + 0.05)) dim = true;
+        }
+        if (dim !== lastDim) {
+          lastDim = dim;
+          verbSlot.style.opacity = dim ? "0.3" : "1";
+          objSlot.style.opacity = dim ? "0.3" : "1";
+        }
+      });
+
+      // ── Rows arrive with a spinner, then flip to Pass on their beat ──
+      ROWS.forEach(function (r, i) {
+        tl.fromTo(rowEls[i], { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, r.arrive);
+        if (r.pass != null) {
+          visibleBetween(rowSpins[i], 0, r.pass);
+          RK.pop(tl, rowEls[i].querySelector(".f06-pass"), r.pass - POP_LEAD);
+        } else {
+          visibleBetween(rowSpins[i], 0, r.score);
+        }
+      });
+
+      // Row 6: score counts 0 → 8.5 while the meter fills to 9 of 10, landing on 5.0.
+      visibleBetween($("#f06-score"), ROWS[5].score, Infinity);
+      RK.count(clock, $("#f06-score-num"), { from: 0, to: 8.5, start: 4.75, dur: 0.25, decimals: 1, steps: 17, ease: "linear" });
+      RK.fillMeter(clock, meterEl, { from: 0, to: 9, start: 4.75, dur: 0.25 });
+
+      // ── Trace: lines hard-set in order; block caret on the newest line until the review is done ──
+      var lineEls = $$("#f06-lines .f06-ln");
+      var caretEls = lineEls.map(function (ln) { return ln.querySelector(".f06-caret"); });
+      var lastShown = -2;
+      var lastCaret = -2;
+      clock.add(function (t) {
+        var a = -1;
+        for (var i = 0; i < TRACE_T.length; i++) if (at(t, TRACE_T[i])) a = i;
+        if (a !== lastShown) {
+          lastShown = a;
+          for (var j = 0; j < lineEls.length; j++) lineEls[j].style.opacity = j <= a ? "1" : "0";
+        }
+        var on = -1;
+        if (a >= 0 && !at(t, DONE)) {
+          var ph = (t - TRACE_T[a]) % 0.5;
+          if (ph < 0.3) on = a;
+        }
+        if (on !== lastCaret) {
+          lastCaret = on;
+          for (var k = 0; k < caretEls.length; k++) caretEls[k].style.opacity = k === on ? "1" : "0";
+        }
+      });
+
+      // ── Scene 3 payoff: status flips to done on 5.5 ──
+      visibleBetween(tagA, 0, DONE);
+      RK.pop(tl, tagB, DONE - POP_LEAD);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["06-agent-review"] = tl;
+    })();
+  </script>
+</template>

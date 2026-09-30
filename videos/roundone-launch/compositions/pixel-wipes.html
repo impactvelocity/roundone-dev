@@ -1,0 +1,82 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    #pw-layer {
+      position: absolute;
+      inset: 0;
+    }
+    #pw-canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+    }
+  </style>
+  <!-- The cover half of the film's pixel-dither wipes: night-purple Bayer tiles
+       sweep over the outgoing frame in the 0.35s before each cut. The incoming
+       frame opens fully covered and clears its own tiles (RK.dither "reveal"). -->
+  <div id="root" data-composition-id="pixel-wipes" data-width="1920" data-height="1080">
+    <div id="pw-layer" class="clip" data-start="0" data-duration="66" data-track-index="0">
+      <canvas id="pw-canvas" width="1920" height="1080"></canvas>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      var DURATION = 66;
+      var COVER = 0.35; // seconds of sweep before each cut
+      var HOLD = 0.05; // fully covered for the last frame or two before the cut
+      var CELL = 48;
+      var COLOR = "#150C2E";
+      var LEVELS = 20;
+      var CUTS = [16, 22, 34, 40, 60];
+
+      var tl = gsap.timeline({ paused: true });
+      var clock = RK.clock(tl, DURATION);
+      var canvas = document.getElementById("pw-canvas");
+      var ctx = canvas.getContext("2d");
+      var cols = Math.ceil(1920 / CELL);
+      var rows = Math.ceil(1080 / CELL);
+
+      // Same ordering as RK.dither's diagonal sweep: a top-left → bottom-right
+      // band with a Bayer-dithered edge.
+      var th = [];
+      for (var y = 0; y < rows; y++) {
+        for (var x = 0; x < cols; x++) {
+          var sweep = (x / cols) * 0.62 + (y / rows) * 0.38;
+          var b = (RK.bayer(x, y) + 0.5) / 16;
+          th.push(Math.min(0.999, sweep * 0.55 + b * 0.45));
+        }
+      }
+
+      var last = -1;
+      clock.add(function (t) {
+        var q = 0;
+        for (var i = 0; i < CUTS.length; i++) {
+          var s = CUTS[i] - COVER;
+          if (t >= s && t < CUTS[i]) {
+            var p = Math.min(1, (t - s) / (COVER - HOLD));
+            q = Math.round(p * LEVELS) / LEVELS;
+            break;
+          }
+        }
+        if (q === last) return;
+        last = q;
+        ctx.clearRect(0, 0, 1920, 1080);
+        if (q <= 0) return;
+        ctx.fillStyle = COLOR;
+        for (var k = 0; k < th.length; k++) {
+          if (q >= 1 || th[k] < q) ctx.fillRect((k % cols) * CELL, Math.floor(k / cols) * CELL, CELL, CELL);
+        }
+      });
+
+      window.__timelines["pixel-wipes"] = tl;
+    })();
+  </script>
+</template>

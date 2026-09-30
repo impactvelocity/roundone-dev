@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RoundOne agent stack</title>
+<!--
+  Source for devpost/agent-stack.png: the judging agent, and what NVIDIA
+  Nemotron, Nebius (Token Factory and Sandboxes) and Tavily each do in it.
+  A companion to judging-lifecycle.html, in the same style. The wires are
+  drawn by the script at the bottom once the fonts load, so the render needs
+  --virtual-time-budget. Render (from the repo root):
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new \
+    --allow-file-access-from-files --hide-scrollbars --force-device-scale-factor=2 \
+    --virtual-time-budget=5000 --window-size=1600,2037 --screenshot=devpost/agent-stack.png \
+    "file://$PWD/devpost/agent-stack.html"
+-->
+<style>
+  @font-face { font-family: "Geist"; src: url("../node_modules/geist/dist/fonts/geist-sans/Geist-Regular.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Geist"; src: url("../node_modules/geist/dist/fonts/geist-sans/Geist-Medium.woff2") format("woff2"); font-weight: 500; }
+  @font-face { font-family: "Geist"; src: url("../node_modules/geist/dist/fonts/geist-sans/Geist-SemiBold.woff2") format("woff2"); font-weight: 600; }
+  @font-face { font-family: "Geist Mono"; src: url("../node_modules/geist/dist/fonts/geist-mono/GeistMono-Regular.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Geist Mono"; src: url("../node_modules/geist/dist/fonts/geist-mono/GeistMono-Medium.woff2") format("woff2"); font-weight: 500; }
+  @font-face { font-family: "Geist Pixel"; src: url("../node_modules/geist/dist/fonts/geist-pixel/GeistPixel-Square.woff2") format("woff2"); }
+
+  :root {
+    --ink: #1a1530;
+    --muted: #625d78;
+    --line: #e6e1f0;
+    --paper: #ffffff;
+    --wash: #faf8fe;
+    --violet: #7c3aed;
+    --violet-soft: #f1eaff;
+    --magenta: #e8318f;
+    --slate: #3b3551;
+    --slate-soft: #efedf5;
+    /* The services: NVIDIA green for Nemotron, blue for Nebius, amber for Tavily */
+    --nv: #76b900; --nv-ink: #3d6b00; --nv-soft: #f0f8e1; --nv-line: #cfe6a6;
+    --nb: #2f5bea; --nb-ink: #2448c4; --nb-soft: #eaf0ff; --nb-line: #cad7fb; --nb-wash: #f1f5ff;
+    --tv: #e58a00; --tv-ink: #9a5800; --tv-soft: #fff1d9; --tv-line: #f3d6a2; --tv-wash: #fff8ec;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1600px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 17px/1.4 "Geist", system-ui, sans-serif;
+    padding: 52px 56px 56px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono, code { font-family: "Geist Mono", ui-monospace, monospace; }
+
+  header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 34px; }
+  .eyebrow { font: 500 14px/1 "Geist Mono", monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--violet); margin-bottom: 14px; }
+  h1 { font: 400 44px/1.05 "Geist Pixel", "Geist", sans-serif; letter-spacing: -.01em; }
+  .legend { display: flex; gap: 10px; }
+  .key { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; padding: 8px 13px; border: 1px solid var(--line); border-radius: 999px; }
+  .dot { width: 11px; height: 11px; border-radius: 3px; }
+
+  section { border: 1px solid var(--line); border-radius: 24px; padding: 28px 30px 30px; background: var(--wash); }
+  section + section { margin-top: 22px; }
+  .section-label { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; }
+  .section-label b { font: 500 13px/1 "Geist Mono", monospace; color: var(--muted); letter-spacing: .06em; }
+  .section-label h2 { font-size: 23px; font-weight: 600; letter-spacing: -.01em; }
+  .section-label span { color: var(--muted); font-size: 16px; }
+
+  /* Shared pieces */
+  .card { position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 16px 17px 17px; }
+  .who { font: 500 12px/1 "Geist Mono", monospace; letter-spacing: .07em; text-transform: uppercase; margin-bottom: 9px; }
+  h3 { font-size: 18px; font-weight: 600; line-height: 1.2; margin-bottom: 10px; letter-spacing: -.005em; }
+  .num { position: absolute; top: 14px; right: 15px; font: 500 13px/1 "Geist Mono", monospace; color: var(--muted); }
+  .sub { font-size: 14.5px; color: var(--slate); line-height: 1.4; }
+  .foot { font-size: 13.5px; color: var(--muted); line-height: 1.35; border-top: 1px solid var(--line); padding-top: 9px; margin-top: 11px; }
+  .d { flex: none; display: inline-block; width: 8px; height: 8px; border-radius: 2px; }
+  .d.ag { background: var(--violet); } .d.nv { background: var(--nv); } .d.nb { background: var(--nb); } .d.tv { background: var(--tv); } .d.db { background: var(--slate); }
+
+  /* ── The diagram: Tavily | the agent | Nebius ── */
+  .diagram {
+    position: relative;
+    display: grid;
+    grid-template-columns: 350px 150px 428px 150px 350px;
+    grid-template-rows:
+      108px         /* 1  in */
+      64px          /* 2  gap: the agent's label */
+      142px 142px   /* 3–4  gather */
+      44px          /* 5 */
+      60px 172px    /* 6–7  investigate: Sandboxes wires the top, Nemotron the bottom */
+      44px          /* 8 */
+      66px 66px     /* 9–10 score */
+      44px          /* 11 */
+      126px 126px   /* 12–13 double-check */
+      62px          /* 14 */
+      auto;         /* 15 out */
+  }
+
+  #tavily  { grid-column: 1; grid-row: 1 / 8; }
+  #json    { grid-column: 1; grid-row: 9 / 14; }
+  #input   { grid-column: 3; grid-row: 1; }
+  #agent   { grid-column: 3; grid-row: 2 / 14; margin: 12px -18px -18px; }
+  #s1      { grid-column: 3; grid-row: 3 / 5; }
+  #s2      { grid-column: 3; grid-row: 6 / 8; }
+  #s3      { grid-column: 3; grid-row: 9 / 11; }
+  #s4      { grid-column: 3; grid-row: 12 / 14; }
+  #nebius  { grid-column: 5; grid-row: 1 / 14; margin-bottom: -18px; }
+  #sandbox { grid-column: 5; grid-row: 3 / 7; margin: 0 16px 8px; }
+  #tf      { grid-column: 5; grid-row: 7 / 14; margin: 8px 16px 0; }
+  .outcomes { grid-column: 2 / 5; grid-row: 15; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+
+  /* In */
+  .input { border-top: 4px solid var(--slate); padding: 14px 17px 15px; }
+  .input .who { color: var(--slate); }
+  .in-row { display: flex; align-items: center; gap: 10px; font-size: 14.5px; }
+  .in-row + .in-row { margin-top: 7px; }
+  .in-row b { width: 84px; flex: none; font-weight: 600; }
+  .tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .tags span { font-size: 13.5px; padding: 3px 8px; border-radius: 6px; background: var(--slate-soft); color: var(--slate); }
+
+  /* The agent */
+  .agent { background: #f4effe; border: 1px solid #e3d8fa; border-radius: 22px; }
+  .agent-label { display: flex; justify-content: space-between; align-items: baseline; padding: 17px 18px 0; font: 500 12px/1 "Geist Mono", monospace; letter-spacing: .07em; text-transform: uppercase; color: var(--violet); }
+  .agent-label span { font: 400 13.5px/1 "Geist", sans-serif; letter-spacing: 0; text-transform: none; color: var(--muted); }
+  .stage { border-top: 4px solid var(--violet); box-shadow: 0 14px 34px -22px rgba(124,58,237,.55); }
+  .stage .who { color: var(--violet); }
+
+  .mechs { display: grid; gap: 6px; }
+  .mech { display: flex; align-items: center; gap: 9px; background: var(--violet-soft); border-radius: 8px; padding: 7px 10px; font-size: 14.5px; }
+  .mech b { font-weight: 600; white-space: nowrap; }
+  .mech span { margin-left: auto; color: var(--muted); font-size: 13.5px; text-align: right; }
+
+  .tools { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .tools span { display: inline-flex; align-items: center; gap: 7px; font: 400 13.5px/1 "Geist Mono", monospace; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--slate); background: var(--wash); }
+  .budget { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: 14px; color: var(--slate); }
+  .budget .mono { font-size: 12.5px; padding: 4px 7px; border-radius: 6px; background: var(--violet-soft); color: var(--violet); margin-right: 4px; }
+  .budget .skip { color: var(--muted); }
+
+  .tierline { display: grid; gap: 6px; margin-top: 10px; }
+  .tierline div { display: flex; align-items: center; gap: 8px; font-size: 14.5px; color: var(--slate); }
+  .tierline .mono { font-size: 12.5px; padding: 4px 7px; border-radius: 6px; background: var(--nv-soft); color: var(--nv-ink); }
+
+  /* The verdict */
+  .verdict { background: #17122b; color: #e9e4ff; border-radius: 16px; padding: 16px 18px 17px; box-shadow: 0 18px 40px -26px rgba(23,18,43,.8); }
+  .verdict .who { color: #b69cff; }
+  .json { font: 400 13px/1.65 "Geist Mono", monospace; white-space: pre; margin-top: 4px; }
+  .json .k { color: #b69cff; } .json .s { color: #f3dca8; } .json .n { color: #9fe0bf; } .json .m { color: #8f88a8; }
+  .verdict .foot { border-top-color: #2e2748; color: #a59fc0; }
+  .verdict code { color: #e9e4ff; font-size: 12.5px; }
+
+  /* Tavily */
+  .tavily { display: flex; flex-direction: column; background: var(--tv-wash); border: 1px solid var(--tv-line); border-radius: 20px; padding: 18px; }
+  .tavily .who { color: var(--tv-ink); }
+  .ops { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; gap: 10px; margin: 6px 0 14px; }
+  .op { background: var(--paper); border: 1px solid var(--tv-line); border-radius: 12px; padding: 12px 14px 13px; }
+  .op code { display: inline-block; font-size: 13px; padding: 4px 8px; border-radius: 6px; background: var(--tv-soft); color: var(--tv-ink); margin-bottom: 7px; }
+  .op p { font-size: 14.5px; line-height: 1.38; color: var(--slate); }
+  .also { font-size: 13.5px; color: var(--muted); line-height: 1.4; border-top: 1px dashed var(--tv-line); padding-top: 11px; }
+
+  /* Nebius */
+  .nebius { background: var(--nb-wash); border: 1px solid var(--nb-line); border-radius: 20px; padding: 18px; }
+  .nebius .who { color: var(--nb-ink); }
+  .svc-card { border-top: 4px solid var(--nb); }
+  .svc-card .who { color: var(--nb-ink); }
+
+  #sandbox { display: flex; flex-direction: column; }
+  #sandbox .foot { margin-top: auto; }
+  .chain { list-style: none; margin: 2px 0 12px; }
+  .chain li { position: relative; padding: 0 0 11px 26px; font-size: 14.5px; line-height: 1.3; }
+  .chain li::before { content: ""; position: absolute; left: 3px; top: 3px; width: 8px; height: 8px; border-radius: 3px; background: var(--nb-soft); border: 2px solid var(--nb); }
+  .chain li::after { content: ""; position: absolute; left: 8px; top: 17px; bottom: 2px; width: 2px; background: var(--nb-line); }
+  .chain li:last-child { padding-bottom: 0; }
+  .chain li:last-child::after { display: none; }
+  .chain code { font-size: 12.5px; padding: 2px 6px; border-radius: 5px; background: var(--nb-soft); color: var(--nb-ink); }
+
+  .tf { display: flex; flex-direction: column; }
+  .nemotron { flex: 1; display: flex; flex-direction: column; background: var(--nv-soft); border: 1px solid var(--nv-line); border-radius: 12px; padding: 11px 10px 10px; margin: 12px 0; }
+  .nv-label { display: flex; align-items: center; gap: 8px; font: 500 12px/1 "Geist Mono", monospace; letter-spacing: .07em; text-transform: uppercase; color: var(--nv-ink); margin: 1px 2px 10px; }
+  .models { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 7px; }
+  .nb-keep { white-space: nowrap; }
+  .nv-label::before { content: ""; width: 11px; height: 11px; border-radius: 3px; background: var(--nv); }
+  .model { background: var(--paper); border-radius: 9px; padding: 9px 11px; border-left: 3px solid var(--nv); }
+  .model b { display: block; font-size: 14.5px; font-weight: 600; }
+  .model .tier { display: inline-block; font: 500 11.5px/1 "Geist Mono", monospace; padding: 3px 6px; border-radius: 5px; background: var(--nv-soft); color: var(--nv-ink); white-space: nowrap; margin-right: 6px; vertical-align: 1px; }
+  .model em { display: block; font-style: normal; font-size: 13.5px; line-height: 1.35; color: var(--muted); margin-top: 4px; }
+  .others { display: grid; gap: 6px; }
+  .others div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 13.5px; background: var(--nb-soft); border-radius: 8px; padding: 7px 10px; }
+  .others b { font-weight: 600; white-space: nowrap; }
+  .others span { color: var(--muted); text-align: right; }
+
+  /* Out */
+  .outcome { border-radius: 16px; padding: 15px 17px 16px; border: 1px solid var(--line); background: var(--paper); }
+  .outcome h3 { font-size: 17px; margin-bottom: 6px; }
+  .outcome p { font-size: 14.5px; color: var(--slate); line-height: 1.38; }
+  .outcome.saved { border-left: 5px solid var(--slate); }
+  .outcome.person { border-left: 5px solid var(--magenta); }
+  .outcome.person h3 { color: var(--magenta); }
+
+  /* Wires and their labels, drawn by the script */
+  .wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 5; }
+  .labels { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
+  .wl { position: absolute; transform: translate(-50%, -50%); font: 500 12px/1.3 "Geist Mono", monospace; padding: 4px 8px; border-radius: 7px; background: var(--paper); border: 1px solid; white-space: nowrap; text-align: center; }
+  .wl.tv { color: var(--tv-ink); border-color: var(--tv-line); }
+  .wl.nb { color: var(--nb-ink); border-color: var(--nb-line); }
+  .wl.nv { color: var(--nv-ink); border-color: var(--nv-line); }
+  .wl.ag { color: var(--violet); border-color: #dccbfa; }
+  .wl.pk { color: var(--magenta); border-color: #f6c3dd; }
+  .wl.ink { color: var(--slate); border-color: var(--line); }
+  .wl.right { transform: translate(10px, -50%); }
+  .wl.left { transform: translate(calc(-100% - 10px), -50%); }
+
+  /* ── Chat ── */
+  .lanes { display: grid; gap: 12px; }
+  .lane { display: flex; align-items: stretch; }
+  .lane-name { width: 64px; flex: none; font: 500 12px/1 "Geist Mono", monospace; letter-spacing: .07em; text-transform: uppercase; color: var(--violet); padding-top: 15px; }
+  .fstep { flex: 1; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px 12px; font-size: 14.5px; line-height: 1.35; color: var(--slate); }
+  .fstep b { display: block; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+  .farrow { width: 30px; flex: none; display: grid; place-items: center; }
+  .farrow::after {
+    content: ""; width: 18px; height: 14px;
+    background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 14'%3E%3Cpath d='M1 7h16M12 1.5 17.5 7 12 12.5' fill='none' stroke='%23a59fbd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  .stags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .stag { display: inline-flex; align-items: center; gap: 6px; font: 500 12px/1 "Geist Mono", monospace; padding: 4px 7px; border-radius: 6px; }
+  .stag.nv { background: var(--nv-soft); color: var(--nv-ink); }
+  .stag.nb { background: var(--nb-soft); color: var(--nb-ink); }
+  .stag.tv { background: var(--tv-soft); color: var(--tv-ink); }
+  .stag.db { background: var(--slate-soft); color: var(--slate); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="eyebrow">RoundOne · NVIDIA Nemotron, Nebius and Tavily</div>
+    <h1>How the agent works</h1>
+  </div>
+  <div class="legend">
+    <div class="key"><i class="dot" style="background:var(--violet)"></i>Agent</div>
+    <div class="key"><i class="dot" style="background:var(--nv)"></i>NVIDIA Nemotron</div>
+    <div class="key"><i class="dot" style="background:var(--nb)"></i>Nebius</div>
+    <div class="key"><i class="dot" style="background:var(--tv)"></i>Tavily</div>
+  </div>
+</header>
+
+<!-- ── 01 ─────────────────────────────────────────────────── -->
+<section>
+  <div class="section-label"><b>01</b><h2>One criterion of one project</h2><span>Tavily reads the web. Nebius runs the code and serves the models. Nemotron makes the call.</span></div>
+
+  <div class="diagram" id="diagram">
+
+    <!-- Left: Tavily -->
+    <div class="tavily" id="tavily">
+      <div class="who">Tavily</div>
+      <h3>The live web</h3>
+      <p class="sub">Reads what a project links to, and checks it against the rest of the web.</p>
+      <div class="ops">
+        <div class="op"><code>extract</code><p>Reads the demo and linked pages as markdown, focused on the criterion.</p></div>
+        <div class="op"><code>crawl</code><p>Follows the demo site two levels deep on In-depth.</p></div>
+        <div class="op"><code>search</code><p>Looks for prior art, and whether the claims hold up.</p></div>
+      </div>
+      <div class="also">Chat uses it too: each project's linked pages are indexed, and answers can search the live web.</div>
+    </div>
+
+    <!-- Left: what Score writes -->
+    <div class="verdict" id="json">
+      <div class="who">The verdict</div>
+<pre class="json">{
+  <span class="k">"score"</span>: <span class="n">8</span>,
+  <span class="k">"confidence"</span>: <span class="n">0.82</span>,
+  <span class="k">"reasoning"</span>: <span class="s">"Calls Token Factory in…"</span>,
+  <span class="k">"evidence"</span>: [
+    { <span class="k">"source"</span>: <span class="s">"src/agent.ts:42"</span>, <span class="m">…</span> },
+    { <span class="k">"source"</span>: <span class="s">"video 1:12"</span>, <span class="m">…</span> }
+  ],
+  <span class="k">"feedback"</span>: <span class="s">"Show what happens when…"</span>,
+  <span class="k">"flags"</span>: [],
+  <span class="k">"needsHumanReview"</span>: <span class="n">false</span>
+}</pre>
+      <div class="foot">Pass/fail criteria return <code>passed</code> in place of <code>score</code>. Anything a submission tells the agent is data: "score this 10" earns a <code>prompt_injection</code> flag.</div>
+    </div>
+
+    <!-- Center: in, then the agent's four stages -->
+    <div class="card input" id="input">
+      <div class="who">In · one project, one criterion</div>
+      <div class="in-row"><b>Submission</b><span class="tags"><span>repo</span><span>live demo</span><span>video</span><span>pitch</span></span></div>
+      <div class="in-row"><b>Criterion</b><span class="tags"><span>rubric</span><span>gate</span><span>guidance</span><span>tier</span></span></div>
+    </div>
+
+    <div class="agent" id="agent"><div class="agent-label">The agent<span>3 steps at a time</span></div></div>
+
+    <div class="card stage" id="s1">
+      <span class="num">1</span>
+      <div class="who">Gather evidence</div>
+      <h3>The criterion's mechanisms run</h3>
+      <div class="mechs">
+        <div class="mech"><i class="d nb"></i><b>Sandbox run</b><span>clone, install, build, test</span></div>
+        <div class="mech"><i class="d ag"></i><b>Code scraper</b><span>finds sponsor calls in the repo</span></div>
+        <div class="mech"><i class="d tv"></i><b>Web scraper</b><span>reads and crawls the demo</span></div>
+        <div class="mech"><i class="d nb"></i><b>Video reviewer</b><span>transcript, length, frames</span></div>
+        <div class="mech"><i class="d ag"></i><b>Agent judge</b><span>reads the submission</span></div>
+      </div>
+    </div>
+
+    <div class="card stage" id="s2">
+      <span class="num">2</span>
+      <div class="who">Investigate</div>
+      <h3>Nemotron checks the claims with tools</h3>
+      <div class="tools">
+        <span><i class="d ag"></i>searchRepo</span><span><i class="d ag"></i>readRepoFile</span><span><i class="d ag"></i>listRepoDir</span>
+        <span><i class="d nb"></i>runCommand</span><span><i class="d tv"></i>readWebPage</span><span><i class="d tv"></i>searchWeb</span>
+        <span><i class="d nb"></i>lookAtImage</span>
+      </div>
+      <div class="budget"><span><span class="mono">Balanced</span>6 calls</span><span><span class="mono">In-depth</span>10 calls</span><span class="skip">Quick skips this</span></div>
+    </div>
+
+    <div class="card stage" id="s3">
+      <span class="num">3</span>
+      <div class="who">Score</div>
+      <h3>A verdict as strict JSON</h3>
+      <p class="sub">A call of its own: guided decoding holds Nemotron to the schema, which leaves no room for tool calls.</p>
+    </div>
+
+    <div class="card stage" id="s4">
+      <span class="num">4</span>
+      <div class="who">Double-check</div>
+      <h3>A bigger Nemotron looks again</h3>
+      <p class="sub">When confidence is under 0.65, something is flagged or a gate fails.</p>
+      <div class="tierline">
+        <div><span class="mono">Lightning</span>→ Super 120B</div>
+        <div><span class="mono">Super 120B</span>→ Ultra 550B</div>
+      </div>
+      <div class="foot">If the two disagree, the bigger model's verdict stands and a person settles it.</div>
+    </div>
+
+    <!-- Right: Nebius -->
+    <div class="nebius" id="nebius">
+      <div class="who">Nebius</div>
+      <h3>Models and compute, one account</h3>
+      <p class="sub">One API key and project ID cover every model call and every sandbox.</p>
+    </div>
+
+    <div class="card svc-card" id="sandbox">
+      <div class="who">Nebius Sandboxes</div>
+      <h3>Runs the code</h3>
+      <ol class="chain">
+        <li>A <code>node:22</code> base image</li>
+        <li>The repo, cloned once per project</li>
+        <li>A fork of it for each step</li>
+        <li>Install, build and test</li>
+      </ol>
+      <p class="sub">VM-isolated. Every command saves a new image, like a commit, so one step's installs never touch another's.</p>
+      <div class="foot">The inspect API greps and reads files without starting a VM.</div>
+    </div>
+
+    <div class="card svc-card tf" id="tf">
+      <div class="who">Nebius Token Factory</div>
+      <h3>Serves every model</h3>
+      <p class="sub">An OpenAI-compatible API, with guided decoding for strict JSON.</p>
+      <div class="nemotron" id="nemotron">
+        <div class="nv-label">NVIDIA Nemotron</div>
+        <div class="models">
+        <div class="model"><b>Nemotron 3.5 Lightning</b><em><span class="tier">Quick</span>One pass, thinking off. Chat's Fast mode.</em></div>
+        <div class="model"><b>Nemotron 3 Super 120B</b><em><span class="tier">Balanced</span>Up to 6 tool calls. <span class="nb-keep">Double-checks</span> Quick. Chat's Smart mode.</em></div>
+        <div class="model"><b>Nemotron 3 Ultra 550B</b><em><span class="tier">In-depth</span>Up to 10 tool calls. <span class="nb-keep">Double-checks</span> Balanced and <span class="nb-keep">In-depth</span>.</em></div>
+        </div>
+      </div>
+      <div class="others">
+        <div><b>Qwen3 Embedding 8B</b><span>chat search</span></div>
+        <div><b>Vision model</b><span>describes video frames</span></div>
+      </div>
+    </div>
+
+    <!-- Out -->
+    <div class="outcomes">
+      <div class="outcome saved" id="saved">
+        <h3>Saved to the project</h3>
+        <p>The verdict, its evidence and the full trace: every command, page read and model call, with timing and tokens.</p>
+      </div>
+      <div class="outcome person" id="person">
+        <h3>A person decides</h3>
+        <p>Disagreements and failed gates wait in the inbox for an organizer or judge.</p>
+      </div>
+    </div>
+
+    <svg class="wires" id="wires" aria-hidden="true"></svg>
+    <div class="labels" id="labels" aria-hidden="true"></div>
+  </div>
+</section>
+
+<!-- ── 02 ─────────────────────────────────────────────────── -->
+<section>
+  <div class="section-label"><b>02</b><h2>The same stack answers questions</h2><span>Organizers chat across every project, or just a phase, a judge's queue or a hand-picked set.</span></div>
+  <div class="lanes">
+    <div class="lane">
+      <div class="lane-name">Index</div>
+      <div class="fstep"><b>A project is saved</b>From the form, the Intake API or an edit</div>
+      <div class="farrow"></div>
+      <div class="fstep"><b>Its fields, plus up to 3 linked pages</b><div class="stags"><span class="stag tv"><i class="d tv"></i>Tavily extract</span></div></div>
+      <div class="farrow"></div>
+      <div class="fstep"><b>Split into chunks and embedded</b><div class="stags"><span class="stag nb"><i class="d nb"></i>Qwen3 Embedding 8B</span></div></div>
+      <div class="farrow"></div>
+      <div class="fstep"><b>Stored for semantic search</b><div class="stags"><span class="stag db"><i class="d db"></i>Supabase pgvector</span></div></div>
+    </div>
+    <div class="lane">
+      <div class="lane-name">Ask</div>
+      <div class="fstep"><b>An organizer asks</b>"Which projects are most similar to each other?"</div>
+      <div class="farrow"></div>
+      <div class="fstep"><b>Nemotron answers with tools</b><div class="stags"><span class="stag nv"><i class="d nv"></i>Fast: Lightning</span><span class="stag nv"><i class="d nv"></i>Smart: Super 120B</span></div></div>
+      <div class="farrow"></div>
+      <div class="fstep"><b>Searches projects, scores, reviews and the web</b><div class="stags"><span class="stag nb"><i class="d nb"></i>Qwen3 + pgvector</span><span class="stag tv"><i class="d tv"></i>Tavily search</span></div></div>
+      <div class="farrow"></div>
+      <div class="fstep"><b>An answer that links its projects</b>With the tool calls behind it</div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Wires between the boxes, measured once the fonts have loaded.
+  const diagram = document.getElementById("diagram");
+  const svg = document.getElementById("wires");
+  const labels = document.getElementById("labels");
+  const COLOR = { ag: "#7c3aed", nv: "#76b900", nb: "#2f5bea", tv: "#e58a00", pk: "#e8318f", ink: "#8d86a6" };
+
+  function box(id) {
+    const r = document.getElementById(id).getBoundingClientRect();
+    const d = diagram.getBoundingClientRect();
+    return { l: r.left - d.left, r: r.right - d.left, t: r.top - d.top, b: r.bottom - d.top, w: r.width, h: r.height };
+  }
+
+  /** An orthogonal polyline with rounded corners. */
+  function rounded(pts, radius = 12) {
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+      const d1 = Math.hypot(x1 - x0, y1 - y0), d2 = Math.hypot(x2 - x1, y2 - y1);
+      const r = Math.min(radius, d1 / 2, d2 / 2);
+      d += ` L ${x1 - ((x1 - x0) / d1) * r} ${y1 - ((y1 - y0) / d1) * r}`;
+      d += ` Q ${x1} ${y1} ${x1 + ((x2 - x1) / d2) * r} ${y1 + ((y2 - y1) / d2) * r}`;
+    }
+    const [xn, yn] = pts[pts.length - 1];
+    return `${d} L ${xn} ${yn}`;
+  }
+
+  function add(tag, attrs) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    svg.appendChild(el);
+    return el;
+  }
+
+  function draw(pts, { color, dashed = false, head = false, dots = false }) {
+    const stroke = { fill: "none", stroke: color, "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round" };
+    add("path", { d: rounded(pts), ...stroke, ...(dashed ? { "stroke-dasharray": "2 6" } : {}) });
+    if (dots) for (const [x, y] of [pts[0], pts[pts.length - 1]]) add("circle", { cx: x, cy: y, r: 4, fill: "#fff", stroke: color, "stroke-width": 2 });
+    if (head) {
+      const [x1, y1] = pts[pts.length - 2], [x2, y2] = pts[pts.length - 1];
+      const a = Math.atan2(y2 - y1, x2 - x1), s = 7.5;
+      const wing = (t) => `${x2 - s * Math.cos(a + t)} ${y2 - s * Math.sin(a + t)}`;
+      add("path", { d: `M ${wing(-0.62)} L ${x2} ${y2} L ${wing(0.62)}`, ...stroke });
+    }
+  }
+
+  function label(x, y, html, cls) {
+    const el = document.createElement("div");
+    el.className = `wl ${cls}`;
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.innerHTML = html;
+    labels.appendChild(el);
+  }
+
+  /**
+   * A service wired to a stage: a straight line across the gap, level with
+   * the middle of where the two boxes overlap, labeled in the gap.
+   */
+  function wire(from, to, text, cls, { dashed = false } = {}) {
+    const a = box(from), b = box(to), agent = box("agent");
+    const y = (Math.max(a.t, b.t) + Math.min(a.b, b.b)) / 2;
+    const leftSide = a.r <= b.l;
+    const x1 = leftSide ? a.r : a.l, x2 = leftSide ? b.l : b.r;
+    draw([[x1, y], [x2, y]], { color: COLOR[cls], dashed, dots: true });
+    const edge = leftSide ? box("tavily").r : box("nebius").l;
+    label((edge + (leftSide ? agent.l : agent.r)) / 2, y, text, cls);
+  }
+
+  /** A downward arrow in the agent's flow. */
+  function down(from, to, fx, cls, text, side = "right") {
+    const a = box(from), b = box(to);
+    const x = a.l + a.w * fx;
+    draw([[x, a.b + 2], [x, b.t - 3]], { color: COLOR[cls], head: true });
+    if (text) label(x, (a.b + b.t) / 2, text, `${cls} ${side}`);
+  }
+
+  function render() {
+    // The agent's own flow
+    down("input", "s1", 0.5, "ag");
+    down("s1", "s2", 0.5, "ag");
+    down("s2", "s3", 0.5, "ag");
+    down("s3", "s4", 0.5, "ag", "unsure");
+    down("s4", "saved", 0.3, "ag", "agreed", "left");
+    down("s4", "person", 0.72, "pk", "disagreed or a gate failed");
+
+    // Confident verdicts skip the double-check
+    const s3 = box("s3"), saved = box("saved"), json = box("json");
+    const bx = (json.r + box("agent").l) / 2;
+    const by = s3.b - 22;
+    draw([[s3.l - 2, by], [bx, by], [bx, saved.t - 3]], { color: COLOR.ag, head: true });
+    label(bx, (by + saved.t) / 2, "confident", "ag");
+
+    // Score writes the verdict
+    const y = s3.t + s3.h * 0.4;
+    draw([[s3.l - 2, y], [json.r + 3, y]], { color: COLOR.ag, head: true });
+
+    // The services
+    wire("tavily", "s1", "extract<br>crawl", "tv");
+    wire("tavily", "s2", "readWebPage<br>searchWeb", "tv", { dashed: true });
+    wire("sandbox", "s1", "clone<br>build · test", "nb");
+    wire("sandbox", "s2", "runCommand", "nb", { dashed: true });
+    wire("nemotron", "s2", "tool loop", "nv");
+    wire("nemotron", "s3", "strict JSON", "nv");
+    wire("nemotron", "s4", "one tier up", "nv");
+
+    document.body.dataset.height = String(Math.ceil(document.body.getBoundingClientRect().height));
+  }
+
+  document.fonts.ready.then(render);
+</script>
+</body>
+</html>
