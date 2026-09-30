@@ -11,5 +11,5 @@ export const DEVPOST_URL = "https://nebiusglobalaihackathon.devpost.com/";
 /** The promo video under the hero: https://youtu.be/RQMpDc4jdso */
 export const PROMO_YOUTUBE_ID = "RQMpDc4jdso";
 
-/** The demo video's YouTube id. Until it's set, the video section shows a placeholder. */
+/** The demo video's YouTube id. Until it's set, the demo section leaves the video out and opens on the screen tour. */
 export const DEMO_YOUTUBE_ID: string | null = null;

@@ -13,6 +13,7 @@ import { DemoVideo } from "./_components/demo-video";
 import { DEMO_YOUTUBE_ID, DEVPOST_URL, GITHUB_REPO, PROMO_YOUTUBE_ID } from "./_components/links";
 import { AiOnlyJudge, HeroPillars, JudgeQueue, RankingTable, SubmissionFlood, Tag } from "./_components/mocks";
 import { PixelDither } from "./_components/pixel-dither";
+import { ScreenTour, type Shot } from "./_components/screen-tour";
 import { CodeWindow, IconRow, Reveal, Section, Showcase } from "./_components/section";
 import { SiteHeader } from "./_components/site-header";
 
@@ -466,18 +467,142 @@ function StackCard({ logo, name, children }: { logo: ReactNode; name?: string; c
 
 // ── Demo ──────────────────────────────────────────────────────────────────
 
+// The screen tour under the demo video, in the order a hackathon runs, then the
+// sponsor stack. Each image carries its own headline; `title` repeats it for
+// screen readers.
+const SHOTS: Shot[] = [
+  {
+    file: "01-schema.png",
+    chapter: "Setup",
+    title: "Shape every submission.",
+    alt: "Setup, Schema: the blocks every submission fills in, such as title, video, live demo, GitHub and team. Each block has a hint for entrants and a note on what the agent should expect.",
+  },
+  {
+    file: "02-criteria-inputs.png",
+    chapter: "Setup",
+    title: "Say how each criterion gets checked.",
+    alt: "Setup, Criteria: a criterion reads the blocks you pick, and you choose how it's checked: agent judge, sandbox run, video reviewer, code scraper, web scraper or human only.",
+  },
+  {
+    file: "03-criteria-agent.png",
+    chapter: "Setup",
+    title: "Pick the model. Run the code.",
+    alt: "Setup, Criteria, Agent: the Quick, Balanced or In-depth Nemotron model, the commands to run in a Nebius sandbox, and when to double-check a verdict.",
+  },
+  {
+    file: "04-phases.png",
+    chapter: "Setup",
+    title: "Rounds that narrow the field.",
+    alt: "Setup, Phases: group review, semifinal and final panel, each with its judges, reviews per project and how many projects move on.",
+  },
+  {
+    file: "05-distribution.png",
+    chapter: "Setup",
+    title: "Hand out the work fairly.",
+    alt: "Setup, Distribution: the agent reviews first, queues are even or mixed and go out all at once or in daily batches, and judges see the agent's score only after submitting their own.",
+  },
+  {
+    file: "06-judge-portal.png",
+    chapter: "Setup",
+    title: "No accounts. Just a private link.",
+    alt: "Setup, Judge portal: a private link for each judge, the welcome message and goals they read, and a preview of their start screen.",
+  },
+  {
+    file: "07-projects.png",
+    chapter: "Judging",
+    title: "Projects come in from anywhere.",
+    alt: "Judging, Projects: projects imported through the API or sent in through a public submission form built from your schema.",
+  },
+  {
+    file: "08-agent-review.png",
+    chapter: "Judging",
+    title: "The agent takes round one.",
+    alt: "Judging, Agent review: the agent scores a project 7.3 out of 10 with its gates passed, lists strengths and things to improve, and flags a disagreement for a person to decide.",
+  },
+  {
+    file: "09-agent-step.png",
+    chapter: "Judging",
+    title: "Evidence behind every score.",
+    alt: "Judging, one agent review step: the evidence from the sandbox run, live sites, video transcript and repo, a note to steer a rerun, and every step the agent took.",
+  },
+  {
+    file: "10-judge-view.png",
+    chapter: "Judging",
+    title: "Judges score the idea.",
+    alt: "Judging, Scoring: a judge sees the pitch, video, demo, repo and team on one page and scores each criterion from 1 to 10, with a weighted running total.",
+  },
+  {
+    file: "11-project.png",
+    chapter: "Judging",
+    title: "Every project on one page.",
+    alt: "Judging, Project page: a project's final rank, every prize and award it won, and the final panel's averaged scores.",
+  },
+  {
+    file: "12-progress.png",
+    chapter: "Judging",
+    title: "See every round at a glance.",
+    alt: "Judging, Progress: how many projects each round reviewed and advanced, the funnel from submitted to winners, and a button to run the agent.",
+  },
+  {
+    file: "13-chat.png",
+    chapter: "Judging",
+    title: "Ask across every project.",
+    alt: "Judging, Chat: a question about the final panel answered from the hackathon's own scores, scoped to a set of projects, by NVIDIA Nemotron on Nebius.",
+  },
+  {
+    file: "14-rewards.png",
+    chapter: "Judging",
+    title: "Set the prizes once.",
+    alt: "Judging, Rewards: prizes by final rank and awards you pick, with what each winner gets listed for their email.",
+  },
+  {
+    file: "15-results.png",
+    chapter: "Results",
+    title: "Rank, publish, tell everyone.",
+    alt: "Results, Winners: publish the winners page, email winners their prizes and everyone else a thank-you, and see the final podium.",
+  },
+  {
+    file: "16-winners.png",
+    chapter: "Results",
+    title: "Winners, announced.",
+    alt: "Results, public winners page: the hackathon's own colors and logo, the top three projects, and the prizes each one won.",
+  },
+  {
+    file: "image-1790746245045.png",
+    chapter: "Stack",
+    title: "Where NVIDIA, Nebius and Tavily do the work.",
+    alt: "Where NVIDIA, Nebius and Tavily do the work: Nemotron models make every judging call, Nebius Token Factory serves the models and runs every repo in a sandbox, and Tavily reads the live web.",
+  },
+];
+
 function Demo() {
   return (
     <Section
       id="demo"
       center
       headline="One hackathon, from rubric to winners page"
-      subheadline={`The demo walks through setup, judging and results in ${brand.name}.`}
+      subheadline={
+        DEMO_YOUTUBE_ID
+          ? `The demo walks through setup, judging and results in ${brand.name}.`
+          : `Setup, judging and results in ${brand.name}, screen by screen. Click one to see it full size.`
+      }
     >
-      <Reveal delay={0.06} className="mt-12">
-        <DemoVideo youtubeId={DEMO_YOUTUBE_ID} title={`${brand.name} demo`} />
+      {/* No video until it has a YouTube id; the screen tour leads the section until then. */}
+      {DEMO_YOUTUBE_ID ? (
+        <Reveal delay={0.06} className="mt-12">
+          <DemoVideo youtubeId={DEMO_YOUTUBE_ID} title={`${brand.name} demo`} />
+        </Reveal>
+      ) : null}
+      <Reveal delay={0.08} className={DEMO_YOUTUBE_ID ? "mt-20" : "mt-12"}>
+        {DEMO_YOUTUBE_ID ? (
+          <div className="mx-auto mb-8 max-w-xl text-center">
+            <h3 className="display m-0 text-2xl leading-tight">Screen by screen, from setup to winners</h3>
+            <p className="m-0 mt-2 leading-relaxed text-[var(--muted)]">Open any screen to see it full size.</p>
+          </div>
+        ) : null}
+        <ScreenTour shots={SHOTS} label={`${brand.name} screens`} />
       </Reveal>
-      <Reveal delay={0.08} className="mock mx-auto mt-10 grid max-w-4xl divide-y divide-[var(--line-soft)] text-left md:grid-cols-3 md:divide-x md:divide-y-0">
+      <Reveal delay={0.08} className="mock mx-auto mt-14 grid max-w-4xl divide-y divide-[var(--line-soft)] text-left md:grid-cols-3 md:divide-x md:divide-y-0">
         <StageCell icon="inbox" title="Projects in">
           Share a submission form built from the fields you ask for (title, video, repo and so on), or send projects from another
           system with one request to the intake API.

@@ -1,0 +1,176 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+
+    #root { position: absolute; inset: 0; overflow: hidden; }
+
+    /* ── Ground (track 0): landing hero art, full-bleed; scrim + pixel sparkles ride the same push ── */
+    #f01-ground { position: absolute; inset: 0; overflow: hidden; background: #150C2E; z-index: 0; }
+    #f01-push { position: absolute; inset: 0; transform-origin: 50% 34%; }
+    #f01-art { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    #f01-scrim {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 50% 42% at 50% 34%, rgba(24,8,48,0.78), rgba(24,8,48,0.45) 55%, transparent 82%);
+    }
+    /* 5×5 plus-shaped pixel stars, 6px pixels; all in open sky above the type */
+    .f01-spark { position: absolute; display: block; width: 30px; height: 30px; }
+    #f01-spk-a { left: 853px;  top: 51px; }  /* centre (868, 66)  white */
+    #f01-spk-b { left: 1697px; top: 93px; }  /* centre (1712, 108) gold */
+    #f01-spk-c { left: 415px;  top: 23px; }  /* centre (430, 38)  gold  */
+    #f01-spk-d { left: 1365px; top: 27px; }  /* centre (1380, 42) white */
+    #f01-spk-e { left: 1111px; top: 19px; }  /* centre (1126, 34) gold  */
+
+    /* ── Stage (track 1): everything that shakes lives in #f01-shake ── */
+    #f01-stage { position: absolute; inset: 0; z-index: 1; }
+    #f01-shake { position: absolute; inset: 0; }
+
+    /* Line 1 — typed question. Ghost + typed share one grid cell so the centred line never shifts.
+       Both carry 0.59em side room (= the kit caret's .52em + .07em margin), so the caret never widens the cell
+       and the finished text sits dead centre. */
+    #f01-l1 {
+      position: absolute; left: 0; right: 0; top: 190px;
+      text-align: center; font-size: 84px; line-height: 1; color: #F7F2FF; white-space: nowrap;
+      filter: drop-shadow(0 2px 10px rgba(24,8,48,.85)) drop-shadow(0 0 2px rgba(24,8,48,.6));
+    }
+    .f01-l1-cell { display: inline-grid; text-align: left; }
+    .f01-l1-ghost { grid-area: 1 / 1; visibility: hidden; padding: 0 0.59em; }
+    #f01-l1-typed { grid-area: 1 / 1; padding-left: 0.59em; }
+
+    /* Line 2 — the slam. Padding keeps every glyph inside the gradient's paint box. */
+    #f01-l2wrap { position: absolute; left: 0; right: 0; top: 306px; text-align: center; }
+    #f01-l2 {
+      display: inline-block; font-size: 140px; line-height: 1; padding: 14px 6px; white-space: nowrap;
+      filter: drop-shadow(0 2px 10px rgba(24,8,48,.85)) drop-shadow(0 0 2px rgba(24,8,48,.6));
+    }
+
+    /* Chips — rk-glass with a darker fill for contrast on the pink clouds */
+    #f01-chips { position: absolute; left: 0; right: 0; top: 520px; display: flex; justify-content: center; gap: 20px; }
+    .f01-chipwrap { display: block; }
+    #f01-chips .f01-chip { font-size: 26px; background: rgba(21,12,46,0.55); }
+    #f01-chips .f01-chip-ic { color: #FCD34D; }
+  </style>
+
+  <div id="root" data-composition-id="01-hook" data-width="1920" data-height="1080" data-duration="4.6">
+    <div id="f01-ground" class="clip" data-start="0" data-duration="4.6" data-track-index="0">
+      <div id="f01-push">
+        <img id="f01-art" src="assets/retro-hero.png" alt="" />
+        <div id="f01-scrim"></div>
+        <svg id="f01-spk-a" class="f01-spark" viewBox="0 0 5 5" width="30" height="30" shape-rendering="crispEdges" fill="#FFFFFF" aria-hidden="true">
+          <g class="f01-spk-tips"><rect x="2" y="0" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/></g>
+          <g class="f01-spk-core"><rect x="2" y="1" width="1" height="1"/><rect x="1" y="2" width="3" height="1"/><rect x="2" y="3" width="1" height="1"/></g>
+        </svg>
+        <svg id="f01-spk-b" class="f01-spark" viewBox="0 0 5 5" width="30" height="30" shape-rendering="crispEdges" fill="#FCD34D" aria-hidden="true">
+          <g class="f01-spk-tips"><rect x="2" y="0" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/></g>
+          <g class="f01-spk-core"><rect x="2" y="1" width="1" height="1"/><rect x="1" y="2" width="3" height="1"/><rect x="2" y="3" width="1" height="1"/></g>
+        </svg>
+        <svg id="f01-spk-c" class="f01-spark" viewBox="0 0 5 5" width="30" height="30" shape-rendering="crispEdges" fill="#FCD34D" aria-hidden="true">
+          <g class="f01-spk-tips"><rect x="2" y="0" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/></g>
+          <g class="f01-spk-core"><rect x="2" y="1" width="1" height="1"/><rect x="1" y="2" width="3" height="1"/><rect x="2" y="3" width="1" height="1"/></g>
+        </svg>
+        <svg id="f01-spk-d" class="f01-spark" viewBox="0 0 5 5" width="30" height="30" shape-rendering="crispEdges" fill="#FFFFFF" aria-hidden="true">
+          <g class="f01-spk-tips"><rect x="2" y="0" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/></g>
+          <g class="f01-spk-core"><rect x="2" y="1" width="1" height="1"/><rect x="1" y="2" width="3" height="1"/><rect x="2" y="3" width="1" height="1"/></g>
+        </svg>
+        <svg id="f01-spk-e" class="f01-spark" viewBox="0 0 5 5" width="30" height="30" shape-rendering="crispEdges" fill="#FCD34D" aria-hidden="true">
+          <g class="f01-spk-tips"><rect x="2" y="0" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/></g>
+          <g class="f01-spk-core"><rect x="2" y="1" width="1" height="1"/><rect x="1" y="2" width="3" height="1"/><rect x="2" y="3" width="1" height="1"/></g>
+        </svg>
+      </div>
+    </div>
+
+    <div id="f01-stage" class="clip" data-start="0" data-duration="4.6" data-track-index="1">
+      <div id="f01-shake">
+        <div id="f01-l1" class="rk-display">
+          <span class="f01-l1-cell"><span class="f01-l1-ghost" aria-hidden="true">Want builders on your product?</span><span id="f01-l1-typed"></span></span>
+        </div>
+        <div id="f01-l2wrap">
+          <div id="f01-l2" class="rk-display rk-sunset-text">Run a hackathon.</div>
+        </div>
+        <div id="f01-chips">
+          <div class="f01-chipwrap"><div class="rk-glass f01-chip"><span class="f01-chip-ic" data-rk-icon="coin" data-size="22"></span><span>+ Adoption</span></div></div>
+          <div class="f01-chipwrap"><div class="rk-glass f01-chip"><span class="f01-chip-ic" data-rk-icon="code" data-size="22"></span><span>+ Use cases</span></div></div>
+          <div class="f01-chipwrap"><div class="rk-glass f01-chip"><span class="f01-chip-ic" data-rk-icon="spark" data-size="22"></span><span>+ Excitement</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="assets/retro-kit.js"></script>
+  <script>
+    (function () {
+      const DURATION = 4;
+      const BEAT = 0.5; // 120 BPM — one beat grid drives every hit below
+      const Q = BEAT / 4; // quarter-beat: one sparkle sprite frame
+      // GSAP steps(n) holds its first (empty) step for 1/(n+1) of the tween, so the stepped entrances
+      // start LEAD early: their first visible step then lands on the beat itself (seek-safe, ease(0) = 0).
+      const LEAD = 0.045;
+      const T = {
+        type: 0, // Scene 1: line 1 types from the downbeat
+        lift: 3 * BEAT, // Scene 2: 1.5 — line 1 makes room
+        slam: 4 * BEAT, // Scene 3: 2.0 — downbeat of bar 2
+        chips: [5 * BEAT, 5.5 * BEAT, 6 * BEAT], // Scene 4: 2.5 / 2.75 / 3.0 — eighths
+      };
+
+      const root = document.querySelector('[data-composition-id="01-hook"]');
+      const q = (sel) => root.querySelector(sel);
+      const tl = gsap.timeline({ paused: true });
+      const clock = RK.clock(tl, DURATION);
+      RK.hydrate(root);
+
+      // Ground: creeping push across the whole frame (linear, inner wrapper — never the clip).
+      tl.fromTo(q("#f01-push"), { scale: 1 }, { scale: 1.04, duration: DURATION, ease: "none" }, 0);
+
+      // Sparkles: one twinkles on every beat — a 5-beat cycle, a different phase per sparkle.
+      // Sprite: full plus on the beat, shrinks to the inner plus a quarter-beat later, off an eighth after the hit.
+      ["#f01-spk-a", "#f01-spk-b", "#f01-spk-c", "#f01-spk-d", "#f01-spk-e"].forEach((sel, i) => {
+        const el = q(sel);
+        const tips = el.querySelector(".f01-spk-tips");
+        const core = el.querySelector(".f01-spk-core");
+        const hits = [];
+        for (let h = i * BEAT; h + 2 * Q <= DURATION; h += 5 * BEAT) hits.push(h);
+        let last = -1;
+        clock.add((t) => {
+          let st = 0;
+          for (let k = 0; k < hits.length; k++) {
+            const d = t - hits[k] + 1e-6;
+            if (d >= 0 && d < Q) st = 2;
+            else if (d >= Q && d < 2 * Q && st < 1) st = 1;
+          }
+          if (st === last) return;
+          last = st;
+          tips.style.opacity = st === 2 ? "1" : "0";
+          core.style.opacity = st > 0 ? "1" : "0";
+        });
+      });
+
+      // Scene 1 (0.0–1.0): the question types in with the block caret, done on beat 2 (0.5s);
+      // the caret keeps blinking through the read and switches off as the line lifts.
+      const L1 = "Want builders on your product?";
+      const CPS = 60;
+      const typeEnd = T.type + L1.length / CPS; // 0.5
+      RK.type(clock, q("#f01-l1-typed"), L1, { start: T.type, cps: CPS, caretHold: T.lift - typeEnd });
+
+      // Scene 2 (1.0–2.0): hold for reading, then at 1.5 ease up 60px and dim to 75%.
+      tl.fromTo(q("#f01-l1"), { y: 0, opacity: 1 }, { y: -60, opacity: 0.75, duration: 0.4, ease: "power3.out" }, T.lift);
+
+      // Scene 3 (2.0–2.5): "Run a hackathon." slams in — 1.3 -> 1, 0 -> 1 in four visible steps over 0.16s
+      // from the downbeat — and the stage takes a stepped arcade shake on the same hit.
+      tl.fromTo(q("#f01-l2"), { scale: 1.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.2, ease: "steps(4)" }, T.slam - LEAD);
+      RK.shake(clock, q("#f01-shake"), { t: T.slam, dur: 0.3, amp: 10 });
+
+      // Scene 4 (2.5–4.0): chips pop on eighths (RK.pop on the chip, a stepped 16px rise on its wrapper),
+      // then everything holds still and readable to the end.
+      root.querySelectorAll(".f01-chipwrap").forEach((wrap, i) => {
+        const at = T.chips[i] - LEAD;
+        RK.pop(tl, wrap.querySelector(".f01-chip"), at);
+        tl.fromTo(wrap, { y: 16 }, { y: 0, duration: 0.12, ease: "steps(2)" }, at);
+      });
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["01-hook"] = tl;
+    })();
+  </script>
+</template>

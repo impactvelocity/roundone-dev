@@ -1,0 +1,123 @@
+{
+  "ok": true,
+  "projectDir": "/Users/dylanjones/apps/judge-agent-nebius/videos/roundone-launch/capture",
+  "url": "http://roundone.localhost:3001/",
+  "httpStatus": 200,
+  "title": "RoundOne · Agents check the code, humans judge the idea",
+  "screenshots": 16,
+  "assets": 30,
+  "dropped": {
+    "size-floor": 0,
+    "budget-exhausted": 0,
+    "cap-reached": 20,
+    "unavailable": 6
+  },
+  "detectedSections": 9,
+  "fonts": [
+    "GeistMono",
+    "GeistSans",
+    "GeistPixelSquare",
+    "GeistPixelGrid",
+    "GeistPixelCircle",
+    "GeistPixelTriangle",
+    "GeistPixelLine",
+    "__nextjs-Geist",
+    "__nextjs-Geist Mono"
+  ],
+  "fontsDetailed": [
+    {
+      "family": "GeistMono",
+      "weights": [
+        400
+      ],
+      "variable": true,
+      "weightRange": [
+        100,
+        900
+      ]
+    },
+    {
+      "family": "GeistSans",
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "variable": true,
+      "weightRange": [
+        100,
+        900
+      ]
+    },
+    {
+      "family": "GeistPixelSquare",
+      "weights": [
+        500
+      ],
+      "variable": false
+    },
+    {
+      "family": "GeistPixelGrid",
+      "weights": [
+        500
+      ],
+      "variable": false
+    },
+    {
+      "family": "GeistPixelCircle",
+      "weights": [
+        500
+      ],
+      "variable": false
+    },
+    {
+      "family": "GeistPixelTriangle",
+      "weights": [
+        500
+      ],
+      "variable": false
+    },
+    {
+      "family": "GeistPixelLine",
+      "weights": [
+        500
+      ],
+      "variable": false
+    },
+    {
+      "family": "__nextjs-Geist",
+      "weights": [],
+      "variable": true,
+      "weightRange": [
+        400,
+        600
+      ]
+    },
+    {
+      "family": "__nextjs-Geist Mono",
+      "weights": [],
+      "variable": true,
+      "weightRange": [
+        400,
+        600
+      ]
+    }
+  ],
+  "animations": {
+    "webAnimations": 15,
+    "cssDeclarations": 44,
+    "scrollTargets": 50,
+    "cdpAnimations": 42,
+    "canvases": 0
+  },
+  "warnings": [
+    "26 referenced asset(s) are not in this capture (20 cap-reached, 6 unavailable). A thin capture with no drops is a thin page; this one was truncated."
+  ],
+  "lastPhase": {
+    "schema": "hyperframes.capture.phase.v1",
+    "phase": "complete",
+    "status": "completed",
+    "remainingMs": 81683
+  }
+}

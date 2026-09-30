@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "preferences": {
+    "aspect": {
+      "value": "1920x1080",
+      "confirmed_in": [
+        "roundone-devpost"
+      ],
+      "updated_at": "2026-09-30T06:41:20.545Z"
+    },
+    "destination": {
+      "value": "youtube",
+      "confirmed_in": [
+        "roundone-devpost"
+      ],
+      "updated_at": "2026-09-30T06:41:25.585Z"
+    },
+    "language": {
+      "value": "en",
+      "confirmed_in": [
+        "roundone-devpost"
+      ],
+      "updated_at": "2026-09-30T06:41:25.611Z"
+    },
+    "flow": {
+      "value": "automation",
+      "confirmed_in": [
+        "roundone-devpost"
+      ],
+      "updated_at": "2026-09-30T06:41:25.637Z"
+    },
+    "storyboard": {
+      "value": "no",
+      "confirmed_in": [
+        "roundone-devpost"
+      ],
+      "updated_at": "2026-09-30T06:41:25.664Z"
+    }
+  },
+  "sightings": {}
+}
