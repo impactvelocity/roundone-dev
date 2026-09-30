@@ -49,3 +49,13 @@ next-env.d.ts
 
 # local Claude Code config and skill links
 /.claude/
+
+# /brag launch-video runs (scratch plans, renders, share copy)
+/brag-output*/
+
+# HyperFrames working files and renders under videos/
+/videos/*/.hyperframes/
+/videos/*/.media/
+/videos/*/snapshots/
+/videos/*/renders/
+/videos/*/.capture-result.json
