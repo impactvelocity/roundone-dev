@@ -56,7 +56,9 @@ function checkOnce(url: string, key: string, publishableKey: string): Promise<Ch
     }),
     timed("storage", async () => {
       const { error } = await supabase.storage.listBuckets();
-      return { status: error?.status, error: error && (error.status ? `HTTP ${error.status}: ${error.message}` : error.message) };
+      if (!error?.status) return { error: error?.message };
+      const { status, message } = error;
+      return { status, error: message.includes(String(status)) ? message : `HTTP ${status}: ${message}` };
     }),
   ]);
 }
