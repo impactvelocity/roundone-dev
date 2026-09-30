@@ -111,6 +111,7 @@ Emails go out through Resend: judge invites and reminders, notices to the organi
 | `FROM_EMAIL` | Sender address on a domain verified in Resend, such as `judging@your-domain.com`. It can be written as `Name <address>`; only the address is used. Each hackathon sends as its own sender name at this address. |
 | `EMAIL_REDIRECT_TO` | For development. Sends every email to this address instead, with the real recipient in the subject. Leave it unset to send for real. |
 | `APP_URL` | The origin used for links in emails, such as `https://roundone.example.com`. `NEXT_PUBLIC_APP_URL` works as a fallback name. |
+| `ALERT_EMAIL` | Where the [keep-alive check](/docs/reference/deployment#keep-supabase-awake) sends an email when Supabase stops answering. `EMAIL_REDIRECT_TO` doesn't apply to it. Without it, failures are only logged. |
 
 Without `RESEND` or `FROM_EMAIL`, no email is sent and the rest of the app works. Without `APP_URL`, links use `https://` plus `VERCEL_PROJECT_PRODUCTION_URL` on Vercel, or `http://localhost:` plus `PORT` (3000 by default).
 
@@ -123,6 +124,7 @@ Emails to reserved example domains, such as `example.com` or anything ending in 
 | `SITE_HOSTS` | Hostnames that serve the marketing landing page. See [Landing page and site hosts](#landing-page-and-site-hosts). |
 | `DEMO_MODE` | Set to `true` to fill in a shared demo login on the sign-in page. See [Demo login](#demo-login). |
 | `DEMO_EMAIL`, `DEMO_PASSWORD` | The demo login. Default `demo@roundone.dev` and `try-roundone-demo`. |
+| `CRON_SECRET` | A random string of at least 16 characters. Vercel sends it with its cron requests, and `/api/cron/keep-alive` turns away requests without it. When it isn't set, anyone can call that route. It only reads from Supabase, and it emails at most one alert an hour. |
 | `NODE_ENV` | Set by Next.js. In production, `/landing` is limited to site hosts and the `roundone.localhost` preview is off. |
 | `PORT` | The dev or server port, used for email links when nothing else sets the origin. |
 | `VERCEL_PROJECT_PRODUCTION_URL` | Set by Vercel. Used for email links when `APP_URL` isn't set. |

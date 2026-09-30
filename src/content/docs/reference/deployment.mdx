@@ -103,6 +103,12 @@ On Vercel, import the repository, add the environment variables, and deploy. Set
 - **Agent reviews** run in the background after the request that starts them returns. The pages that start them allow up to 800 seconds (`maxDuration = 800`), and the chat endpoint allows 120. One agent worker keeps claiming queued reviews for up to 25 minutes (`AGENT_WORKER_BUDGET_MS`). On Vercel, the function's duration limit cuts that short, and unfinished reviews are picked up the next time the agent runs.
 - **Emails** run as durable workflows through the `workflow` package (Workflow DevKit), wired in by `withWorkflow` in `next.config.ts`. A phase's run sends judge invites, daily batch reminders and a last call, and notifies the organizer. Results runs send winner and thank-you emails. Its endpoints live under `/.well-known/workflow/`, and the auth proxy skips them. Local runs keep their state in `.workflow-data/`.
 
+### Keep Supabase awake
+
+Supabase pauses a Free-plan project after a week without database activity. `vercel.json` schedules a [Vercel cron job](https://vercel.com/docs/cron-jobs) that calls `/api/cron/keep-alive` every 6 hours. Each run reads from the database, Auth and Storage. If Supabase still doesn't answer after two retries, the route emails `ALERT_EMAIL` a link to the project's dashboard. A paused project answers every request with HTTP 540, and the email then says to restore it.
+
+Set `CRON_SECRET` on Vercel so only Vercel's cron can call the route. To run it by hand, open **Settings › Cron Jobs** in the Vercel project and click **Run**. Vercel Hobby only allows daily cron jobs, so there, replace the schedule with a few daily ones such as `0 4 * * *` and `0 16 * * *`. On another host, call the route from any scheduler with `Authorization: Bearer` followed by the `CRON_SECRET` value.
+
 ### Sign-in on every request
 
 `src/proxy.ts` runs on every request except static files. It refreshes the Supabase session, sends signed-out visitors on organizer pages to `/login`, and serves the landing page on site hosts. See [Landing page and site hosts](/docs/reference/configuration#landing-page-and-site-hosts). A self-hosted instance doesn't need `SITE_HOSTS`.

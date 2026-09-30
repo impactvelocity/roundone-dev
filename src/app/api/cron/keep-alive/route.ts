@@ -6,9 +6,9 @@ import { appUrl, emailConfig, sender } from "@/lib/email/config";
 // Keeps the Supabase project awake. Supabase pauses a Free-plan project after
 // a week without database activity, and a paused project answers every request
 // with HTTP 540 until someone restores it from the dashboard. vercel.json calls
-// this three times a day (Hobby allows one run per schedule per day, so it's
-// three schedules). Each run reads from the database, Auth and Storage. If they
-// still fail after a couple of retries, it emails ALERT_EMAIL through Resend.
+// this every 6 hours. Each run reads from the database, Auth and Storage. If
+// they still fail after a couple of retries, it emails ALERT_EMAIL through
+// Resend. (Vercel Hobby only allows daily crons; use one schedule per run there.)
 //
 // Vercel sends CRON_SECRET as a bearer token, and when it's set nothing else
 // gets in. Without it the route stays open, so a missing secret can't quietly
@@ -43,9 +43,11 @@ function checkOnce(url: string, key: string, publishableKey: string): Promise<Ch
     global: { fetch: fetchFresh },
   });
   return Promise.all([
-    // A real query, since Supabase measures database activity.
+    // A real query, since Supabase measures database activity. The client's own
+    // retries (1s, 2s, 4s backoff, timeouts included) would outlast maxDuration
+    // against a hung project, so check() does the retrying instead.
     timed("database", async () => {
-      const { status, error } = await supabase.from("hackathons").select("id").limit(1);
+      const { status, error } = await supabase.from("hackathons").select("id").limit(1).retry(false);
       return { status, error: error && (error.message || `HTTP ${status}`) };
     }),
     timed("auth", async () => {
@@ -54,7 +56,7 @@ function checkOnce(url: string, key: string, publishableKey: string): Promise<Ch
     }),
     timed("storage", async () => {
       const { error } = await supabase.storage.listBuckets();
-      return { error: error?.message };
+      return { status: error?.status, error: error && (error.status ? `HTTP ${error.status}: ${error.message}` : error.message) };
     }),
   ]);
 }
@@ -90,7 +92,7 @@ async function sendAlert(url: string, checks: Check[]): Promise<string> {
     ...checks.filter((c) => !c.ok).map((c) => `- ${c.name}: ${c.error}`),
     "",
     "Supabase status: https://status.supabase.com",
-    `Sent by ${appUrl()}/api/cron/keep-alive, which runs three times a day.`,
+    `Sent by ${appUrl()}/api/cron/keep-alive, which runs every 6 hours.`,
   ].join("\n");
 
   const { data, error } = await new Resend(config.apiKey).emails.send(
