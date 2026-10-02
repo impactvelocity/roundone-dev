@@ -1,0 +1,60 @@
+[Devpost](https://devpost.com/) hosts the [Nebius x NVIDIA Global AI Hackathon](https://nebiusglobalaihackathon.devpost.com/), the event RoundOne was built for. Devpost runs the public side of a hackathon: the rules, registration, team pages and submissions. RoundOne runs the judging.
+
+## The hackathon
+
+Every project must run on Nebius Token Factory or Nebius AI Cloud and use at least one NVIDIA open model. Teams pick one of four tracks: Coding and Agentic Engineering, Best Apps and Agents, Personal AI, or Physical AI. Tavily sponsors its own award for the best use of Tavily.
+
+Each submission includes:
+
+- a project description
+- a working demo URL, except for Physical AI projects
+- a public YouTube demo video, 3 minutes or less
+- a public repo on GitHub, GitLab or Bitbucket, with an open source license and a README
+
+Projects are judged on four criteria: Technological Implementation, Design, Potential Impact and Quality of the Idea.
+
+## The rules as RoundOne criteria
+
+Most of the submission rules have a clear answer, so each can run as a pass/fail [gate](/docs/setup/criteria#gates) the agent checks on every project:
+
+| Rule | Checked with |
+| --- | --- |
+| The repo builds | **Sandbox run** in a [Nebius Sandbox](/docs/sponsors/nebius-sandboxes) |
+| The code calls Token Factory | **Code scraper**, looking for the Token Factory API |
+| It uses an NVIDIA open model | **Code scraper**, looking for the model IDs |
+| The demo is 3 minutes or less | **Video reviewer** |
+| The demo works | **Web scraper** with [Tavily](/docs/sponsors/tavily) |
+
+That leaves the judgment calls, Potential Impact and Quality of the Idea, to people. A project that fails a gate waits in the [failed inbox](/docs/judging/inbox) until a person agrees or puts it back in the pool.
+
+## Bring Devpost projects into RoundOne
+
+Projects stay on Devpost. RoundOne doesn't connect to Devpost directly: you export the submissions and send them in through the [Intake API](/docs/reference/intake-api).
+
+<Steps>
+
+### Set up the schema
+
+Match your [schema](/docs/setup/schema) to what Devpost collects: the project's name and tagline, the description, the demo URL, the video, the repo and the team. Add a **Select** block for the track.
+
+### Export the submissions
+
+In Devpost's manager dashboard, export the hackathon's submissions as a spreadsheet.
+
+### Turn on the API
+
+Open Judging › **Projects**, click **API** and switch on **API access**. Copy the key right away.
+
+### Run the import
+
+Copy the drawer's **Agent prompt** into a coding agent such as Claude Code or Cursor, and point it at the export. The agent maps Devpost's columns to your fields, checks the mapping with you, then sends the projects up to 100 per request.
+
+</Steps>
+
+Imported projects show up on [Projects](/docs/judging/projects) straight away, and their audit trail records that they came in through the API.
+
+## Related
+
+- [Intake API](/docs/reference/intake-api)
+- [Schema](/docs/setup/schema)
+- [Criteria › Gates](/docs/setup/criteria#gates)

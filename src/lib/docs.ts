@@ -44,6 +44,48 @@ export const DOC_SECTIONS: DocSection[] = [
     ],
   },
   {
+    title: "Hackathon sponsors",
+    icon: "heart",
+    pages: [
+      {
+        slug: "sponsors",
+        title: "Sponsors",
+        description: "The Nebius x NVIDIA Global AI Hackathon on Devpost, and what each sponsor's tech does in RoundOne.",
+        load: () => import("@/content/docs/sponsors/index.mdx"),
+      },
+      {
+        slug: "sponsors/nebius-token-factory",
+        title: "Nebius Token Factory",
+        description: "One OpenAI-compatible API for every model call, with schema-enforced verdicts and chat embeddings.",
+        load: () => import("@/content/docs/sponsors/nebius-token-factory.mdx"),
+      },
+      {
+        slug: "sponsors/nebius-sandboxes",
+        title: "Nebius Sandboxes",
+        description: "VM-isolated sandboxes that clone, build and test every submitted repo.",
+        load: () => import("@/content/docs/sponsors/nebius-sandboxes.mdx"),
+      },
+      {
+        slug: "sponsors/tavily",
+        title: "Tavily",
+        description: "Reading live demos, searching the web and fetching linked pages for the agent and Chat.",
+        load: () => import("@/content/docs/sponsors/tavily.mdx"),
+      },
+      {
+        slug: "sponsors/nvidia",
+        title: "NVIDIA Nemotron",
+        description: "The open models behind the agent's three tiers, its double checks and Chat.",
+        load: () => import("@/content/docs/sponsors/nvidia.mdx"),
+      },
+      {
+        slug: "sponsors/devpost",
+        title: "Devpost",
+        description: "The hackathon's home, its rules as RoundOne criteria, and bringing Devpost projects in.",
+        load: () => import("@/content/docs/sponsors/devpost.mdx"),
+      },
+    ],
+  },
+  {
     title: "Workspace",
     icon: "grid",
     pages: [
