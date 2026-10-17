@@ -315,14 +315,14 @@ const ZOOM: Variants = {
           transition: { type: "spring", bounce: 0, duration: 0.4 },
         }
       : { x: 0, y: 0, scale: 0.94, opacity: 0, transition: { duration: 0.2 } },
-  full: { x: 0, y: 0, scale: 1, opacity: 1, transition: { type: "spring", bounce: 0.15, duration: 0.55 } },
+  full: { x: 0, y: 0, scale: 1, opacity: 1, transition: { type: "spring", bounce: 0, duration: 0.4 } },
 };
 
 // The next shot slides in from the side it was asked for.
 const SLIDE: Variants = {
-  enter: (direction: number) => ({ x: direction * 160, opacity: 0 }),
-  center: { x: 0, opacity: 1, transition: { x: { type: "spring", bounce: 0, duration: 0.45 }, opacity: { duration: 0.2 } } },
-  exit: (direction: number) => ({ x: direction * -160, opacity: 0, transition: { duration: 0.22 } }),
+  enter: (direction: number) => ({ x: direction * 60, opacity: 0 }),
+  center: { x: 0, opacity: 1, transition: { x: { type: "spring", bounce: 0, duration: 0.35 }, opacity: { duration: 0.2 } } },
+  exit: (direction: number) => ({ x: direction * -60, opacity: 0, transition: { duration: 0.18 } }),
 };
 
 const FADE = { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.25 } };

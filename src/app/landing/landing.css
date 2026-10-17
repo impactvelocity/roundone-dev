@@ -521,27 +521,27 @@ html:has(.landing) {
 /* ---- motion -------------------------------------------------------- */
 
 .landing .reveal {
-  animation: landing-rise 0.8s cubic-bezier(0.22, 0.8, 0.2, 1) both;
+  animation: landing-rise 0.5s cubic-bezier(0.22, 0.8, 0.2, 1) both;
 }
 
-.landing .reveal-delay-1 { animation-delay: 0.1s; }
-.landing .reveal-delay-2 { animation-delay: 0.2s; }
-.landing .reveal-delay-3 { animation-delay: 0.3s; }
-.landing .reveal-delay-4 { animation-delay: 0.45s; }
+.landing .reveal-delay-1 { animation-delay: 0.05s; }
+.landing .reveal-delay-2 { animation-delay: 0.1s; }
+.landing .reveal-delay-3 { animation-delay: 0.15s; }
+.landing .reveal-delay-4 { animation-delay: 0.2s; }
 
 @keyframes landing-rise {
-  from { opacity: 0; transform: translateY(22px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 /* The live phase's dot. */
 .landing .live-dot {
-  animation: live-dot 1.6s ease-in-out infinite;
+  animation: live-dot 2.4s ease-in-out infinite;
 }
 
 @keyframes live-dot {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  50% { opacity: 0.55; }
 }
 
 /* The TV's picture switches on like an old CRT, a beat after the set rises
@@ -552,7 +552,7 @@ html:has(.landing) {
   z-index: 1;
   pointer-events: none;
   background: #07030f;
-  animation: tv-power-cover 0.35s 1.4s both;
+  animation: tv-power-cover 0.25s 0.85s both;
 }
 
 .landing .tv-power::after {
@@ -560,7 +560,7 @@ html:has(.landing) {
   position: absolute;
   inset: 0;
   background: #fff4e6;
-  animation: tv-power-line 0.8s 0.85s both;
+  animation: tv-power-line 0.5s 0.4s both;
 }
 
 @keyframes tv-power-line {
@@ -576,12 +576,12 @@ html:has(.landing) {
 
 /* Sparkles around the TV, stepping like an old game's. */
 .landing .twinkle {
-  animation: twinkle 2.4s steps(3) infinite;
+  animation: twinkle 4s steps(3) infinite;
 }
 
 @keyframes twinkle {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.3; transform: scale(0.6); }
+  50% { opacity: 0.6; transform: scale(0.85); }
 }
 
 @media (prefers-reduced-motion: reduce) {

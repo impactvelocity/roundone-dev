@@ -10,10 +10,10 @@ import { highlight } from "./highlight";
 const VIEWPORT = { once: true, margin: "-80px" } as const;
 
 const rise = (delay = 0) => ({
-  initial: { opacity: 0, y: 28 },
+  initial: { opacity: 0, y: 10 },
   whileInView: { opacity: 1, y: 0 },
   viewport: VIEWPORT,
-  transition: { duration: 0.6, delay, ease: [0.22, 0.8, 0.2, 1] as const },
+  transition: { duration: 0.45, delay, ease: [0.22, 0.8, 0.2, 1] as const },
 });
 
 /** Fades its children up the first time they scroll into view. */
@@ -102,14 +102,8 @@ export function Showcase({
           <div className="m-0 mt-6 text-base leading-relaxed text-[var(--muted)]">{description}</div>
         </div>
         <div className={`min-w-0 px-4 pb-10 sm:px-8 lg:py-12 ${flip ? "lg:order-1 lg:pr-0" : "lg:pl-0"}`}>
-          {/* The media gets a springier pop, a beat after the card. */}
-          <motion.div
-            className="flex w-full justify-center"
-            initial={{ opacity: 0, y: 40, scale: 0.94 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={VIEWPORT}
-            transition={{ type: "spring", stiffness: 170, damping: 19, delay: 0.18 }}
-          >
+          {/* The media follows a beat after the card. */}
+          <motion.div className="flex w-full justify-center" {...rise(0.12)}>
             {media}
           </motion.div>
         </div>
