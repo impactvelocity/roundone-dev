@@ -2,6 +2,10 @@
   <img src="devpost/thumbnail.png" alt="RoundOne: hackathon judging agent and management" width="640">
 </p>
 
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+</p>
+
 # RoundOne
 
 RoundOne runs the judging side of a hackathon. An NVIDIA Nemotron agent on Nebius checks every project first: it builds the repo, reads the code, visits the live demo and reads the video transcript. Judges get short batches with the checking done, and spend their time on the ideas. Rounds, emails, prizes and the winners page run from the same app, and every decision is on the audit trail.
