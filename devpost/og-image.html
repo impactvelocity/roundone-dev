@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RoundOne OG image</title>
+<!--
+  Source for src/app/opengraph-image.png and twitter-image.png (1200×630),
+  the link preview image. Same look as thumbnail.html, laid out wide.
+  Render from the repo root:
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new \
+    --allow-file-access-from-files --hide-scrollbars --force-device-scale-factor=1 \
+    --window-size=1200,630 --screenshot=src/app/opengraph-image.png \
+    "file://$PWD/devpost/og-image.html" && cp src/app/opengraph-image.png src/app/twitter-image.png
+-->
+<style>
+  @font-face { font-family: "Geist Pixel"; src: url("../node_modules/geist/dist/fonts/geist-pixel/GeistPixel-Square.woff2") format("woff2"); }
+  @font-face { font-family: "Geist Mono"; src: url("../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2") format("woff2"); }
+
+  :root {
+    --screen-deep: #150c2e;
+    --sunset: linear-gradient(180deg, #fcd34d 0%, #fb923c 38%, #f43f5e 70%, #e11d8f 100%);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+
+  /* The landing page's night band: deep purple, sunset glow rising from the bottom edge. */
+  body {
+    position: relative;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 125%, rgba(251, 122, 60, 0.42), transparent 70%),
+      radial-gradient(ellipse 90% 75% at 50% 118%, rgba(217, 70, 239, 0.3), transparent 72%),
+      radial-gradient(ellipse 35% 55% at 24% 45%, rgba(124, 58, 237, 0.32), transparent 75%),
+      var(--screen-deep);
+  }
+
+  /* Dot grid, strongest around the middle and fading to the edges. */
+  .dots {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 1.5px 1.5px, rgba(255, 255, 255, 0.16) 1.4px, transparent 0);
+    background-size: 24px 24px;
+    background-position: 6px 4px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 50%, #000 30%, transparent 95%);
+            mask-image: radial-gradient(ellipse 75% 80% at 50% 50%, #000 30%, transparent 95%);
+  }
+  /* The landing's faint pixel stars on top. */
+  .stars {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.45) 1.2px, transparent 1.8px),
+      radial-gradient(circle at 1px 1px, rgba(251, 191, 36, 0.35) 1.2px, transparent 1.8px);
+    background-size: 97px 89px, 151px 137px;
+    background-position: 13px 21px, 71px 43px;
+  }
+
+  .lockup { position: relative; display: flex; align-items: center; gap: 56px; }
+  .lockup img { width: 300px; height: 300px; flex-shrink: 0; filter: drop-shadow(0 24px 60px rgba(124, 58, 237, 0.45)); }
+  .copy { display: flex; flex-direction: column; gap: 28px; }
+  h1 {
+    font: 400 62px/1.08 "Geist Pixel", sans-serif;
+    letter-spacing: -0.005em;
+    color: #fff;
+    text-shadow: 0 4px 18px rgba(24, 8, 48, 0.7);
+  }
+  h1 span {
+    background: var(--sunset);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 2px 10px rgba(24, 8, 48, 0.85));
+  }
+  .meta {
+    font: 400 21px/1.4 "Geist Mono", monospace;
+    color: rgba(237, 233, 254, 0.72);
+    letter-spacing: 0.01em;
+  }
+  .meta b { font-weight: 500; color: #fff; }
+</style>
+</head>
+<body>
+  <div class="dots"></div>
+  <div class="stars"></div>
+  <div class="lockup">
+    <img src="../public/landing/logo.png" alt="RoundOne">
+    <div class="copy">
+      <h1>Hackathon Judging<br><span>Agent &amp; Management</span></h1>
+      <p class="meta">Self-hosted · open source<br><b>roundone.dev</b></p>
+    </div>
+  </div>
+</body>
+</html>

@@ -4,11 +4,19 @@ import { GeistSans } from "geist/font/sans";
 import { GeistPixelSquare } from "geist/font/pixel";
 import type { CSSProperties } from "react";
 import { brand } from "@/lib/branding";
+import { appUrl } from "@/lib/email/config";
 import "./globals.css";
 
+const description = "Run hackathons, judge with agents and humans, publish winners.";
+
+// The share image itself is opengraph-image.png / twitter-image.png in this
+// folder (source: devpost/og-image.html); metadataBase makes its URL absolute.
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl()),
   title: brand.name,
-  description: "Run hackathons, judge with agents and humans, publish winners.",
+  description,
+  openGraph: { type: "website", siteName: brand.name, title: brand.name, description },
+  twitter: { card: "summary_large_image", title: brand.name, description },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
