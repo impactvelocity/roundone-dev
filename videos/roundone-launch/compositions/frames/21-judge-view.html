@@ -74,9 +74,19 @@
         var clock = RK.clock(tl, DURATION);
 
         // Callouts, renumbered: 1 Everything on one page · 2 Score what people should · 3 A running total.
-        // Card 1 sits 119px left of its shots.js spot so its connector clears card 2 in the final hold.
+        // Cards 1 and 2 take turns in the empty space right of the title (never on screen together),
+        // clear of the banner copy: card 1 over the submission panel on a short upright connector;
+        // card 2's connector runs down the gutter between the panel and the rubric. Card 3 sits above
+        // the banner's empty top-right, its connector dropping past the banner copy to the total.
         var list = shot.callouts.map(function (c) { return Object.assign({}, c); });
-        list[0].cardAt = [380, 208];
+        list[0].cardAt = [470, 449];
+        list[0].cardAlign = [0, 1];
+        list[0].to = [0.6, 0];
+        list[2].cardAt = [560, 340];
+        list[2].path = [[900, 410], [930, 410], [930, 600], [962, 600]];
+        list[1].cardAt = [838, 243];
+        list[1].cardAlign = [0, 1];
+        list[1].path = [[1150, 243], [1150, 412], [1240, 412]];
         var co = TK.callouts(w, list, { only: [0, 2, 1] });
         // An undrawn connector (dashoffset = its length) still paints its round cap at the ring end;
         // a gap longer than the line keeps it fully hidden until it draws.
@@ -95,7 +105,7 @@
         }));
         rings.forEach(function (r) {
           r.card.remove();
-          if (r.line) { r.line.remove(); r.dot.remove(); }
+          if (r.line) r.line.remove();
         });
         function ringOff(r, t) {
           tl.fromTo(r.ring, { opacity: 1 }, { opacity: 0, duration: 0.18, ease: "steps(3)", immediateRender: false }, t);
@@ -103,7 +113,7 @@
         // Callout 1 steps aside while the camera works the rubric (its card would sit under the
         // headline band there) and comes back for the final wide hold.
         function calloutBack(c, t) {
-          var els = [c.ring, c.card].concat(c.line ? [c.line, c.dot] : []);
+          var els = [c.ring, c.card].concat(c.line ? [c.line] : []);
           tl.fromTo(els, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out", immediateRender: false }, t);
         }
 
@@ -146,12 +156,13 @@
 
         // Scene 4 (6.5–8.0): a small push toward the total (card 3 down to the first filled
         // meter, so the total reads against the scores); callout 3.
-        TK.focus(tl, w, 6.25, { x: 964, y: 208, w: 350, h: 415 }, { max: 1.6, dur: 0.85, anchor: [0.6, 0.5] });
+        TK.focus(tl, w, 6.25, { x: 838, y: 104, w: 478, h: 516 }, { max: 1.6, dur: 0.85, anchor: [0.5, 0.56] });
         TK.showCallout(tl, co[2], 6.5);
 
-        // Scene 5 (8.0–10.0): back to rest with callout 1 in view again; the pill pops; the
-        // cursor clicks it. Hold.
+        // Scene 5 (8.0–10.0): back to rest; callout 2 makes room and callout 1 is in view again;
+        // the pill pops; the cursor clicks it. Hold.
         TK.rest(tl, w, 7.75, { dur: 0.6 });
+        TK.dimCallout(tl, co[1], 7.55, 0);
         calloutBack(co[0], 7.75);
         RK.pop(tl, dock, 8.25);
         tl.fromTo(cur, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "steps(2)" }, 8.3);

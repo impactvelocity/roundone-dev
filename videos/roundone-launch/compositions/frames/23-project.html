@@ -36,7 +36,14 @@
       TK.ready(root).then(function () {
         var tl = gsap.timeline({ paused: true });
         var clock = RK.clock(tl, DURATION);
-        var co = TK.callouts(w, shot.callouts); // 1 Where it landed (banner) · 2 Every judge, averaged (scores)
+        // Cards re-placed (page px) so each has a clear connector and covers no copy: card 1 in the
+        // empty header space, lifted off the banner; card 2 on the empty right ends of the
+        // Description and Video rows, level with the scores panel.
+        var list = shot.callouts.map(function (c) { return Object.assign({}, c); });
+        list[0].cardAt = [406, 277];
+        list[0].cardAlign = [0, 1];
+        list[1].cardAt = [612, 626];
+        var co = TK.callouts(w, list); // 1 Where it landed (banner) · 2 Every judge, averaged (scores)
 
         // Scene 1 (0.0–1.0): header, then the window rises.
         TK.showHeader(tl, h, 0.05);

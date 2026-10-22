@@ -252,8 +252,10 @@
    * Build callouts from shots.js entries (box in page px; card on the landing canvas).
    *   TK.callouts(w, TOUR_SHOTS.schema.callouts)            // all, numbered 1…n
    *   TK.callouts(w, list, {only: [0, 2], renumber: true})
-   * A callout may also carry `cardAt: [x, y]` in page px to override the canvas position.
-   * Returns [{ring, card, line, dot, box, cardRect, rect}] — rect = ring ∪ card, page px.
+   * A callout may also carry `cardAt: [x, y]` in page px to override the canvas position,
+   * `cardAlign: [ax, ay]` to pin another point of the card there, and `path` to route its
+   * connector by hand (see below).
+   * Returns [{ring, card, line, box, cardRect, rect}] — rect = ring ∪ card, page px.
    * Must run after TK.ready (cards are measured).
    */
   function callouts(w, list, o) {
@@ -279,15 +281,20 @@
       card.innerHTML = '<span class="tk-num">' + (o.numbers ? o.numbers[n] : num) + "</span><div><h3>" + c.title + "</h3><p>" + c.body + "</p></div>";
       var cx = c.cardAt ? c.cardAt[0] : (c.card[0] - CANVAS_LEFT) / CANVAS_K;
       var cy = c.cardAt ? c.cardAt[1] : (c.card[1] - CANVAS_TOP) / CANVAS_K;
+      // cardAlign [ax, ay]: which point of the card cardAt names (0…1; [0, 1] = bottom-left).
+      if (c.cardAlign) {
+        cx -= c.cardAlign[0] * card.offsetWidth;
+        cy -= c.cardAlign[1] * card.offsetHeight;
+      }
       card.style.left = cx + "px";
       card.style.top = cy + "px";
       var k = { x: cx, y: cy, w: card.offsetWidth, h: card.offsetHeight };
 
       // Connector: card edge → ring edge (or the ring point `to` names), unless they touch.
-      // Straight when the two line up, otherwise one right-angle bend.
-      var pts = route(k, b, c.to);
+      // Straight when the two line up, otherwise one right-angle bend. `path` ([[x, y], …], page
+      // px, card edge first, ring edge last) routes it by hand, e.g. down a gutter between panels.
+      var pts = c.path ? c.path.map(function (p) { return { x: p[0], y: p[1] }; }) : route(k, b, c.to);
       var line = null;
-      var dot = null;
       if (pts) {
         line = document.createElementNS("http://www.w3.org/2000/svg", "path");
         line.setAttribute("d", pathD(pts, 12));
@@ -300,15 +307,6 @@
         var len = line.getTotalLength();
         line.setAttribute("stroke-dasharray", len + " " + len);
         line.__len = len;
-        var to = pts[pts.length - 1];
-        dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        dot.setAttribute("cx", to.x);
-        dot.setAttribute("cy", to.y);
-        dot.setAttribute("r", "6.5");
-        dot.setAttribute("fill", accent);
-        dot.setAttribute("stroke", "#fff");
-        dot.setAttribute("stroke-width", "3");
-        w.links.appendChild(dot);
       }
       var x0 = Math.min(b.x, k.x);
       var y0 = Math.min(b.y, k.y);
@@ -318,8 +316,7 @@
       gsap.set([ring, card], { opacity: 0 });
       // Hidden outright too: a round cap on a fully offset dash still paints a dot.
       if (line) gsap.set(line, { attr: { "stroke-dashoffset": line.__len }, opacity: 0 });
-      if (dot) gsap.set(dot, { opacity: 0 });
-      var co = { ring: ring, card: card, line: line, dot: dot, box: b, cardRect: k, rect: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 } };
+      var co = { ring: ring, card: card, line: line, box: b, cardRect: k, rect: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 } };
       out.push(co);
       w.callouts.push(co);
     });
@@ -414,7 +411,7 @@
 
   /**
    * Show one callout at t: the ring snaps in (stepped), the connector draws, the
-   * dot and the card pop. ~0.7s end to end. Pass {ringOnly: true} to skip the card.
+   * card pops. ~0.7s end to end. Pass {ringOnly: true} to skip the card.
    */
   function showCallout(tl, co, t, o) {
     o = o || {};
@@ -424,7 +421,6 @@
     if (co.line) {
       tl.fromTo(co.line, { opacity: 0 }, { opacity: 1, duration: 0.01, immediateRender: false }, t + 0.16);
       tl.fromTo(co.line, { attr: { "stroke-dashoffset": co.line.__len } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.out" }, t + 0.16);
-      tl.fromTo(co.dot, { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.18, ease: "steps(3)", transformOrigin: "50% 50%" }, t + 0.16);
     }
     tl.fromTo(co.card, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1.1, duration: 0.12, ease: "steps(2)", transformOrigin: "50% 50%" }, t + 0.36);
     tl.fromTo(co.card, { scale: 1.1 }, { scale: 1, duration: 0.12, ease: "steps(2)", immediateRender: false }, t + 0.48);
@@ -435,7 +431,7 @@
     var a = to == null ? 0 : to;
     // Only what showCallout actually showed: a ring-only highlight's card and connector stay hidden.
     tl.fromTo(co.ringOnly ? [co.ring] : [co.ring, co.card], { opacity: 1 }, { opacity: a, duration: 0.3, ease: "power2.out", immediateRender: false }, t);
-    if (co.line && !co.ringOnly) tl.fromTo([co.line, co.dot], { opacity: 1 }, { opacity: a, duration: 0.3, ease: "power2.out", immediateRender: false }, t);
+    if (co.line && !co.ringOnly) tl.fromTo(co.line, { opacity: 1 }, { opacity: a, duration: 0.3, ease: "power2.out", immediateRender: false }, t);
   }
 
   // ── Camera ────────────────────────────────────────────────────────────────

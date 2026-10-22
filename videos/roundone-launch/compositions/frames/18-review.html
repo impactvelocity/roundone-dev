@@ -41,13 +41,14 @@
       var h = TK.header(stage, { eyebrow: "The agent <b>›</b> Review", title: "Checked, verified, summarized.", chapter: 1 });
 
       // Copy the shot's callouts (never mutate TOUR_SHOTS); copy stays verbatim. Cards 1 and 2
-      // are re-placed (page px) so they clear the keep-out: card 1 level with the score row, right
-      // of the Scores subtitle, its connector running through the gap under the Scores divider
-      // (y 224 → row text 245); card 2 level with strengths / to improve, below the Scores panel.
+      // are re-placed (page px) in the empty column under the Scores panel, clear of the keep-out
+      // at rest: card 1's connector runs up the gutter between the review and the Scores panel to
+      // the score row; card 2 sits level with strengths / to improve on a straight connector.
       var list = shot.callouts.map(function (c) { return Object.assign({}, c); });
-      list[1].cardAt = [1222, 177];
-      list[1].to = [1, 0.4];
-      list[2].cardAt = [1046, 609];
+      list[1].cardAt = [1040, 515];
+      list[1].path = [[1040, 560], [1004, 560], [1004, 241], [968, 241]];
+      list[2].cardAt = [1040, 650];
+      list[2].to = null;
 
       // Camera view: below the headline band, above the keep-out line.
       var VIEW = { x: 90, y: 250, w: 1740, h: 640 };

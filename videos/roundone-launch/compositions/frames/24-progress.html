@@ -81,15 +81,10 @@
         var y1 = c.cardRect.y + c.cardRect.h;
         var y2 = c.box.y;
         var len = y2 - y1;
-        c.line.setAttribute("x1", x);
-        c.line.setAttribute("y1", y1);
-        c.line.setAttribute("x2", x);
-        c.line.setAttribute("y2", y2);
+        c.line.setAttribute("d", "M" + x + " " + y1 + " L" + x + " " + y2);
         c.line.setAttribute("stroke-dasharray", len + " " + len);
         c.line.__len = len;
         gsap.set(c.line, { attr: { "stroke-dashoffset": len } });
-        c.dot.setAttribute("cx", x);
-        c.dot.setAttribute("cy", y2);
       }
 
       TK.ready(root).then(function () {

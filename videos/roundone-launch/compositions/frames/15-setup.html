@@ -41,7 +41,11 @@
             cardAt: [500, 536],
           },
         },
-        { id: "criteria-agent", pick: 0, land: 2.0, show: 2.6, eyebrow: "Setup <b>›</b> The agent" },
+        {
+          id: "criteria-agent", pick: 0, land: 2.0, show: 2.6, eyebrow: "Setup <b>›</b> The agent",
+          // Card on the criteria rows' empty middle, level with the Model picker (off the lock note).
+          edit: { cardAt: [480, 290] },
+        },
         {
           id: "phases", pick: 1, land: 4.0, show: 4.6, eyebrow: "Setup <b>›</b> Phases",
           // Ring widened to the whole status/advance tag cluster (the landing box cut through

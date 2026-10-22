@@ -74,7 +74,15 @@
       TK.ready(root).then(function () {
         var tl = gsap.timeline({ paused: true });
         var clock = RK.clock(tl, DURATION);
-        var co = TK.callouts(w, shot.callouts); // 1 Shown to entrants · 2 Typed blocks · 3 Guides the agent too
+        // Cards 1 and 2 re-placed over the empty middles of the block rows (page px): card 1 level
+        // with the Description field, its connector pinned low on the ring so it runs under the
+        // Title row's type tag; card 2 sits on the GitHub row with a short upright connector.
+        var list = shot.callouts.map(function (c) { return Object.assign({}, c); });
+        list[0].cardAt = [560, 300];
+        list[0].to = [0, 0.84];
+        list[1].cardAt = [380, 674];
+        list[1].cardAlign = [0, 1];
+        var co = TK.callouts(w, list); // 1 Shown to entrants · 2 Typed blocks · 3 Guides the agent too
 
         // Scene 1 (0.0–1.0): header, then the window rises.
         TK.showHeader(tl, h, 0.05);
