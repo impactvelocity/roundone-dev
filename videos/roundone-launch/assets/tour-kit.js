@@ -284,24 +284,23 @@
       var k = { x: cx, y: cy, w: card.offsetWidth, h: card.offsetHeight };
 
       // Connector: card edge → ring edge (or the ring point `to` names), unless they touch.
-      var kc = { x: k.x + k.w / 2, y: k.y + k.h / 2 };
-      var rc = { x: b.x + b.w / 2, y: b.y + b.h / 2 };
-      var from = edgePoint(k, rc);
-      var to = c.to ? { x: b.x + c.to[0] * b.w, y: b.y + c.to[1] * b.h } : edgePoint(b, kc);
+      // Straight when the two line up, otherwise one right-angle bend.
+      var pts = route(k, b, c.to);
       var line = null;
       var dot = null;
-      if (Math.hypot(to.x - from.x, to.y - from.y) > 16) {
-        line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", from.x);
-        line.setAttribute("y1", from.y);
-        line.setAttribute("x2", to.x);
-        line.setAttribute("y2", to.y);
+      if (pts) {
+        line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        line.setAttribute("d", pathD(pts, 12));
+        line.setAttribute("fill", "none");
         line.setAttribute("stroke", accent);
         line.setAttribute("stroke-width", "3");
         line.setAttribute("stroke-linecap", "round");
-        var len = Math.hypot(to.x - from.x, to.y - from.y);
+        line.setAttribute("stroke-linejoin", "round");
+        w.links.appendChild(line);
+        var len = line.getTotalLength();
         line.setAttribute("stroke-dasharray", len + " " + len);
         line.__len = len;
+        var to = pts[pts.length - 1];
         dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         dot.setAttribute("cx", to.x);
         dot.setAttribute("cy", to.y);
@@ -309,7 +308,6 @@
         dot.setAttribute("fill", accent);
         dot.setAttribute("stroke", "#fff");
         dot.setAttribute("stroke-width", "3");
-        w.links.appendChild(line);
         w.links.appendChild(dot);
       }
       var x0 = Math.min(b.x, k.x);
@@ -328,14 +326,90 @@
     return out;
   }
 
-  function edgePoint(rect, p) {
-    var cx = rect.x + rect.w / 2;
-    var cy = rect.y + rect.h / 2;
-    var dx = p.x - cx;
-    var dy = p.y - cy;
-    if (!dx && !dy) return { x: cx, y: cy };
-    var t = Math.min(Math.abs(rect.w / 2 / dx) || Infinity, Math.abs(rect.h / 2 / dy) || Infinity);
-    return { x: cx + dx * t, y: cy + dy * t };
+  var CARD_EDGE = 28; // keep connectors off the card's rounded corners
+  var RING_EDGE = 18; // …and off the ring's
+
+  function clamp(v, a, z) { return a > z ? (a + z) / 2 : Math.max(a, Math.min(z, v)); }
+
+  /**
+   * Connector points from card k to ring b (page px), or null when they touch.
+   * Straight when the two share a band, otherwise one right angle. `toFrac` ([fx, fy],
+   * 0…1 of the ring) pins the end: on a left/right edge the line arrives level, on a
+   * top/bottom edge it arrives upright.
+   */
+  function route(k, b, toFrac) {
+    var kx1 = k.x + k.w, ky1 = k.y + k.h, bx1 = b.x + b.w, by1 = b.y + b.h;
+    var kcx = k.x + k.w / 2, kcy = k.y + k.h / 2, bcx = b.x + b.w / 2, bcy = b.y + b.h / 2;
+    var GAP = 16;
+    var right = k.x >= bx1 + GAP, left = kx1 <= b.x - GAP, below = k.y >= by1 + GAP, above = ky1 <= b.y - GAP;
+    var t, y, x, sx, sy;
+
+    if (toFrac) {
+      t = { x: b.x + toFrac[0] * b.w, y: b.y + toFrac[1] * b.h };
+      if (toFrac[0] === 0 || toFrac[0] === 1) {
+        // Arrive level. Straight if the card spans t.y, else drop out of the card's top or bottom.
+        sx = kcx > t.x ? k.x : kx1;
+        if (t.y >= k.y + CARD_EDGE && t.y <= ky1 - CARD_EDGE) return [{ x: sx, y: t.y }, t];
+        sx = clamp(t.x, k.x + CARD_EDGE, kx1 - CARD_EDGE);
+        return [{ x: sx, y: t.y < k.y ? k.y : ky1 }, { x: sx, y: t.y }, t];
+      }
+      // Arrive upright. Straight if the card spans t.x, else leave the card's side.
+      if (t.x >= k.x + CARD_EDGE && t.x <= kx1 - CARD_EDGE) return [{ x: t.x, y: kcy > t.y ? k.y : ky1 }, t];
+      sy = clamp(t.y, k.y + CARD_EDGE, ky1 - CARD_EDGE);
+      return [{ x: t.x < k.x ? k.x : kx1, y: sy }, { x: t.x, y: sy }, t];
+    }
+
+    if (right || left) {
+      // Side by side: level line through the band they share, nearest the ring's middle.
+      var ylo = Math.max(k.y + CARD_EDGE, b.y + RING_EDGE), yhi = Math.min(ky1 - CARD_EDGE, by1 - RING_EDGE);
+      if (ylo <= yhi) {
+        y = clamp(bcy, ylo, yhi);
+        return right ? [{ x: k.x, y: y }, { x: bx1, y: y }] : [{ x: kx1, y: y }, { x: b.x, y: y }];
+      }
+    }
+    if (above || below) {
+      // Stacked: upright line through the shared column.
+      var xlo = Math.max(k.x + CARD_EDGE, b.x + RING_EDGE), xhi = Math.min(kx1 - CARD_EDGE, bx1 - RING_EDGE);
+      if (xlo <= xhi) {
+        x = clamp(bcx, xlo, xhi);
+        return below ? [{ x: x, y: k.y }, { x: x, y: by1 }] : [{ x: x, y: ky1 }, { x: x, y: b.y }];
+      }
+    }
+    if (!(right || left || above || below)) return null; // touching or overlapping
+
+    // Offset diagonally: one right angle. Wide rings take the line through their top or
+    // bottom, tall ones through their side.
+    if (b.w >= b.h && (above || below)) {
+      var inset = Math.min(48, b.w / 2);
+      x = clamp(kcx, b.x + inset, bx1 - inset);
+      if (x >= k.x && x <= kx1) x = clamp(x, k.x + 14, kx1 - 14); // grazes the card's corner: go straight
+      if (x >= k.x && x <= kx1) return [{ x: x, y: above ? ky1 : k.y }, { x: x, y: above ? b.y : by1 }];
+      sy = clamp(bcy, k.y + CARD_EDGE, ky1 - CARD_EDGE);
+      return [{ x: x < k.x ? k.x : kx1, y: sy }, { x: x, y: sy }, { x: x, y: above ? b.y : by1 }];
+    }
+    var insetY = Math.min(36, b.h / 2);
+    y = clamp(kcy, b.y + insetY, by1 - insetY);
+    if (y >= k.y && y <= ky1) {
+      y = clamp(y, k.y + 14, ky1 - 14);
+      return right ? [{ x: k.x, y: y }, { x: bx1, y: y }] : [{ x: kx1, y: y }, { x: b.x, y: y }];
+    }
+    sx = clamp(bcx, k.x + CARD_EDGE, kx1 - CARD_EDGE);
+    return [{ x: sx, y: y < k.y ? k.y : ky1 }, { x: sx, y: y }, { x: right ? bx1 : b.x, y: y }];
+  }
+
+  /** SVG path through points, with the bend rounded to radius r. */
+  function pathD(p, r) {
+    var d = "M" + p[0].x + " " + p[0].y;
+    for (var i = 1; i < p.length - 1; i++) {
+      var a = p[i - 1], c = p[i], n = p[i + 1];
+      var l1 = Math.hypot(c.x - a.x, c.y - a.y), l2 = Math.hypot(n.x - c.x, n.y - c.y);
+      var rr = Math.min(r, l1 / 2, l2 / 2);
+      if (!l1 || !l2) continue;
+      d += " L" + (c.x - ((c.x - a.x) / l1) * rr) + " " + (c.y - ((c.y - a.y) / l1) * rr);
+      d += " Q" + c.x + " " + c.y + " " + (c.x + ((n.x - c.x) / l2) * rr) + " " + (c.y + ((n.y - c.y) / l2) * rr);
+    }
+    var z = p[p.length - 1];
+    return d + " L" + z.x + " " + z.y;
   }
 
   /**
