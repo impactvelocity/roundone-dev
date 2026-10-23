@@ -14,5 +14,5 @@ export const PROMO_YOUTUBE_ID = "jPR9Yi5y_S0";
 /** The promo video's length, shown on the TV. Update it with the id. */
 export const PROMO_RUNTIME = "2:37";
 
-/** The demo video's YouTube id. Until it's set, the demo section leaves the video out and opens on the screen tour. */
-export const DEMO_YOUTUBE_ID: string | null = null;
+/** The demo video's YouTube id: https://youtu.be/dMBlbpjEIts. Without one, the demo section leaves the video out and opens on the screen tour. */
+export const DEMO_YOUTUBE_ID: string | null = "dMBlbpjEIts";

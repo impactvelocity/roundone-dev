@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #150C2E; }
+      #root { position: relative; width: 100%; height: 100%; }
+      .full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; object-fit: contain; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="163.98" data-width="1920" data-height="1080">
+      <video id="coldopen" class="clip full" src="assets/coldopen.mp4" data-start="0" data-duration="16.8" data-has-audio="true" data-fade-out="0.4" playsinline data-track-index="0"></video>
+      <div id="tour" data-composition-id="tour" data-composition-src="compositions/tour.html" data-start="16.8" data-duration="142.48" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <video id="endcard" class="clip full" src="assets/endcard.mp4" data-start="159.28" data-duration="4.7" data-has-audio="true" playsinline data-track-index="0"></video>
+      <audio id="music" class="clip" src="assets/music/roundone-bgm.mp3" data-start="16.4" data-duration="143.18" data-media-start="36" data-volume="0.14" data-fade-in="1.2" data-fade-out="0.6" data-track-index="2"></audio>
+      <audio id="vo-setup" class="clip" src="assets/vo/setup.wav" data-start="17.25" data-duration="13.071" data-volume="1" data-track-index="3"></audio>
+      <audio id="vo-submit" class="clip" src="assets/vo/submit.wav" data-start="32.678" data-duration="8.509" data-volume="1" data-track-index="3"></audio>
+      <audio id="vo-sandbox" class="clip" src="assets/vo/sandbox.wav" data-start="43.095" data-duration="11.4" data-volume="1" data-track-index="3"></audio>
+      <audio id="vo-tavily" class="clip" src="assets/vo/tavily.wav" data-start="64.845" data-duration="9.395" data-volume="1" data-track-index="3"></audio>
+      <audio id="vo-verdict" class="clip" src="assets/vo/verdict.wav" data-start="78.027" data-duration="7.174" data-volume="1" data-track-index="3"></audio>
+      <audio id="vo-proof" class="clip" src="assets/vo/proof.wav" data-start="86.598" data-duration="12.598" data-volume="1" data-track-index="3"></audio>
+      <audio id="vo-inbox" class="clip" src="assets/vo/inbox.wav" data-start="101.598" data-duration="16.909" data-volume="1" data-track-index="3"></audio>
+      <audio id="vo-judge" class="clip" src="assets/vo/judge.wav" data-start="119.809" data-duration="8.994" data-volume="1" data-track-index="3"></audio>
+      <audio id="vo-chat" class="clip" src="assets/vo/chat.wav" data-start="133.476" data-duration="7.558" data-volume="1" data-track-index="3"></audio>
+      <audio id="vo-results" class="clip" src="assets/vo/results.wav" data-start="146.814" data-duration="6.303" data-volume="1" data-track-index="3"></audio>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

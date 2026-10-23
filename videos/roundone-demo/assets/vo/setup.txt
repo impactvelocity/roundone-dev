@@ -1,0 +1,1 @@
+This is RoundOne, running on my laptop. For each criterion, I tell the agent how to check it: build the code in a Nebius sandbox, read the live demo with Tavily, and score it with Nemotron.

@@ -1,0 +1,82 @@
+{
+  "coldOpen": { "src": "assets/coldopen.mp4", "duration": 16.8 },
+  "endCard": { "src": "assets/endcard.mp4", "duration": 4.7 },
+  "music": { "src": "assets/music/roundone-bgm.mp3", "mediaStart": 36, "volume": 0.14 },
+  "voDelay": 0.45,
+  "chapters": ["Setup", "The agent", "Judging", "Results"],
+  "segments": [
+    {
+      "id": "setup", "chapter": 0, "eyebrow": "Setup › Criteria", "title": "Tell the agent how to check.",
+      "shots": [
+        { "src": "04-criteria", "from": 4.5, "to": 19.0, "rate": 1.4, "url": "/h/agent-builders-hackathon/setup/criteria", "zoom": [1.45, 1150, 420] },
+        { "src": "04-criteria", "from": 28.5, "to": 35.6, "rate": 1.4, "url": "/h/agent-builders-hackathon/setup/criteria", "zoom": [1.45, 1150, 420] }
+      ]
+    },
+    {
+      "id": "submit", "chapter": 0, "eyebrow": "Setup › Submission form", "title": "A real project comes in.",
+      "shots": [
+        { "src": "02-submit", "from": 1.0, "to": 26.0, "rate": 2.4, "url": "/f/KroC…", "zoom": [1.3, 720, 430] }
+      ]
+    },
+    {
+      "id": "sandbox", "chapter": 1, "eyebrow": "The agent › Nebius Sandbox", "title": "It builds and tests the code.",
+      "shots": [
+        { "src": "03-agent-run", "from": 5.0, "to": 15.0, "rate": 3, "url": "/h/agent-builders-hackathon/judging/projects/1", "zoom": [1, 720, 450] },
+        { "src": "03-agent-run", "from": 15.0, "to": 21.0, "rate": 2, "url": "/h/agent-builders-hackathon/judging/projects/1", "zoom": [1.35, 480, 400] },
+        { "src": "03-agent-run", "from": 21.0, "to": 96.0, "rate": 12, "url": "/h/agent-builders-hackathon/judging/projects/1", "zoom": [1.5, 470, 420] },
+        { "src": "03-agent-run", "from": 96.0, "to": 112.0, "rate": 2.4, "url": "/h/agent-builders-hackathon/judging/projects/1", "zoom": [1.5, 470, 470] },
+        { "src": "03-agent-run", "from": 121.0, "to": 127.0, "rate": 2.4, "url": "/h/agent-builders-hackathon/judging/projects/1", "zoom": [1.5, 470, 420] }
+      ]
+    },
+    {
+      "id": "tavily", "chapter": 1, "eyebrow": "The agent › Tavily", "title": "It reads the live demo.",
+      "shots": [
+        { "src": "03-agent-run", "from": 131.0, "to": 160.0, "rate": 2.2, "url": "/h/agent-builders-hackathon/judging/projects/1", "zoom": [1.5, 470, 430] }
+      ]
+    },
+    {
+      "id": "verdict", "chapter": 1, "eyebrow": "The agent › Review", "title": "It checks. People judge.",
+      "shots": [
+        { "src": "03-agent-run", "from": 169.0, "to": 181.0, "rate": 1.4, "url": "/h/agent-builders-hackathon/judging/projects/1", "zoom": [1.3, 520, 380] }
+      ]
+    },
+    {
+      "id": "proof", "chapter": 1, "eyebrow": "The agent › Server log", "title": "Every call is real.", "proof": true,
+      "shots": [
+        { "src": "10a-proof-app", "pair": "10b-proof-terminal", "from": 12.0, "to": 44.0, "rate": 8, "url": "/h/agent-builders-hackathon/judging/projects/1" },
+        { "src": "10b-proof-terminal", "from": 44.0, "to": 88.0, "rate": 4, "terminal": true }
+      ]
+    },
+    {
+      "id": "inbox", "chapter": 2, "eyebrow": "Judging › Inbox", "title": "A person makes the call.",
+      "shots": [
+        { "src": "05-start-judging", "from": 3.0, "to": 17.0, "rate": 2.8, "url": "/h/agent-builders-hackathon/judging/progress", "zoom": [1, 720, 450] },
+        { "src": "06-inbox", "from": 2.5, "to": 12.0, "rate": 1.6, "url": "/h/agent-builders-hackathon/judging/progress", "zoom": [1.4, 1150, 400] },
+        { "src": "06-inbox", "from": 13.0, "to": 29.0, "rate": 2.2, "url": "/h/agent-builders-hackathon/judging/progress", "zoom": [1.25, 980, 420] }
+      ]
+    },
+    {
+      "id": "judge", "chapter": 2, "eyebrow": "Judging › Judge portal", "title": "Judges score the idea.",
+      "shots": [
+        { "src": "07-judge", "from": 1.0, "to": 9.0, "rate": 3, "url": "/j/d79c…", "zoom": [1.25, 600, 380] },
+        { "src": "07-judge", "from": 16.0, "to": 37.0, "rate": 3.5, "url": "/j/d79c…", "zoom": [1.5, 1170, 470] },
+        { "src": "07-judge", "from": 39.0, "to": 48.0, "rate": 1.8, "url": "/j/d79c…", "zoom": [1.5, 1170, 430] }
+      ]
+    },
+    {
+      "id": "chat", "chapter": 2, "eyebrow": "Judging › Chat", "title": "Ask across every project.",
+      "shots": [
+        { "src": "08-chat", "from": 2.0, "to": 14.0, "rate": 3.5, "url": "/h/agent-builders-hackathon/judging/chat", "zoom": [1.3, 820, 520] },
+        { "src": "08-chat", "from": 14.0, "to": 27.0, "rate": 2.2, "url": "/h/agent-builders-hackathon/judging/chat", "zoom": [1.35, 820, 400] },
+        { "src": "08-chat", "from": 34.0, "to": 40.0, "rate": 1.5, "url": "/h/agent-builders-hackathon/judging/chat", "zoom": [1.35, 820, 420] }
+      ]
+    },
+    {
+      "id": "results", "chapter": 3, "eyebrow": "Results › Winners", "title": "Publish the winners.",
+      "shots": [
+        { "src": "09a-close-phase", "from": 8.5, "to": 19.5, "rate": 2.4, "url": "/h/agent-builders-hackathon/judging/progress", "zoom": [1.2, 720, 360] },
+        { "src": "09b-publish-winners", "from": 13.0, "to": 33.0, "rate": 2.4, "url": "/w/agent-builders-hackathon", "zoom": [1.15, 720, 420] }
+      ]
+    }
+  ]
+}

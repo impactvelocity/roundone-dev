@@ -1,0 +1,232 @@
+<template>
+  <style>
+    @font-face{font-family:"GeistPixelSquare";font-weight:500;font-style:normal;font-display:block;src:url("assets/fonts/GeistPixelSquare.woff2") format("woff2");}
+    @font-face{font-family:"GeistSans";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistSans-Variable.woff2") format("woff2");}
+    @font-face{font-family:"GeistMono";font-weight:100 900;font-style:normal;font-display:block;src:url("assets/fonts/GeistMono-Variable.woff2") format("woff2");}
+    #root { position: absolute; inset: 0; overflow: hidden; background-color: #FAF8FF;
+      background-image: radial-gradient(circle at 1px 1px, rgba(124,58,237,0.10) 1.4px, transparent 1.6px); background-size: 32px 32px;
+      font-family: "GeistSans", sans-serif; color: #1D1433; }
+    .hdr { position: absolute; left: 120px; top: 50px; width: 1100px; height: 130px; }
+    .hdr .eb { font: 600 20px/1 "GeistMono", monospace; letter-spacing: 0.2em; text-transform: uppercase; color: #7C3AED; }
+    .hdr .ti { margin-top: 18px; font: 500 60px/1.05 "GeistPixelSquare", sans-serif; color: #1D1433; white-space: nowrap; }
+    #steps { position: absolute; right: 120px; top: 70px; display: flex; gap: 6px; padding: 6px; border-radius: 14px; background: #FFFFFF; box-shadow: 0 1px 0 rgba(29,20,51,0.06), 0 8px 24px rgba(29,20,51,0.08); }
+    .step { position: relative; padding: 10px 18px; border-radius: 9px; font: 600 19px/1 "GeistSans", sans-serif; }
+    .step .fill { position: absolute; inset: 0; border-radius: 9px; background: #1D1433; opacity: 0; }
+    .step .lbl { position: relative; color: #6F6588; }
+    .window { position: absolute; border-radius: 14px; overflow: hidden; background: #FFFFFF; box-shadow: 0 2px 0 rgba(29,20,51,0.05), 0 30px 70px rgba(29,20,51,0.18); border: 1px solid rgba(29,20,51,0.08); }
+    #win { left: 160px; top: 190px; width: 1600px; height: 1044px; }
+    .bar { position: relative; height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 16px; background: #F3F0FA; border-bottom: 1px solid rgba(29,20,51,0.08); }
+    .bar .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .addr { position: absolute; left: 50%; top: 8px; width: 760px; height: 28px; margin-left: -380px; border-radius: 8px; background: #FFFFFF; border: 1px solid rgba(29,20,51,0.08); }
+    .url { position: absolute; left: 0; right: 0; top: 0; height: 28px; line-height: 28px; text-align: center; font: 500 16px "GeistMono", monospace; color: #564B70; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .speed { position: absolute; right: 16px; top: 9px; height: 26px; padding: 0 10px; border-radius: 7px; background: #1D1433; color: #F7F2FF; font: 500 15px/26px "GeistMono", monospace; }
+    .speed b { font-weight: 700; color: #FBBF24; }
+    .speed-proof { top: 199px; right: 176px; z-index: 6; }
+    #vp { position: relative; width: 1600px; height: 1000px; overflow: hidden; background: #FAF8FF; }
+    #cam { position: absolute; left: 0; top: 0; width: 1600px; height: 1000px; transform-origin: 0 0; }
+    .shot { position: absolute; left: 0; top: 0; width: 1600px; height: 1000px; object-fit: fill; }
+    #pa { left: 120px; top: 230px; width: 960px; height: 644px; opacity: 0; }
+    #pa .pvp { position: relative; width: 960px; height: 600px; overflow: hidden; }
+    .pa-video { position: absolute; left: 0; top: 0; width: 960px; height: 600px; }
+    #pt { left: 160px; top: 190px; width: 1600px; height: 890px; background: #0F0B1A; border-color: #2C2448; transform-origin: 0 0; opacity: 0; z-index: 4; }
+    #pt .bar { background: #1B1530; border-bottom-color: #2C2448; color: #A99FC9; font: 500 17px "GeistMono", monospace; }
+    #pt .pvp { position: relative; width: 1600px; height: 846px; overflow: hidden; }
+    .pt-video { position: absolute; left: -10px; top: -65px; width: 1700px; height: 1530px; }
+    .legend { position: absolute; left: 140px; bottom: 30px; display: flex; gap: 12px; z-index: 6; }
+    .legend > div { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 20px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 10px 30px rgba(15,11,26,0.35); font: 600 25px/1 "GeistSans", sans-serif; color: #1D1433; }
+    .legend code { font: 500 21px "GeistMono", monospace; color: #564B70; }
+    .legend i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+    #flood { position: absolute; inset: 0; background: #150C2E; z-index: 9; }
+  </style>
+  <div id="root" data-composition-id="tour" data-width="1920" data-height="1080">
+    <div id="h-setup" class="clip hdr" data-start="0" data-duration="15.428">
+        <div class="eb">Setup › Criteria</div>
+        <div class="ti">Tell the agent how to check.</div>
+      </div>
+    <div id="h-submit" class="clip hdr" data-start="15.428" data-duration="10.417">
+        <div class="eb">Setup › Submission form</div>
+        <div class="ti">A real project comes in.</div>
+      </div>
+    <div id="h-sandbox" class="clip hdr" data-start="25.845" data-duration="21.75">
+        <div class="eb">The agent › Nebius Sandbox</div>
+        <div class="ti">It builds and tests the code.</div>
+      </div>
+    <div id="h-tavily" class="clip hdr" data-start="47.595" data-duration="13.182">
+        <div class="eb">The agent › Tavily</div>
+        <div class="ti">It reads the live demo.</div>
+      </div>
+    <div id="h-verdict" class="clip hdr" data-start="60.777" data-duration="8.571">
+        <div class="eb">The agent › Review</div>
+        <div class="ti">It checks. People judge.</div>
+      </div>
+    <div id="h-proof" class="clip hdr" data-start="69.348" data-duration="15">
+        <div class="eb">The agent › Server log</div>
+        <div class="ti">Every call is real.</div>
+      </div>
+    <div id="h-inbox" class="clip hdr" data-start="84.348" data-duration="18.211">
+        <div class="eb">Judging › Inbox</div>
+        <div class="ti">A person makes the call.</div>
+      </div>
+    <div id="h-judge" class="clip hdr" data-start="102.559" data-duration="13.667">
+        <div class="eb">Judging › Judge portal</div>
+        <div class="ti">Judges score the idea.</div>
+      </div>
+    <div id="h-chat" class="clip hdr" data-start="116.226" data-duration="13.338">
+        <div class="eb">Judging › Chat</div>
+        <div class="ti">Ask across every project.</div>
+      </div>
+    <div id="h-results" class="clip hdr" data-start="129.564" data-duration="12.916">
+        <div class="eb">Results › Winners</div>
+        <div class="ti">Publish the winners.</div>
+      </div>
+    <div id="steps"><div id="step-0" class="step"><span class="fill"></span><span class="lbl">Setup</span></div><div id="step-1" class="step"><span class="fill"></span><span class="lbl">The agent</span></div><div id="step-2" class="step"><span class="fill"></span><span class="lbl">Judging</span></div><div id="step-3" class="step"><span class="fill"></span><span class="lbl">Results</span></div></div>
+    <div id="win" class="window" data-layout-allow-overflow>
+      <div class="bar" data-layout-ignore><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span>
+        <div class="addr"><span id="u-setup-1" class="clip url" data-start="0" data-duration="10.357">localhost:3000/h/agent-builders-hackathon/setup/criteria</span><span id="u-setup-2" class="clip url" data-start="10.357" data-duration="5.071">localhost:3000/h/agent-builders-hackathon/setup/criteria</span><span id="u-submit-1" class="clip url" data-start="15.428" data-duration="10.417">localhost:3000/f/KroC…</span><span id="u-sandbox-1" class="clip url" data-start="25.845" data-duration="3.333">localhost:3000/h/agent-builders-hackathon/judging/projects/1</span><span id="u-sandbox-2" class="clip url" data-start="29.178" data-duration="3">localhost:3000/h/agent-builders-hackathon/judging/projects/1</span><span id="u-sandbox-3" class="clip url" data-start="32.178" data-duration="6.25">localhost:3000/h/agent-builders-hackathon/judging/projects/1</span><span id="u-sandbox-4" class="clip url" data-start="38.428" data-duration="6.667">localhost:3000/h/agent-builders-hackathon/judging/projects/1</span><span id="u-sandbox-5" class="clip url" data-start="45.095" data-duration="2.5">localhost:3000/h/agent-builders-hackathon/judging/projects/1</span><span id="u-tavily-1" class="clip url" data-start="47.595" data-duration="13.182">localhost:3000/h/agent-builders-hackathon/judging/projects/1</span><span id="u-verdict-1" class="clip url" data-start="60.777" data-duration="8.571">localhost:3000/h/agent-builders-hackathon/judging/projects/1</span><span id="u-proof-1" class="clip url" data-start="69.348" data-duration="4">localhost:3000/h/agent-builders-hackathon/judging/projects/1</span><span id="u-inbox-1" class="clip url" data-start="84.348" data-duration="5">localhost:3000/h/agent-builders-hackathon/judging/progress</span><span id="u-inbox-2" class="clip url" data-start="89.348" data-duration="5.938">localhost:3000/h/agent-builders-hackathon/judging/progress</span><span id="u-inbox-3" class="clip url" data-start="95.286" data-duration="7.273">localhost:3000/h/agent-builders-hackathon/judging/progress</span><span id="u-judge-1" class="clip url" data-start="102.559" data-duration="2.667">localhost:3000/j/d79c…</span><span id="u-judge-2" class="clip url" data-start="105.226" data-duration="6">localhost:3000/j/d79c…</span><span id="u-judge-3" class="clip url" data-start="111.226" data-duration="5">localhost:3000/j/d79c…</span><span id="u-chat-1" class="clip url" data-start="116.226" data-duration="3.429">localhost:3000/h/agent-builders-hackathon/judging/chat</span><span id="u-chat-2" class="clip url" data-start="119.655" data-duration="5.909">localhost:3000/h/agent-builders-hackathon/judging/chat</span><span id="u-chat-3" class="clip url" data-start="125.564" data-duration="4">localhost:3000/h/agent-builders-hackathon/judging/chat</span><span id="u-results-1" class="clip url" data-start="129.564" data-duration="4.583">localhost:3000/h/agent-builders-hackathon/judging/progress</span><span id="u-results-2" class="clip url" data-start="134.147" data-duration="8.333">localhost:3000/w/agent-builders-hackathon</span></div>
+        <span id="s-setup-1" class="clip speed" data-start="0" data-duration="10.357"><b>1.4×</b> speed</span>
+        <span id="s-setup-2" class="clip speed" data-start="10.357" data-duration="5.071"><b>1.4×</b> speed</span>
+        <span id="s-submit-1" class="clip speed" data-start="15.428" data-duration="10.417"><b>2.4×</b> speed</span>
+        <span id="s-sandbox-1" class="clip speed" data-start="25.845" data-duration="3.333"><b>3×</b> speed</span>
+        <span id="s-sandbox-2" class="clip speed" data-start="29.178" data-duration="3"><b>2×</b> speed</span>
+        <span id="s-sandbox-3" class="clip speed" data-start="32.178" data-duration="6.25"><b>12×</b> speed</span>
+        <span id="s-sandbox-4" class="clip speed" data-start="38.428" data-duration="6.667"><b>2.4×</b> speed</span>
+        <span id="s-sandbox-5" class="clip speed" data-start="45.095" data-duration="2.5"><b>2.4×</b> speed</span>
+        <span id="s-tavily-1" class="clip speed" data-start="47.595" data-duration="13.182"><b>2.2×</b> speed</span>
+        <span id="s-verdict-1" class="clip speed" data-start="60.777" data-duration="8.571"><b>1.4×</b> speed</span>
+        <span id="s-inbox-1" class="clip speed" data-start="84.348" data-duration="5"><b>2.8×</b> speed</span>
+        <span id="s-inbox-2" class="clip speed" data-start="89.348" data-duration="5.938"><b>1.6×</b> speed</span>
+        <span id="s-inbox-3" class="clip speed" data-start="95.286" data-duration="7.273"><b>2.2×</b> speed</span>
+        <span id="s-judge-1" class="clip speed" data-start="102.559" data-duration="2.667"><b>3×</b> speed</span>
+        <span id="s-judge-2" class="clip speed" data-start="105.226" data-duration="6"><b>3.5×</b> speed</span>
+        <span id="s-judge-3" class="clip speed" data-start="111.226" data-duration="5"><b>1.8×</b> speed</span>
+        <span id="s-chat-1" class="clip speed" data-start="116.226" data-duration="3.429"><b>3.5×</b> speed</span>
+        <span id="s-chat-2" class="clip speed" data-start="119.655" data-duration="5.909"><b>2.2×</b> speed</span>
+        <span id="s-chat-3" class="clip speed" data-start="125.564" data-duration="4"><b>1.5×</b> speed</span>
+        <span id="s-results-1" class="clip speed" data-start="129.564" data-duration="4.583"><b>2.4×</b> speed</span>
+        <span id="s-results-2" class="clip speed" data-start="134.147" data-duration="8.333"><b>2.4×</b> speed</span>
+      </div>
+      <div id="vp"><div id="cam">
+        <video id="v-setup-1" class="clip shot" src="assets/live/04-criteria.mp4" data-start="0" data-duration="10.357" data-media-start="4.5" data-playback-rate="1.4" muted playsinline></video>
+        <video id="v-setup-2" class="clip shot" src="assets/live/04-criteria.mp4" data-start="10.357" data-duration="5.071" data-media-start="28.5" data-playback-rate="1.4" muted playsinline></video>
+        <video id="v-submit-1" class="clip shot" src="assets/live/02-submit.mp4" data-start="15.428" data-duration="10.417" data-media-start="1" data-playback-rate="2.4" muted playsinline></video>
+        <video id="v-sandbox-1" class="clip shot" src="assets/live/03-agent-run.mp4" data-start="25.845" data-duration="3.333" data-media-start="5" data-playback-rate="3" muted playsinline></video>
+        <video id="v-sandbox-2" class="clip shot" src="assets/live/03-agent-run.mp4" data-start="29.178" data-duration="3" data-media-start="15" data-playback-rate="2" muted playsinline></video>
+        <video id="v-sandbox-3" class="clip shot" src="assets/live/03-agent-run.mp4" data-start="32.178" data-duration="6.25" data-media-start="21" data-playback-rate="12" muted playsinline></video>
+        <video id="v-sandbox-4" class="clip shot" src="assets/live/03-agent-run.mp4" data-start="38.428" data-duration="6.667" data-media-start="96" data-playback-rate="2.4" muted playsinline></video>
+        <video id="v-sandbox-5" class="clip shot" src="assets/live/03-agent-run.mp4" data-start="45.095" data-duration="2.5" data-media-start="121" data-playback-rate="2.4" muted playsinline></video>
+        <video id="v-tavily-1" class="clip shot" src="assets/live/03-agent-run.mp4" data-start="47.595" data-duration="13.182" data-media-start="131" data-playback-rate="2.2" muted playsinline></video>
+        <video id="v-verdict-1" class="clip shot" src="assets/live/03-agent-run.mp4" data-start="60.777" data-duration="8.571" data-media-start="169" data-playback-rate="1.4" muted playsinline></video>
+        <video id="v-inbox-1" class="clip shot" src="assets/live/05-start-judging.mp4" data-start="84.348" data-duration="5" data-media-start="3" data-playback-rate="2.8" muted playsinline></video>
+        <video id="v-inbox-2" class="clip shot" src="assets/live/06-inbox.mp4" data-start="89.348" data-duration="5.938" data-media-start="2.5" data-playback-rate="1.6" muted playsinline></video>
+        <video id="v-inbox-3" class="clip shot" src="assets/live/06-inbox.mp4" data-start="95.286" data-duration="7.273" data-media-start="13" data-playback-rate="2.2" muted playsinline></video>
+        <video id="v-judge-1" class="clip shot" src="assets/live/07-judge.mp4" data-start="102.559" data-duration="2.667" data-media-start="1" data-playback-rate="3" muted playsinline></video>
+        <video id="v-judge-2" class="clip shot" src="assets/live/07-judge.mp4" data-start="105.226" data-duration="6" data-media-start="16" data-playback-rate="3.5" muted playsinline></video>
+        <video id="v-judge-3" class="clip shot" src="assets/live/07-judge.mp4" data-start="111.226" data-duration="5" data-media-start="39" data-playback-rate="1.8" muted playsinline></video>
+        <video id="v-chat-1" class="clip shot" src="assets/live/08-chat.mp4" data-start="116.226" data-duration="3.429" data-media-start="2" data-playback-rate="3.5" muted playsinline></video>
+        <video id="v-chat-2" class="clip shot" src="assets/live/08-chat.mp4" data-start="119.655" data-duration="5.909" data-media-start="14" data-playback-rate="2.2" muted playsinline></video>
+        <video id="v-chat-3" class="clip shot" src="assets/live/08-chat.mp4" data-start="125.564" data-duration="4" data-media-start="34" data-playback-rate="1.5" muted playsinline></video>
+        <video id="v-results-1" class="clip shot" src="assets/live/09a-close-phase.mp4" data-start="129.564" data-duration="4.583" data-media-start="8.5" data-playback-rate="2.4" muted playsinline></video>
+        <video id="v-results-2" class="clip shot" src="assets/live/09b-publish-winners.mp4" data-start="134.147" data-duration="8.333" data-media-start="13" data-playback-rate="2.4" muted playsinline></video>
+      </div></div>
+    </div>
+    <div id="pa" class="window">
+      <div class="bar" data-layout-ignore><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span>
+        <div class="addr" style="width:520px;margin-left:-260px"><span class="url">localhost:3000/h/agent-builders-hackathon/judging/projects/1</span></div></div>
+      <div class="pvp"><video id="pa-proof-1" class="clip pa-video" src="assets/live/10a-proof-app.mp4" data-start="69.348" data-duration="4" data-media-start="12" data-playback-rate="8" muted playsinline></video></div>
+    </div>
+    <div id="pt" class="window">
+      <div class="bar" data-layout-ignore><span class="dot" style="background:#FF5F57"></span><span class="dot" style="background:#FEBC2E"></span><span class="dot" style="background:#28C840"></span>&nbsp;&nbsp;roundone — pnpm dev (NODE_DEBUG=fetch) · live, during the review</div>
+      <div class="pvp"><video id="pt-proof-1" class="clip pt-video" src="assets/live/10b-proof-terminal.mp4" data-start="69.348" data-duration="4" data-media-start="12" data-playback-rate="8" muted playsinline></video><video id="pt-proof-2" class="clip pt-video" src="assets/live/10b-proof-terminal.mp4" data-start="73.348" data-duration="11" data-media-start="44" data-playback-rate="4" muted playsinline></video></div>
+    </div>
+    <div class="legend">
+      <div><i style="background:#7C3AED"></i>Nemotron on Nebius Token Factory <code>/v1/chat/completions</code></div>
+      <div><i style="background:#76B900"></i>Nebius Sandboxes <code>/sandboxes/v1</code></div>
+      <div><i style="background:#2DD4BF"></i>Tavily <code>api.tavily.com</code></div>
+    </div>
+    <span id="s-proof-1" class="clip speed speed-proof" data-start="69.348" data-duration="4"><b>8×</b> speed</span>
+    <span id="s-proof-2" class="clip speed speed-proof" data-start="73.348" data-duration="11"><b>4×</b> speed</span>
+    <div id="flood"></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#flood", { opacity: 1 }, { opacity: 0, duration: 0.45, ease: "power2.inOut" }, 0);
+    tl.fromTo("#win", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 0.15);
+    tl.fromTo("#steps", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.3);
+    tl.fromTo("#h-setup .eb", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 0.35);
+    tl.fromTo("#h-setup .ti", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.42);
+    tl.to("#h-setup .eb, #h-setup .ti", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 15.248);
+    tl.fromTo("#h-submit .eb", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 15.478);
+    tl.fromTo("#h-submit .ti", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 15.548);
+    tl.to("#h-submit .eb, #h-submit .ti", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 25.665);
+    tl.fromTo("#h-sandbox .eb", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 25.895);
+    tl.fromTo("#h-sandbox .ti", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 25.965);
+    tl.to("#h-sandbox .eb, #h-sandbox .ti", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 47.415);
+    tl.fromTo("#h-tavily .eb", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 47.645);
+    tl.fromTo("#h-tavily .ti", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 47.715);
+    tl.to("#h-tavily .eb, #h-tavily .ti", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 60.597);
+    tl.fromTo("#h-verdict .eb", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 60.827);
+    tl.fromTo("#h-verdict .ti", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 60.897);
+    tl.to("#h-verdict .eb, #h-verdict .ti", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 69.168);
+    tl.fromTo("#h-proof .eb", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 69.398);
+    tl.fromTo("#h-proof .ti", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 69.468);
+    tl.to("#h-proof .eb, #h-proof .ti", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 84.168);
+    tl.fromTo("#h-inbox .eb", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 84.398);
+    tl.fromTo("#h-inbox .ti", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 84.468);
+    tl.to("#h-inbox .eb, #h-inbox .ti", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 102.379);
+    tl.fromTo("#h-judge .eb", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 102.609);
+    tl.fromTo("#h-judge .ti", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 102.679);
+    tl.to("#h-judge .eb, #h-judge .ti", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 116.046);
+    tl.fromTo("#h-chat .eb", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 116.276);
+    tl.fromTo("#h-chat .ti", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 116.346);
+    tl.to("#h-chat .eb, #h-chat .ti", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 129.384);
+    tl.fromTo("#h-results .eb", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 129.614);
+    tl.fromTo("#h-results .ti", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 129.684);
+    tl.to("#h-results .eb, #h-results .ti", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 142.3);
+    tl.fromTo("#step-0 .fill", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.inOut", immediateRender: false }, 0.3); tl.to("#step-0 .lbl", { color: "#FFFFFF", duration: 0.3 }, 0.3);
+    tl.to("#step-0 .fill", { opacity: 0, duration: 0.3, ease: "power2.inOut" }, 25.845); tl.to("#step-0 .lbl", { color: "#6F6588", duration: 0.3 }, 25.845);
+    tl.fromTo("#step-1 .fill", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.inOut", immediateRender: false }, 25.845); tl.to("#step-1 .lbl", { color: "#FFFFFF", duration: 0.3 }, 25.845);
+    tl.to("#step-1 .fill", { opacity: 0, duration: 0.3, ease: "power2.inOut" }, 84.348); tl.to("#step-1 .lbl", { color: "#6F6588", duration: 0.3 }, 84.348);
+    tl.fromTo("#step-2 .fill", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.inOut", immediateRender: false }, 84.348); tl.to("#step-2 .lbl", { color: "#FFFFFF", duration: 0.3 }, 84.348);
+    tl.to("#step-2 .fill", { opacity: 0, duration: 0.3, ease: "power2.inOut" }, 129.564); tl.to("#step-2 .lbl", { color: "#6F6588", duration: 0.3 }, 129.564);
+    tl.fromTo("#step-3 .fill", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.inOut", immediateRender: false }, 129.564); tl.to("#step-3 .lbl", { color: "#FFFFFF", duration: 0.3 }, 129.564);
+    tl.set("#cam", { scale: 1, x: 0, y: 0 }, 0);
+    tl.to("#cam", { scale: 1.45, x: -720, y: -253.667, duration: 0.9, ease: "power2.inOut" }, 0.5);
+    tl.set("#cam", { scale: 1, x: 0, y: 0 }, 15.428);
+    tl.to("#cam", { scale: 1.3, x: -240, y: -198.111, duration: 0.9, ease: "power2.inOut" }, 15.928);
+    tl.set("#cam", { scale: 1, x: 0, y: 0 }, 25.845);
+    tl.to("#cam", { scale: 1.35, x: 0, y: -177, duration: 0.8, ease: "power2.inOut" }, 29.178);
+    tl.to("#cam", { scale: 1.5, x: 0, y: -277, duration: 0.8, ease: "power2.inOut" }, 32.178);
+    tl.to("#cam", { scale: 1.5, x: 0, y: -360.333, duration: 0.8, ease: "power2.inOut" }, 38.428);
+    tl.to("#cam", { scale: 1.5, x: 0, y: -277, duration: 0.8, ease: "power2.inOut" }, 45.095);
+    tl.set("#cam", { scale: 1, x: 0, y: 0 }, 47.595);
+    tl.to("#cam", { scale: 1.5, x: 0, y: -293.667, duration: 0.9, ease: "power2.inOut" }, 48.095);
+    tl.set("#cam", { scale: 1, x: 0, y: 0 }, 60.777);
+    tl.to("#cam", { scale: 1.3, x: 0, y: -125.889, duration: 0.9, ease: "power2.inOut" }, 61.277);
+    tl.set("#cam", { scale: 1, x: 0, y: 0 }, 84.348);
+    tl.set("#cam", { scale: 1, x: 0, y: 0 }, 89.348);
+    tl.to("#cam", { scale: 1.4, x: -640, y: -199.222, duration: 0.9, ease: "power2.inOut" }, 89.848);
+    tl.to("#cam", { scale: 1.25, x: -400, y: -160.333, duration: 0.8, ease: "power2.inOut" }, 95.286);
+    tl.set("#cam", { scale: 1, x: 0, y: 0 }, 102.559);
+    tl.to("#cam", { scale: 1.25, x: -33.333, y: -104.778, duration: 0.9, ease: "power2.inOut" }, 103.059);
+    tl.to("#cam", { scale: 1.5, x: -800, y: -360.333, duration: 0.8, ease: "power2.inOut" }, 105.226);
+    tl.to("#cam", { scale: 1.5, x: -800, y: -293.667, duration: 0.8, ease: "power2.inOut" }, 111.226);
+    tl.set("#cam", { scale: 1, x: 0, y: 0 }, 116.226);
+    tl.to("#cam", { scale: 1.3, x: -384.444, y: -328.111, duration: 0.9, ease: "power2.inOut" }, 116.726);
+    tl.to("#cam", { scale: 1.35, x: -430, y: -177, duration: 0.8, ease: "power2.inOut" }, 119.655);
+    tl.to("#cam", { scale: 1.35, x: -430, y: -207, duration: 0.8, ease: "power2.inOut" }, 125.564);
+    tl.set("#cam", { scale: 1, x: 0, y: 0 }, 129.564);
+    tl.to("#cam", { scale: 1.2, x: -160, y: -57, duration: 0.9, ease: "power2.inOut" }, 130.064);
+    tl.set("#cam", { scale: 1, x: 0, y: 0 }, 134.147);
+    tl.to("#cam", { scale: 1.15, x: -120, y: -113.667, duration: 0.9, ease: "power2.inOut" }, 134.647);
+    tl.to("#win", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power3.in" }, 69.298);
+    tl.fromTo("#pa", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.25, ease: "power4.out" }, 69.448);
+    tl.fromTo("#pt", { opacity: 0, x: 950, y: 40, scale: 0.43 }, { opacity: 1, duration: 0.25, ease: "power4.out" }, 69.548);
+    tl.to("#pa", { x: -260, opacity: 0, filter: "blur(10px)", duration: 0.55, ease: "power3.in" }, 72.998);
+    tl.to("#pt", { x: 0, y: 0, scale: 1, duration: 0.7, ease: "power3.inOut" }, 72.998);
+    tl.fromTo(".legend > div", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: "expo.out", stagger: 0.12 }, 73.948);
+    tl.to("#pt, .legend", { opacity: 0, filter: "blur(8px)", duration: 0.18, ease: "power3.in" }, 84.148);
+    tl.to("#win", { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 84.348);
+    tl.fromTo("#flood", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.in", immediateRender: false }, 142.18);
+    window.__timelines["tour"] = tl;
+  </script>
+</template>

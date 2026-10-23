@@ -59,3 +59,12 @@ next-env.d.ts
 /videos/*/snapshots/
 /videos/*/renders/
 /videos/*/.capture-result.json
+/videos/*/.thumbnails/
+/videos/*/.waveform-cache/
+/videos/*/build.log
+
+# Footage and voiceover takes under videos/ (large; recorded or rendered, not source)
+/videos/**/*.mp4
+/videos/**/*.mov
+/videos/**/*.webm
+/videos/**/*.wav

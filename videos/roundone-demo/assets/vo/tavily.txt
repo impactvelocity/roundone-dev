@@ -1,0 +1,1 @@
+Next, it reads the live demo with Tavily, crawls a few pages deeper, and searches the web to check the team's claims against what's already out there.

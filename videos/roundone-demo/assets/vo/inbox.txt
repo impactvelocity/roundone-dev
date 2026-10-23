@@ -1,0 +1,1 @@
+When I start judging, the agent reviews every project. Dolly fails the must-pass MCP check, so it lands in my inbox. It's a judgment call. WebMCP counts here, so I put it back in the pool, and the call goes on the audit trail.

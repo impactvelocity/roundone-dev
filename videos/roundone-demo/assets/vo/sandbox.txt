@@ -1,0 +1,1 @@
+I start the agent. It clones the repo into a Nebius sandbox, installs it, builds it, and runs the tests. Every command and its output lands right here, as it happens.

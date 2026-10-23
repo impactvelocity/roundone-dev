@@ -1,0 +1,12 @@
+{
+  "setup": "This is RoundOne, running on my laptop. For each criterion, I tell the agent how to check it: build the code in a Nebius sandbox, read the live demo with Tavily, and score it with Nemotron.",
+  "submit": "Teams submit through a public form built from my rubric. Here's a real one: Hey Trivi, with its repo, live demo, and video.",
+  "sandbox": "I start the agent. It clones the repo into a Nebius sandbox, installs it, builds it, and runs the tests. Every command and its output lands right here, as it happens.",
+  "tavily": "Next, it reads the live demo with Tavily, crawls a few pages deeper, and searches the web to check the team's claims against what's already out there.",
+  "verdict": "Nemotron scores every criterion with evidence. It checks and summarizes. It doesn't pick winners.",
+  "proof": "And it's all real. Here's the server log during that run: Nemotron calls through Nebius Token Factory, sandbox calls to the Nebius Sandboxes API, and Tavily reading the web.",
+  "inbox": "When I start judging, the agent reviews every project. Dolly fails the must-pass MCP check, so it lands in my inbox. It's a judgment call. WebMCP counts here, so I put it back in the pool, and the call goes on the audit trail.",
+  "judge": "Judges get a private link and score the idea. Only after they submit do they see the agent's score, and a big gap gets pointed out.",
+  "chat": "I can ask across every project. Nemotron reads the submissions, and Tavily searches the web for anything similar.",
+  "results": "When the round closes, RoundOne ranks the projects. I publish the winners, and the page is live."
+}
